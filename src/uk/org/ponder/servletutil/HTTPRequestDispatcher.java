@@ -7,9 +7,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.logging.Level;
 
 import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.streamutil.StreamUtil;
+import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -29,7 +31,6 @@ public class HTTPRequestDispatcher {
   }
 
   public Object handleRequest(String requestURL, Object arg) {
-
     try {
       URL URL = new URL(requestURL);
       URLConnection huc = URL.openConnection();
@@ -40,6 +41,8 @@ public class HTTPRequestDispatcher {
       try {
         os = huc.getOutputStream();
         xmlprovider.writeXML(arg, os);
+        String debugstring = xmlprovider.toString(arg);
+        Logger.log.log(Level.INFO, "HTTPRequestDispatcher sending data:\n" + debugstring);
       }
       finally {
         StreamUtil.closeOutputStream(os);
@@ -49,6 +52,13 @@ public class HTTPRequestDispatcher {
       try {
         is = huc.getInputStream();
         Object togo = xmlprovider.readXML(null, is);
+        if (togo instanceof ErrorObject) {
+          ErrorObject error = (ErrorObject) togo;
+          Logger.log.log(Level.WARNING, "Remote exception intercepted in HTTPRequestDispatcher:\n" + error.message + 
+              error.stacktrace.pack());
+          throw new UniversalRuntimeException("Remote exception occurred during dispatching: " + error.message);
+          
+        }
         return togo;
       }
       finally {

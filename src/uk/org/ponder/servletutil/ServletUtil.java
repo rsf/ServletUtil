@@ -6,41 +6,13 @@ package uk.org.ponder.servletutil;
 import javax.servlet.http.HttpServletRequest;
 
 import uk.org.ponder.util.UniversalRuntimeException;
+import uk.org.ponder.webapputil.ConsumerRequestInfo;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
 public class ServletUtil {
-  private static ThreadLocal requestconsumerURLbase = new ThreadLocal();
-  private static ThreadLocal rcresourceURLbase = new ThreadLocal();
-  /** Set a thread-local state corresponding to the URL base required
-   * for URLs holding dynamic content written to a remote consumer during 
-   * this request cycle. This URL includes a trailing slash.
-   */
-  public static void setRequestConsumerURLBase(String urlbase) {
-    requestconsumerURLbase.set(urlbase);
-  }
-  
-  public static String getRequestConsumerURLBase() {
-    return (String) requestconsumerURLbase.get();
-  }
-
-  /** Set a thread-local state corresponding to the URL base required
-   * for statically served resource URLs written to a remote consumer 
-   * during this request cycle. Note that this may not refer to the same
-   * webapp or machine as the URL base above. We don't expect requests
-   * for these URLs to pass through the dispatch of the remote consumer,
-   * but be resolved directly.
-   */
-  public static void setRCResourceBase(String resourceurlbase) {
-    rcresourceURLbase.set(resourceurlbase);
-  }
-
-  public static String getRCResourceURLBase() {
-    return (String) rcresourceURLbase.get();
-  }
-  
   
   /** The "Base URL" is the full URL of this servlet, ignoring
    * any extra path due to the particular request.

@@ -21,6 +21,6 @@ public class ToolDispatcherCollection {
   }
   
   public WebServiceDispatcher getDispatcher(String toolname) {
-    return (WebServiceDispatcher) tools.get(toolname);
+    return ((WebServiceDispatcher) tools.get(toolname)).copy();
   }
 }

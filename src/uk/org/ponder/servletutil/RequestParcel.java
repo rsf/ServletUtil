@@ -10,7 +10,7 @@ import uk.org.ponder.saxalizer.SAXAccessMethodSpec;
 import uk.org.ponder.saxalizer.SAXalizable;
 
 /**
- * Encapsulates an RPC-like method call structure.
+ * Encapsulates an RPC-like method call structure. Not yet implemented.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */

@@ -3,6 +3,9 @@
  */
 package uk.org.ponder.servletutil;
 
+import uk.org.ponder.saxalizer.XMLProvider;
+import uk.org.ponder.webapputil.ConsumerInfo;
+
 /**
  * An endpoint handler of requests passing through WebAppTool and 
  * WebAppToolSink that works in a canonical way - it dispatches
@@ -17,12 +20,24 @@ package uk.org.ponder.servletutil;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 public abstract class DirectURLDispatcher implements WebServiceDispatcher {
-  public static final String CONSUMER_URL_BASE = "consumerURLbase";
-  public static final String CONSUMER_RESOURCE_URL_BASE = "consumerresourceURLbase";
-  
+//  public static final String CONSUMER_URL_BASE = "consumerURLbase";
+//  public static final String CONSUMER_RESOURCE_URL_BASE = "consumerresourceURLbase";
+
+  // The name of this dispatcher within the collection
   String name;
+  
+  protected ConsumerInfo consumerinfo;
   String remoteurlbase;
-  private ServletForwardPackage forwardpackage = new ServletForwardPackage();
+  
+  public static void copyBase(DirectURLDispatcher source, DirectURLDispatcher dest) {
+    dest.name = source.name;
+    dest.remoteurlbase = source.remoteurlbase;
+    dest.consumerinfo = source.consumerinfo;
+    dest.xmlprovider = source.xmlprovider;
+  }
+  
+  private XMLProvider xmlprovider;
+  
   public String getName() {
     return name;
   }
@@ -39,8 +54,23 @@ public abstract class DirectURLDispatcher implements WebServiceDispatcher {
     this.remoteurlbase = urlbase;
   }
   
+  public void setXMLProvider(XMLProvider xmlprovider) {
+    this.xmlprovider = xmlprovider;
+  }
+  
+  public void setConsumerInfo(ConsumerInfo consumerinfo) {
+    this.consumerinfo = consumerinfo;
+  }
+  
   public void handleRequest(ServletForwardPackage forwardpackage) {
-    forwardpackage.parametermap.put(CONSUMER_URL_BASE, forwardpackage.localurlbase);
+    String consumerinfostring = xmlprovider.toString(consumerinfo);
+    forwardpackage.addParameter(CONSUMERINFO_PARAMETER, consumerinfostring);
+    
+    consumerinfo.urlbase = forwardpackage.localurlbase;
+    consumerinfo.resourceurlbase = forwardpackage.localurlbase;
+    
+    forwardpackage.addParameter(CONSUMERID_PARAMETER, consumerinfo.consumerid);
+    forwardpackage.setUnwrapRedirect(true);
     forwardpackage.dispatchTo(forwardpackage.targeturl);
   }
 

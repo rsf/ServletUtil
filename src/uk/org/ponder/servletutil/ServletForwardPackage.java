@@ -6,6 +6,7 @@ package uk.org.ponder.servletutil;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collections;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.streamutil.StreamCopier;
+import uk.org.ponder.streamutil.StreamCopyUtil;
 import uk.org.ponder.streamutil.StreamUtil;
 import uk.org.ponder.stringutil.CharWrap;
 import uk.org.ponder.stringutil.URLEncoder;
@@ -46,10 +48,37 @@ public class ServletForwardPackage {
   public HashMap parametermap = new HashMap();
   public String targeturl;
   public String localurlbase;
+  public StreamCopier streamcopier;
+  
+  // assume no multiple-valued parameters from US.
+  public void addParameter(String key, String value) {
+    parametermap.put(key, new String[] {value});
+  }
+  
+  private static ThreadLocal copybuffer = new ThreadLocal();
+  private static byte[] getBuffer() {
+    byte[] togo = (byte[])copybuffer.get();
+    if (togo == null) {
+      togo = new byte[8192];
+      copybuffer.set(togo);
+    }
+    return togo;
+  }
+  
+  private static StreamCopier defaultcopier = new StreamCopier() {
+    public void copyStream(InputStream in, OutputStream out) {
+      StreamCopyUtil.inputToOutput(in, out, getBuffer());
+    }    
+  };
+  private boolean unwrapredirect;
 
+  /** Initialise this ForwardPackage with details taken from the specified
+   * request and response objects.
+   */
   public void populate(HttpServletRequest req, HttpServletResponse res) {
     this.req = req;
     this.res = res;
+    this.streamcopier = defaultcopier;
     parametermap.clear();
     parametermap.putAll(req.getParameterMap());
   }
@@ -81,7 +110,10 @@ public class ServletForwardPackage {
           return Collections.enumeration(parametermap.keySet());
         }
       };
-      rd.forward(hsrw, res);
+      if (streamcopier == defaultcopier) {
+        rd.forward(hsrw, res);
+      }
+      else throw new UniversalRuntimeException("Filtered local forward not yet implemented");
     }
     catch (Throwable t) {
       throw UniversalRuntimeException.accumulate(t,
@@ -89,7 +121,16 @@ public class ServletForwardPackage {
     }
   }
 
-  public void dispatchTo(String baseurl) {
+  public void setUnwrapRedirect(boolean unwrapredirect) {
+    this.unwrapredirect = unwrapredirect;
+  }
+  
+  /** Perform a dispatch of this request to a remote servlet using raw
+   * HTTP. Return the target URL if the remote servlet issues a redirect, 
+   * otherwise null.
+   */
+  public String dispatchTo(String baseurl) {
+    String location = null;
     Logger.log.log(Level.INFO,
         "**ServletForwardPackage beginning REMOTE dispatch to baseurl "
             + baseurl);
@@ -97,10 +138,12 @@ public class ServletForwardPackage {
     boolean first = true;
     for (Iterator it = parametermap.keySet().iterator(); it.hasNext();) {
       String key = (String) it.next();
-      String value = (String) parametermap.get(key);
-      tobuild.append(first ? ""
-          : "&").append(URLEncoder.encode(key)).append('=').append(
-          URLEncoder.encode(value));
+      String[] value = (String[]) parametermap.get(key);
+      for (int i = 0; i < value.length; ++i) {
+        tobuild.append(first ? ""
+            : "&").append(URLEncoder.encode(key)).append('=').append(
+            URLEncoder.encode(value[i]));
+      }
       first = false;
     }
     String parameters = tobuild.toString();
@@ -113,27 +156,40 @@ public class ServletForwardPackage {
         : "?" + parameters);
     try {
       URL URL = new URL(fullurl);
-      URLConnection huc = URL.openConnection();
+      HttpURLConnection huc = (HttpURLConnection) URL.openConnection();
+      huc.setInstanceFollowRedirects(!unwrapredirect);
       if (ispost) {
+        huc.setRequestMethod("POST");
         huc.setDoOutput(true);
         huc.setRequestProperty(CONTENT_TYPE,
             "application/x-www-form-urlencoded");
-        OutputStream os = null;
+        OutputStreamWriter osw = null;
         try {
-          os = huc.getOutputStream();
-          OutputStreamWriter osw = new OutputStreamWriter(os);
+          OutputStream os = huc.getOutputStream();
+          osw = new OutputStreamWriter(os);
           osw.write(parameters);
         }
         finally {
-          StreamUtil.closeOutputStream(os);
+          StreamUtil.closeWriter(osw);
         }
       }
       InputStream is = null;
       OutputStream clientout = null;
       try {
-        is = huc.getInputStream();
-        clientout = res.getOutputStream();
-        StreamCopier.inputToOutput(is, clientout);
+        int response = huc.getResponseCode();
+     
+        if (unwrapredirect && response >= 300 && response < 400) {
+          Logger.log.log(Level.INFO, "Received redirect response with message: " +  
+              huc.getResponseMessage());
+          location = huc.getHeaderField("Location");
+          Logger.log.log(Level.INFO, "Issuing client redirect to location " + location);
+          res.sendRedirect(location);
+        }
+        else {
+          clientout = res.getOutputStream();
+          is = huc.getInputStream();
+          streamcopier.copyStream(is, clientout);
+        }
       }
       finally {
         StreamUtil.closeInputStream(is);
@@ -144,5 +200,6 @@ public class ServletForwardPackage {
       throw UniversalRuntimeException.accumulate(t,
           "Error dispatching servlet request to " + baseurl);
     }
+    return location;
   }
 }
