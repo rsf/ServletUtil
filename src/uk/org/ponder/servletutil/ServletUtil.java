@@ -27,4 +27,9 @@ public class ServletUtil {
         + 1);
     return baseURL; 
   }
+  
+  public static String getExtraPath(HttpServletRequest hsr) {
+    String baseURL = getBaseURL(hsr);
+    return hsr.getRequestURL().substring(baseURL.length());
+  }
 }
