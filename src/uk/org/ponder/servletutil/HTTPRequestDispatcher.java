@@ -14,7 +14,10 @@ import uk.org.ponder.streamutil.StreamUtil;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
-/**
+/** A utility class for clients of an InformationServlet. Accepts an object
+ * to represent the request argument and a URL to dispatch it to, and does the
+ * work of encoding it, performing the dispatch and decoding the response back
+ * into an object.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */
@@ -35,7 +38,7 @@ public class HTTPRequestDispatcher {
       URL URL = new URL(requestURL);
       URLConnection huc = URL.openConnection();
       huc.setDoOutput(true);
-      huc.setRequestProperty("Content-Type", "application/xml");
+      huc.setRequestProperty("Content-Type", "application/xml; charset=UTF-8");
 
       OutputStream os = null;
       try {

@@ -17,6 +17,10 @@ public class ServletUtil {
   /** The "Base URL" is the full URL of this servlet, ignoring
    * any extra path due to the particular request.
    */
+  // TODO: It might well be more reliable to do this by simply knocking
+  // off "PathInfo" from RequestURL. Note that RequestURL can be the
+  // ORIGINAL url (before a dispatch) and hence not agree with a URL that
+  // could be used to invoke the current request.
   public static String getBaseURL(HttpServletRequest hsr) {
     String requestURL = hsr.getRequestURL().toString();
     String requestpath = hsr.getServletPath();

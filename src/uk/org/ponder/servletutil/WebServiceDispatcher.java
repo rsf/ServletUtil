@@ -16,7 +16,7 @@ public interface WebServiceDispatcher {
   
   public static final String CONSUMERINFO_PARAMETER = "consumerinfo";
   
-  public static final String CONSUMERID_PARAMETER = "consumerID";
+  //public static final String CONSUMERID_PARAMETER = "consumerID";
   //public static final String CONSUMERTYPE_PARAMETER = "consumertype";
   //public static final String INFORMATIONBASE_PARAMETER = "informationurl";
 

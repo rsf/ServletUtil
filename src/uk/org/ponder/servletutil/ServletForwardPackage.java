@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -47,8 +46,9 @@ public class ServletForwardPackage {
   public HttpServletResponse res;
   public HashMap parametermap = new HashMap();
   public String targeturl;
-  public String localurlbase;
+  //public String localurlbase;
   public StreamCopier streamcopier;
+  public String charencoding = "UTF-8";
   
   // assume no multiple-valued parameters from US.
   public void addParameter(String key, String value) {
@@ -162,11 +162,11 @@ public class ServletForwardPackage {
         huc.setRequestMethod("POST");
         huc.setDoOutput(true);
         huc.setRequestProperty(CONTENT_TYPE,
-            "application/x-www-form-urlencoded");
+            "application/x-www-form-urlencoded; charset=UTF-8");
         OutputStreamWriter osw = null;
         try {
           OutputStream os = huc.getOutputStream();
-          osw = new OutputStreamWriter(os);
+          osw = new OutputStreamWriter(os, charencoding);
           osw.write(parameters);
         }
         finally {
@@ -186,8 +186,12 @@ public class ServletForwardPackage {
           res.sendRedirect(location);
         }
         else {
+          String contenttype = huc.getContentType();
+          Logger.log.log(Level.INFO, "Forwarding for received content type " + contenttype);
+          res.setContentType(contenttype);
           clientout = res.getOutputStream();
           is = huc.getInputStream();
+          //is = StreamCopyUtil.bottleToDisk(is, "e:\\courseworkpage.txt");
           streamcopier.copyStream(is, clientout);
         }
       }

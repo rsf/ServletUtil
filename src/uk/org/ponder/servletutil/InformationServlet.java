@@ -98,7 +98,8 @@ public class InformationServlet extends HttpServlet {
               + " processing request " + req.getRequestURL(), t);
         }
       } // end if there is a handler
-      TransactionThreadMap.assertTransactionsConcluded();
+      //TODO: global registry of transactions
+      TransactionThreadMap.assertAllTransactionsConcluded();
     }
     catch (Throwable t) {
       Logger.log.log(Level.SEVERE,

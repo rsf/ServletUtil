@@ -32,7 +32,6 @@ public abstract class DirectURLDispatcher implements WebServiceDispatcher {
   public static void copyBase(DirectURLDispatcher source, DirectURLDispatcher dest) {
     dest.name = source.name;
     dest.remoteurlbase = source.remoteurlbase;
-    dest.consumerinfo = source.consumerinfo;
     dest.xmlprovider = source.xmlprovider;
   }
   
@@ -63,13 +62,15 @@ public abstract class DirectURLDispatcher implements WebServiceDispatcher {
   }
   
   public void handleRequest(ServletForwardPackage forwardpackage) {
+    //No - this is WRONG! the resourceurlbase should be configured statically
+    //in consumerinfo.xml, and in general even left blank if the server's
+    //own URL is globally usable.
+    //consumerinfo.resourceurlbase = forwardpackage.localurlbase;
+    
     String consumerinfostring = xmlprovider.toString(consumerinfo);
     forwardpackage.addParameter(CONSUMERINFO_PARAMETER, consumerinfostring);
     
-    consumerinfo.urlbase = forwardpackage.localurlbase;
-    consumerinfo.resourceurlbase = forwardpackage.localurlbase;
-    
-    forwardpackage.addParameter(CONSUMERID_PARAMETER, consumerinfo.consumerid);
+    //forwardpackage.addParameter(CONSUMERID_PARAMETER, consumerinfo.consumerid);
     forwardpackage.setUnwrapRedirect(true);
     forwardpackage.dispatchTo(forwardpackage.targeturl);
   }
