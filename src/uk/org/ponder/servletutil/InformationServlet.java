@@ -6,6 +6,7 @@ package uk.org.ponder.servletutil;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -42,10 +43,13 @@ public class InformationServlet extends HttpServlet {
 
   public void service(HttpServletRequest req, HttpServletResponse res) {
     try {
+      // this is inserted to work around a Sakai component manager bug - 
+      // request for ihr below triggers recreation of all beans although they
+      // have already been created, in particular sakaibeanroot. 
+      ServletUtil.setServletContext(getServletContext());
       if (handlerroot == null) {
-        WebApplicationContext wac = WebApplicationContextUtils
-            .getWebApplicationContext(getServletContext());
-        handlerroot = (InformationHandlerRoot) wac
+        BeanGetter beangetter = ServletUtil.getBeanFactory(getServletContext());
+        handlerroot = (InformationHandlerRoot) beangetter
             .getBean("informationhandlerroot");
         baseURL = ServletUtil.getBaseURL(req);
       }
@@ -107,6 +111,9 @@ public class InformationServlet extends HttpServlet {
           t);
       throw UniversalRuntimeException.accumulate(t,
           "Fatal exception in InformationServlet");
+    }
+    finally {
+      ServletUtil.setServletContext(null);
     }
   }
 }

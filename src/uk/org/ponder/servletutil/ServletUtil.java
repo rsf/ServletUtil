@@ -3,16 +3,57 @@
  */
 package uk.org.ponder.servletutil;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+
 import uk.org.ponder.util.UniversalRuntimeException;
-import uk.org.ponder.webapputil.ConsumerRequestInfo;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
 public class ServletUtil {
+
+  private static ThreadLocal contextstash = new ThreadLocal();
+  public static void setServletContext(ServletContext toset) {
+    contextstash.set(toset);
+  }
+  public static ServletContext getServletContext() {
+    return (ServletContext) contextstash.get();
+  }
+  
+  // this is a map of ServletContexts to BeanGetters
+  private static Map beanfactorymap = Collections.synchronizedMap(new HashMap());
+  
+  // Return a BeanGetter, either by looking in the static map, or if no entry
+  // found, looking for a civilized WebApplicationContext.
+  public static BeanGetter getBeanFactory(ServletContext context) {
+    if (context == null) context = getServletContext();
+    BeanGetter togo = (BeanGetter) beanfactorymap.get(context);
+    if (togo == null) {
+      final WebApplicationContext wac = WebApplicationContextUtils
+              .getWebApplicationContext(context);
+      if (wac != null) {
+        togo = new BeanGetter() {
+          public Object getBean(String beanname) {
+            return wac.getBean(beanname);
+          }}; 
+      }
+    }
+    return togo;
+  }
+  
+  public static void registerBeanFactory(ServletContext context, BeanGetter lbf) {
+    beanfactorymap.put(context, lbf);
+  }
   
   /** The "Base URL" is the full URL of this servlet, ignoring
    * any extra path due to the particular request.
