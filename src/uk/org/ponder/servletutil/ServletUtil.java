@@ -12,8 +12,21 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 public class ServletUtil {
+  private static ThreadLocal requestconsumerURLbase = new ThreadLocal();
+  
+  /** Set a thread-local state corresponding to the URL base required
+   * for all URLs written to a remote consumer during this request cycle.
+   */
+  public static void setRequestConsumerURLBase(String urlbase) {
+    requestconsumerURLbase.set(urlbase);
+  }
+  
+  public static String getRequestConsumerURLBase() {
+    return (String) requestconsumerURLbase.get();
+  }
+  
   /** The "Base URL" is the full URL of this servlet, ignoring
-   * any extra path.
+   * any extra path due to the particular request.
    */
   public static String getBaseURL(HttpServletRequest hsr) {
     String requestURL = hsr.getRequestURL().toString();
