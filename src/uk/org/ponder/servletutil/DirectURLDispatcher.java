@@ -4,7 +4,6 @@
 package uk.org.ponder.servletutil;
 
 import uk.org.ponder.saxalizer.XMLProvider;
-import uk.org.ponder.webapputil.ConsumerInfo;
 
 /**
  * An endpoint handler of requests passing through WebAppTool and 
@@ -19,20 +18,24 @@ import uk.org.ponder.webapputil.ConsumerInfo;
  * to deal with the request (e.g. authentication and url base).
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
-public abstract class DirectURLDispatcher implements WebServiceDispatcher {
-//  public static final String CONSUMER_URL_BASE = "consumerURLbase";
-//  public static final String CONSUMER_RESOURCE_URL_BASE = "consumerresourceURLbase";
+public class DirectURLDispatcher implements WebServiceDispatcher {
 
   // The name of this dispatcher within the collection
   String name;
   
-  protected ConsumerInfo consumerinfo;
+  Object clientrequestinfo;
   String remoteurlbase;
   
   public static void copyBase(DirectURLDispatcher source, DirectURLDispatcher dest) {
     dest.name = source.name;
     dest.remoteurlbase = source.remoteurlbase;
     dest.xmlprovider = source.xmlprovider;
+  }
+  
+  public WebServiceDispatcher copy() {
+    DirectURLDispatcher togo = new DirectURLDispatcher();
+    copyBase(this, togo);
+    return togo;
   }
   
   private XMLProvider xmlprovider;
@@ -57,8 +60,8 @@ public abstract class DirectURLDispatcher implements WebServiceDispatcher {
     this.xmlprovider = xmlprovider;
   }
   
-  public void setConsumerInfo(ConsumerInfo consumerinfo) {
-    this.consumerinfo = consumerinfo;
+  public void setClientRequestInfo(Object clientrequestinfo) {
+    this.clientrequestinfo = clientrequestinfo;
   }
   
   public void handleRequest(ServletForwardPackage forwardpackage) {
@@ -67,12 +70,13 @@ public abstract class DirectURLDispatcher implements WebServiceDispatcher {
     //own URL is globally usable.
     //consumerinfo.resourceurlbase = forwardpackage.localurlbase;
     
-    String consumerinfostring = xmlprovider.toString(consumerinfo);
-    forwardpackage.addParameter(CONSUMERINFO_PARAMETER, consumerinfostring);
+    String clientrequestinfostring = xmlprovider.toString(clientrequestinfo);
+    forwardpackage.addParameter(WebServiceDispatcher.REQUEST_INFO_PARAMETER, 
+        clientrequestinfostring);
     
-    //forwardpackage.addParameter(CONSUMERID_PARAMETER, consumerinfo.consumerid);
     forwardpackage.setUnwrapRedirect(true);
     forwardpackage.dispatchTo(forwardpackage.targeturl);
   }
+
 
 }
