@@ -14,7 +14,7 @@ import java.util.List;
 public class ToolDispatcherCollection {
   HashMap tools = new HashMap();
   public void setToolDispatchers(List toollist) {
-    for (int i = 0; i < tools.size(); ++ i) {
+    for (int i = 0; i < toollist.size(); ++ i) {
       WebServiceDispatcher dispatcher = (WebServiceDispatcher) toollist.get(i);
       tools.put(dispatcher.getName(), dispatcher);
     }

@@ -18,6 +18,7 @@ package uk.org.ponder.servletutil;
  */
 public abstract class DirectURLDispatcher implements WebServiceDispatcher {
   public static final String CONSUMER_URL_BASE = "consumerURLbase";
+  public static final String CONSUMER_RESOURCE_URL_BASE = "consumerresourceURLbase";
   
   String name;
   String remoteurlbase;

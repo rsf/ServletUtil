@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +24,7 @@ import uk.org.ponder.streamutil.StreamCopier;
 import uk.org.ponder.streamutil.StreamUtil;
 import uk.org.ponder.stringutil.CharWrap;
 import uk.org.ponder.stringutil.URLEncoder;
+import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -30,8 +32,10 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * After a call to <code>populate</code> the request parameters are available
  * in modifiable form in <code>parametermap</code> prior to dispatch via a
  * call to <code>dispatchTo</code>.
- * <p>Alternatively it may be used to conveniently forward a request
- * to a local servlet, with the parameters as modified in the parametermap.
+ * <p>
+ * Alternatively it may be used to conveniently forward a request to a local
+ * servlet, with the parameters as modified in the parametermap.
+ * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */
@@ -51,32 +55,44 @@ public class ServletForwardPackage {
   }
 
   public void forwardTo(String baseurl) {
+    Logger.log
+        .log(Level.INFO,
+            "**ServletForwardPackage beginning LOCAL forward to baseurl "
+                + baseurl);
+
     try {
-    RequestDispatcher rd = req.getRequestDispatcher(baseurl);
-    HttpServletRequestWrapper hsrw = new HttpServletRequestWrapper(req) {
-      public Map getParameterMap() {
-        return parametermap;
-      }
-      public String getParameter(String key) {
-        String[] paramvals = getParameterValues(key);
-        return (paramvals == null || paramvals.length == 0 ? null : paramvals[0]);
-      }
-      public String[] getParameterValues(String key) {
-        return (String[]) parametermap.get(key);
-      }
-      public Enumeration getParameterNames() {
-        return Collections.enumeration(parametermap.keySet());
-      }
-    };
-    rd.forward(hsrw, res);
+      RequestDispatcher rd = req.getRequestDispatcher(baseurl);
+      HttpServletRequestWrapper hsrw = new HttpServletRequestWrapper(req) {
+        public Map getParameterMap() {
+          return parametermap;
+        }
+
+        public String getParameter(String key) {
+          String[] paramvals = getParameterValues(key);
+          return (paramvals == null || paramvals.length == 0 ? null
+              : paramvals[0]);
+        }
+
+        public String[] getParameterValues(String key) {
+          return (String[]) parametermap.get(key);
+        }
+
+        public Enumeration getParameterNames() {
+          return Collections.enumeration(parametermap.keySet());
+        }
+      };
+      rd.forward(hsrw, res);
     }
     catch (Throwable t) {
       throw UniversalRuntimeException.accumulate(t,
           "Error forwarding servlet request to " + baseurl);
     }
   }
-  
+
   public void dispatchTo(String baseurl) {
+    Logger.log.log(Level.INFO,
+        "**ServletForwardPackage beginning REMOTE dispatch to baseurl "
+            + baseurl);
     CharWrap tobuild = new CharWrap();
     boolean first = true;
     for (Iterator it = parametermap.keySet().iterator(); it.hasNext();) {
@@ -88,6 +104,8 @@ public class ServletForwardPackage {
       first = false;
     }
     String parameters = tobuild.toString();
+    Logger.log.log(Level.INFO,
+        "**ServletForwardPackage composed parameter string " + parameters);
 
     String method = req.getMethod();
     boolean ispost = method.equals("POST");
@@ -109,22 +127,22 @@ public class ServletForwardPackage {
         finally {
           StreamUtil.closeOutputStream(os);
         }
-        InputStream is = null;
-        OutputStream clientout = null;
-        try {
-          is = huc.getInputStream();
-          clientout = res.getOutputStream();
-          StreamCopier.inputToOutput(is, clientout);
-        }
-        finally {
-          StreamUtil.closeInputStream(is);
-          StreamUtil.closeOutputStream(clientout);
-        }
+      }
+      InputStream is = null;
+      OutputStream clientout = null;
+      try {
+        is = huc.getInputStream();
+        clientout = res.getOutputStream();
+        StreamCopier.inputToOutput(is, clientout);
+      }
+      finally {
+        StreamUtil.closeInputStream(is);
+        StreamUtil.closeOutputStream(clientout);
       }
     }
     catch (Throwable t) {
       throw UniversalRuntimeException.accumulate(t,
-          "Error forwarding servlet request to " + baseurl);
+          "Error dispatching servlet request to " + baseurl);
     }
   }
 }
