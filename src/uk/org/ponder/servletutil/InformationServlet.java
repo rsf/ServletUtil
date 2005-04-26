@@ -60,7 +60,7 @@ public class InformationServlet extends HttpServlet {
         String errmess = "The request handler " + handlerID
             + " could not be found to service the request "
             + req.getRequestURI();
-        Logger.log.log(Level.WARNING, errmess);
+        Logger.log.warn(errmess);
         res.sendError(HttpServletResponse.SC_NOT_FOUND, errmess);
       }
       else {
@@ -75,7 +75,7 @@ public class InformationServlet extends HttpServlet {
           if (togo != null) {
             xmlprovider.writeXML(togo, res.getOutputStream());
             String debugstring = xmlprovider.toString(togo);
-            Logger.log.log(Level.INFO,
+           Logger.log.info(
                 "InformationServlet returning response:\n" + debugstring);
           }
           else {
@@ -98,7 +98,7 @@ public class InformationServlet extends HttpServlet {
           ErrorObject err = new ErrorObject("Error ID " + errorid
               + " processing request " + req.getRequestURI(), handlerID, t);
           xmlprovider.writeXML(err, res.getOutputStream());
-          Logger.log.log(Level.WARNING, "Error ID " + errorid
+          Logger.log.warn("Error ID " + errorid
               + " processing request " + req.getRequestURL(), t);
         }
       } // end if there is a handler
@@ -106,9 +106,8 @@ public class InformationServlet extends HttpServlet {
       TransactionThreadMap.assertAllTransactionsConcluded();
     }
     catch (Throwable t) {
-      Logger.log.log(Level.SEVERE,
-          "Completely fatal exception handling request " + req.getRequestURI(),
-          t);
+      Logger.log.fatal("Completely fatal exception handling request " + 
+          req.getRequestURI(), t);
       throw UniversalRuntimeException.accumulate(t,
           "Fatal exception in InformationServlet");
     }

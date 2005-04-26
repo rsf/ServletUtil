@@ -45,7 +45,7 @@ public class HTTPRequestDispatcher {
         os = huc.getOutputStream();
         xmlprovider.writeXML(arg, os);
         String debugstring = xmlprovider.toString(arg);
-        Logger.log.log(Level.INFO, "HTTPRequestDispatcher sending data:\n" + debugstring);
+        Logger.log.info("HTTPRequestDispatcher sending data:\n" + debugstring);
       }
       finally {
         StreamUtil.closeOutputStream(os);
@@ -57,7 +57,7 @@ public class HTTPRequestDispatcher {
         Object togo = xmlprovider.readXML(null, is);
         if (togo instanceof ErrorObject) {
           ErrorObject error = (ErrorObject) togo;
-          Logger.log.log(Level.WARNING, "Remote exception intercepted in HTTPRequestDispatcher:\n" + error.message + 
+          Logger.log.warn("Remote exception intercepted in HTTPRequestDispatcher:\n" + error.message + 
               error.stacktrace.pack());
           throw new UniversalRuntimeException("Remote exception occurred during dispatching: " + error.message);
           

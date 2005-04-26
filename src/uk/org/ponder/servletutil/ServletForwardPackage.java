@@ -36,6 +36,9 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * <p>
  * Alternatively it may be used to conveniently forward a request to a local
  * servlet, with the parameters as modified in the parametermap.
+ * <p>
+ * ServletForwardPackages are highly non-threadsafe and should be destroyed
+ * after use.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
@@ -49,7 +52,7 @@ public class ServletForwardPackage {
   //public String localurlbase;
   public StreamCopier streamcopier;
   public String charencoding = "UTF-8";
-  
+   
   // assume no multiple-valued parameters from US.
   public void addParameter(String key, String value) {
     parametermap.put(key, new String[] {value});
@@ -84,9 +87,7 @@ public class ServletForwardPackage {
   }
 
   public void forwardTo(String baseurl) {
-    Logger.log
-        .log(Level.INFO,
-            "**ServletForwardPackage beginning LOCAL forward to baseurl "
+    Logger.log.info("**ServletForwardPackage beginning LOCAL forward to baseurl "
                 + baseurl);
 
     try {
@@ -131,7 +132,7 @@ public class ServletForwardPackage {
    */
   public String dispatchTo(String baseurl) {
     String location = null;
-    Logger.log.log(Level.INFO,
+   Logger.log.info(
         "**ServletForwardPackage beginning REMOTE dispatch to baseurl "
             + baseurl);
     CharWrap tobuild = new CharWrap();
@@ -147,7 +148,7 @@ public class ServletForwardPackage {
       first = false;
     }
     String parameters = tobuild.toString();
-    Logger.log.log(Level.INFO,
+   Logger.log.info(
         "**ServletForwardPackage composed parameter string " + parameters);
 
     String method = req.getMethod();
@@ -155,6 +156,7 @@ public class ServletForwardPackage {
     String fullurl = baseurl + (ispost ? ""
         : "?" + parameters);
     try {
+      Logger.log.info("URL length: " + fullurl.length() + " characters");
       URL URL = new URL(fullurl);
       HttpURLConnection huc = (HttpURLConnection) URL.openConnection();
       huc.setInstanceFollowRedirects(!unwrapredirect);
@@ -179,15 +181,15 @@ public class ServletForwardPackage {
         int response = huc.getResponseCode();
      
         if (unwrapredirect && response >= 300 && response < 400) {
-          Logger.log.log(Level.INFO, "Received redirect response with message: " +  
+          Logger.log.info("Received redirect response with message: " +  
               huc.getResponseMessage());
           location = huc.getHeaderField("Location");
-          Logger.log.log(Level.INFO, "Issuing client redirect to location " + location);
+          Logger.log.info("Issuing client redirect to location " + location);
           res.sendRedirect(location);
         }
         else {
           String contenttype = huc.getContentType();
-          Logger.log.log(Level.INFO, "Forwarding for received content type " + contenttype);
+          Logger.log.info("Forwarding for received content type " + contenttype);
           res.setContentType(contenttype);
           clientout = res.getOutputStream();
           is = huc.getInputStream();
