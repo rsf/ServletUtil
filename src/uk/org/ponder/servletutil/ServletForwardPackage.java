@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.streamutil.StreamCopier;
 import uk.org.ponder.streamutil.StreamCopyUtil;
-import uk.org.ponder.streamutil.StreamUtil;
+import uk.org.ponder.streamutil.StreamCloseUtil;
 import uk.org.ponder.stringutil.CharWrap;
 import uk.org.ponder.stringutil.URLEncoder;
 import uk.org.ponder.util.Logger;
@@ -172,7 +171,7 @@ public class ServletForwardPackage {
           osw.write(parameters);
         }
         finally {
-          StreamUtil.closeWriter(osw);
+          StreamCloseUtil.closeWriter(osw);
         }
       }
       InputStream is = null;
@@ -198,8 +197,8 @@ public class ServletForwardPackage {
         }
       }
       finally {
-        StreamUtil.closeInputStream(is);
-        StreamUtil.closeOutputStream(clientout);
+        StreamCloseUtil.closeInputStream(is);
+        StreamCloseUtil.closeOutputStream(clientout);
       }
     }
     catch (Throwable t) {

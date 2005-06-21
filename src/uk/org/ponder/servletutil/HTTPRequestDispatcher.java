@@ -10,7 +10,7 @@ import java.net.URLConnection;
 import java.util.logging.Level;
 
 import uk.org.ponder.saxalizer.XMLProvider;
-import uk.org.ponder.streamutil.StreamUtil;
+import uk.org.ponder.streamutil.StreamCloseUtil;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -48,7 +48,7 @@ public class HTTPRequestDispatcher {
         Logger.log.info("HTTPRequestDispatcher sending data:\n" + debugstring);
       }
       finally {
-        StreamUtil.closeOutputStream(os);
+        StreamCloseUtil.closeOutputStream(os);
       }
       
       InputStream is = null;
@@ -65,7 +65,7 @@ public class HTTPRequestDispatcher {
         return togo;
       }
       finally {
-        StreamUtil.closeInputStream(is);
+        StreamCloseUtil.closeInputStream(is);
       }
     }
     catch (Throwable t) {
