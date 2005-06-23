@@ -5,6 +5,7 @@ package uk.org.ponder.servletutil;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,11 +24,17 @@ public class SimpleFormDecoder {
     Field[] fields = targclass.getFields();
     SAXLeafParser parser = SAXLeafParser.instance();
     ArrayList messages = new ArrayList();
+//    for (Iterator pit = hsr.getParameterMap().keySet().iterator(); pit.hasNext();) {
+//      String param = (String) pit.next();
+//      String value = hsr.getParameter(param);
+//      Logger.log.info("Param name " + param + " value " + value);
+//    }
     for (int i = 0; i < fields.length; ++i) {
       Class fieldtype = fields[i].getType();
       String fieldname = fields[i].getName();
       String param = hsr.getParameter(fieldname);
       Class parsedtype = SAXLeafParser.wrapClass(fieldtype);
+//      Logger.log.info("Field name " + fieldname + " param " + param + " type " + parsedtype);
       if (param != null) {
         try {
           Object parsed = parser.parse(parsedtype, param);
