@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
 
 import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.streamutil.StreamCloseUtil;

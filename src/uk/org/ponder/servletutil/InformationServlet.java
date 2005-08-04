@@ -21,6 +21,7 @@ import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.transaction.TransactionThreadMap;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
+import uk.org.ponder.webapputil.BeanGetter;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
@@ -45,8 +46,8 @@ public class InformationServlet extends HttpServlet {
     try {
       // this is inserted to work around a Sakai component manager bug - 
       // request for ihr below triggers recreation of all beans although they
-      // have already been created, in particular sakaibeanroot. 
-      ServletUtil.setServletContext(getServletContext());
+      // have already been created, in particular sakaibeanroot.
+      //ServletUtil.setServletState(getServletContext(), req, res);
       if (handlerroot == null) {
         BeanGetter beangetter = ServletUtil.getBeanFactory(getServletContext());
         handlerroot = (InformationHandlerRoot) beangetter
@@ -112,7 +113,7 @@ public class InformationServlet extends HttpServlet {
           "Fatal exception in InformationServlet");
     }
     finally {
-      ServletUtil.setServletContext(null);
+//      ServletUtil.getServletState().clear();
     }
   }
 }

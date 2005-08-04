@@ -13,30 +13,21 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-
 import uk.org.ponder.util.UniversalRuntimeException;
+import uk.org.ponder.webapputil.BeanGetter;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
 public class ServletUtil {
-
-  private static ThreadLocal contextstash = new ThreadLocal();
-  public static void setServletContext(ServletContext toset) {
-    contextstash.set(toset);
-  }
-  public static ServletContext getServletContext() {
-    return (ServletContext) contextstash.get();
-  }
-  
-  // this is a map of ServletContexts to BeanGetters
+   // this is a map of ServletContexts to BeanGetters
   private static Map beanfactorymap = Collections.synchronizedMap(new HashMap());
   
   // Return a BeanGetter, either by looking in the static map, or if no entry
   // found, looking for a civilized WebApplicationContext.
   public static BeanGetter getBeanFactory(ServletContext context) {
-    if (context == null) context = getServletContext();
+//    if (context == null) context = getServletState().context;
     BeanGetter togo = (BeanGetter) beanfactorymap.get(context);
     if (togo == null) {
       final WebApplicationContext wac = WebApplicationContextUtils
@@ -75,9 +66,24 @@ public class ServletUtil {
     return baseURL; 
   }
   
-  public static String getExtraPath(HttpServletRequest hsr) {
-    String baseURL = getBaseURL(hsr);
-    return hsr.getRequestURL().substring(baseURL.length());
+  // Migrate to this method preferentially.
+  public static String getBaseURL2(HttpServletRequest hsr) {
+    String requestURL = hsr.getRequestURL().toString();
+    String extrapath = hsr.getPathInfo();
+    if (extrapath == null || extrapath == "") {
+      return requestURL;
+    }
+    int embedpoint = requestURL.lastIndexOf(extrapath);
+    if (embedpoint == -1) {
+      throw new UniversalRuntimeException("Cannot locate path info of "
+          + extrapath + " within request URL of " + requestURL);
+    }
+    return requestURL.substring(0, embedpoint);
   }
+//  
+//  public static String getExtraPath(HttpServletRequest hsr) {
+//    String baseURL = getBaseURL(hsr);
+//    return hsr.getRequestURL().substring(baseURL.length());
+//  }
 
 }

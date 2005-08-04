@@ -5,7 +5,6 @@ package uk.org.ponder.servletutil;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
