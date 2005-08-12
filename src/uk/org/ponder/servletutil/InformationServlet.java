@@ -4,24 +4,21 @@
 package uk.org.ponder.servletutil;
 
 import java.io.IOException;
-import java.util.logging.Level;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import uk.org.ponder.errorutil.ErrorStateEntry;
+import uk.org.ponder.beanutil.BeanGetter;
+import uk.org.ponder.errorutil.RequestStateEntry;
 import uk.org.ponder.errorutil.ThreadErrorState;
+import uk.org.ponder.hashutil.EighteenIDGenerator;
 import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.transaction.TransactionThreadMap;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
-import uk.org.ponder.webapputil.BeanGetter;
+import uk.org.ponder.webapputil.ErrorObject;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
@@ -30,17 +27,17 @@ import uk.org.ponder.webapputil.BeanGetter;
 public class InformationServlet extends HttpServlet {
   private InformationHandlerRoot handlerroot;
 
-  public void doGet(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException {
+  public void doGet(HttpServletRequest req, HttpServletResponse res) {
     service(req, res);
   }
 
-  public void doPost(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException {
+  public void doPost(HttpServletRequest req, HttpServletResponse res) {
     service(req, res);
   }
 
   private String baseURL;
+  
+  private EighteenIDGenerator idgenerator = new EighteenIDGenerator();
 
   public void service(HttpServletRequest req, HttpServletResponse res) {
     try {
@@ -87,12 +84,12 @@ public class InformationServlet extends HttpServlet {
           errorid = handlerroot.getIDGenerator().generateID();
           t = t1;
         }
-        ErrorStateEntry ese = ThreadErrorState.getErrorState();
+        RequestStateEntry ese = ThreadErrorState.getErrorState();
         if (ese != null) {
-          errorid = ese.tokenid;
-          for (int i = 0; i < ese.messageSize(); ++i) {
-            extraerrors += ese.messageAt(i).message
-                + ese.messageAt(i).exceptionclass;
+          errorid = idgenerator.generateID();
+          for (int i = 0; i < ese.errors.size(); ++i) {
+            extraerrors += ese.errors.messageAt(i).message
+                + ese.errors.messageAt(i).exceptionclass;
           }
         }
         if (errorid != null) {

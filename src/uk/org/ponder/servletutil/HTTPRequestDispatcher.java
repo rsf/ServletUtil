@@ -12,6 +12,7 @@ import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.streamutil.StreamCloseUtil;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
+import uk.org.ponder.webapputil.ErrorObject;
 
 /** A utility class for clients of an InformationServlet. Accepts an object
  * to represent the request argument and a URL to dispatch it to, and does the

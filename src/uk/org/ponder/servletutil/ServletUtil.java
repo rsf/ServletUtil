@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import uk.org.ponder.beanutil.BeanGetter;
 import uk.org.ponder.util.UniversalRuntimeException;
-import uk.org.ponder.webapputil.BeanGetter;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)

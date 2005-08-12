@@ -8,6 +8,7 @@ import java.util.List;
 
 import uk.org.ponder.hashutil.IDGenerator;
 import uk.org.ponder.saxalizer.mapping.MappableXMLProvider;
+import uk.org.ponder.webapputil.ErrorObject;
 
 /**
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
