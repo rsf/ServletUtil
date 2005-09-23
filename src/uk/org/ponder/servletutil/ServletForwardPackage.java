@@ -143,8 +143,8 @@ public class ServletForwardPackage {
         tobuild.append(first ? ""
             : "&").append(URLEncoder.encode(key)).append('=').append(
             URLEncoder.encode(value[i]));
+        first = false;
       }
-      first = false;
     }
     String parameters = tobuild.toString();
    Logger.log.info(
