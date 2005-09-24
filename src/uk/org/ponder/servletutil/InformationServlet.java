@@ -85,7 +85,7 @@ public class InformationServlet extends HttpServlet {
           t = t1;
         }
         RequestStateEntry ese = ThreadErrorState.getErrorState();
-        if (ese != null) {
+        if (ese.errors.size() > 0) {
           errorid = idgenerator.generateID();
           for (int i = 0; i < ese.errors.size(); ++i) {
             extraerrors += ese.errors.messageAt(i).message
@@ -95,6 +95,8 @@ public class InformationServlet extends HttpServlet {
         if (errorid != null) {
           ErrorObject err = new ErrorObject("Error ID " + errorid
               + " processing request " + req.getRequestURI(), handlerID, t);
+          // TODO: This is probably not quite right - what if an error occurs
+          // partway through writing the output?
           xmlprovider.writeXML(err, res.getOutputStream());
           Logger.log.warn("Error ID " + errorid
               + " processing request " + req.getRequestURL(), t);

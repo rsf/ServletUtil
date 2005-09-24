@@ -51,6 +51,7 @@ public class ServletForwardPackage {
   //public String localurlbase;
   public StreamCopier streamcopier;
   public String charencoding = "UTF-8";
+  public ServletRequestWrapper wrapper;
    
   // assume no multiple-valued parameters from US.
   public void addParameter(String key, String value) {
@@ -111,7 +112,17 @@ public class ServletForwardPackage {
         }
       };
       if (streamcopier == defaultcopier) {
-        rd.forward(hsrw, res);
+        try {
+          if (wrapper != null) {
+            wrapper.startRequest(hsrw, res);
+          }
+          rd.forward(hsrw, res);
+        }
+        finally {
+          if (wrapper != null) {
+            wrapper.endRequest();
+          }
+        }
       }
       else throw new UniversalRuntimeException("Filtered local forward not yet implemented");
     }

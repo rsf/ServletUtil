@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import uk.org.ponder.servletutil.RequestPostProcessor;
-
 /**
  * @author andrew
  * 
@@ -32,15 +30,11 @@ public class RSACFilter implements Filter {
         .getWebApplicationContext(filterConfig.getServletContext());
     rsacbg = (RSACBeanGetter) wac.getBean("rsacbeangetter");
   }
-
+  
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain chain) throws IOException, ServletException {
     try {
-      RequestPostProcessor rpp = new RequestPostProcessor(
-          (HttpServletRequest) request, (HttpServletResponse) response);
-      rsacbg.beginRequest();
-      rsacbg.addPostProcessor(rpp);
-      RSACUtils.setRequestApplicationContext(request, rsacbg);
+      rsacbg.startRequest((HttpServletRequest)request, (HttpServletResponse) response);
       chain.doFilter(request, response);
     }
     finally {
