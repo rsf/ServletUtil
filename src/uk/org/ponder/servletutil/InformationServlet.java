@@ -51,8 +51,16 @@ public class InformationServlet extends HttpServlet {
             .getBean("informationhandlerroot");
         baseURL = ServletUtil.getBaseURL(req);
       }
+      String baseURL2 = ServletUtil.getBaseURL2(req);
+      Logger.log.info("baseURL: " + baseURL);
+      Logger.log.info("baseURL2: " + baseURL2);
       String requestURI = req.getRequestURL().toString();
-      String handlerID = requestURI.substring(baseURL.length());
+      // temporary hack to avoid odd problem when hosted by Sakai. 
+      // TODO: experiment with uses of getBaseURL2();
+      int lastslashpos = requestURI.lastIndexOf('/');
+      
+      //String handlerID = requestURI.substring(baseURL.length());
+      String handlerID = requestURI.substring(lastslashpos + 1);
       InformationHandler handler = handlerroot.getHandler(handlerID);
       if (handler == null) {
         String errmess = "The request handler " + handlerID
