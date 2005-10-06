@@ -16,10 +16,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.ServletContextResourceLoader;
 import org.springframework.web.context.support.ServletContextResourcePatternResolver;
 
+import uk.org.ponder.arrayutil.ArrayUtil;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -31,7 +34,8 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanFactoryFactory implements ApplicationContextAware, ApplicationListener {
+public class RSACBeanFactoryFactory implements ApplicationContextAware,
+    ApplicationListener {
   private RSACBeanGetter rsacbeangetter = null;
 
   /**
@@ -48,11 +52,20 @@ public class RSACBeanFactoryFactory implements ApplicationContextAware, Applicat
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
         initialContext);
 
-    Resource[] resources;
+    Resource[] resources = new Resource[0];
     try {
-      resources = new ServletContextResourcePatternResolver(
-          new ServletContextResourceLoader(context))
-          .getResources(configLocation);
+      if (configLocation != null) {
+        ServletContextResourceLoader loader = new ServletContextResourceLoader(context);
+        ServletContextResourcePatternResolver resolver = new ServletContextResourcePatternResolver(
+            loader);
+        String[] locations = StringUtils.tokenizeToStringArray(configLocation,
+            ConfigurableWebApplicationContext.CONFIG_LOCATION_DELIMITERS);
+        for (int i = 0; i < locations.length; ++i) {
+          Resource[] newresources = resolver.getResources(locations[i]);
+          resources = (Resource[]) ArrayUtil.concat(resources, newresources);
+        }
+      }
+
     }
     catch (IOException e) {
       throw UniversalRuntimeException.accumulate(e, "ConfigLocation: "
@@ -75,13 +88,12 @@ public class RSACBeanFactoryFactory implements ApplicationContextAware, Applicat
     rsacbeangetter = createFactory(location, wac, sc);
   }
 
-
   public void onApplicationEvent(ApplicationEvent event) {
     if (event instanceof ContextRefreshedEvent) {
       rsacbeangetter.init();
     }
   }
-  
+
   public RSACBeanGetter getRSACBeanGetter() {
     return rsacbeangetter;
   }

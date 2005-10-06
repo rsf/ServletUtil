@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/PonderUtilCore"/>
+	<classpathentry sourcepath="E:/j2ee14/j2eeri-1_4_1-src-scsl.zip" kind="lib" path="lib/servlet.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/log4j/jars/log4j-1.2.9.jar"/>
+	<classpathentry kind="src" path="/Spring 1.1.5"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
