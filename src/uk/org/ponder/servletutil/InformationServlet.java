@@ -3,15 +3,12 @@
  */
 package uk.org.ponder.servletutil;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.beanutil.BeanGetter;
-import uk.org.ponder.errorutil.RequestStateEntry;
+import uk.org.ponder.errorutil.TargettedMessageList;
 import uk.org.ponder.errorutil.ThreadErrorState;
 import uk.org.ponder.hashutil.EighteenIDGenerator;
 import uk.org.ponder.saxalizer.XMLProvider;
@@ -21,6 +18,11 @@ import uk.org.ponder.util.UniversalRuntimeException;
 import uk.org.ponder.webapputil.ErrorObject;
 
 /**
+ * InformationServlet represents a generalised web service handler.
+ * The portion of the URL after the servlet mapping is used as an index
+ * into a table of InformationHandler objects, which are handed the
+ * deserialised argument decoded from the request body. These return an
+ * object which is serialized as the response.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */
@@ -40,6 +42,7 @@ public class InformationServlet extends HttpServlet {
   private EighteenIDGenerator idgenerator = new EighteenIDGenerator();
 
   public void service(HttpServletRequest req, HttpServletResponse res) {
+    ThreadErrorState.beginRequest();
     try {
       // this is inserted to work around a Sakai component manager bug - 
       // request for ihr below triggers recreation of all beans although they
@@ -92,12 +95,11 @@ public class InformationServlet extends HttpServlet {
           errorid = handlerroot.getIDGenerator().generateID();
           t = t1;
         }
-        RequestStateEntry ese = ThreadErrorState.getErrorState();
-        if (ese.errors.size() > 0) {
-          errorid = idgenerator.generateID();
-          for (int i = 0; i < ese.errors.size(); ++i) {
-            extraerrors += ese.errors.messageAt(i).message
-                + ese.errors.messageAt(i).exceptionclass;
+        TargettedMessageList errors = ThreadErrorState.getErrorState().errors;
+        if (errors.size() > 0) {
+          for (int i = 0; i < errors.size(); ++i) {
+            extraerrors += errors.messageAt(i).message
+                + errors.messageAt(i).exceptionclass;
           }
         }
         if (errorid != null) {
