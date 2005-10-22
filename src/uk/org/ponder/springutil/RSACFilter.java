@@ -23,12 +23,12 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class RSACFilter implements Filter {
 
-  private RSACBeanGetter rsacbg;
+  private RSACBeanLocator rsacbg;
 
   public void init(FilterConfig filterConfig)  {
     WebApplicationContext wac = WebApplicationContextUtils
         .getWebApplicationContext(filterConfig.getServletContext());
-    rsacbg = (RSACBeanGetter) wac.getBean("rsacbeangetter");
+    rsacbg = (RSACBeanLocator) wac.getBean("rsacbeangetter");
   }
   
   public void doFilter(ServletRequest request, ServletResponse response,

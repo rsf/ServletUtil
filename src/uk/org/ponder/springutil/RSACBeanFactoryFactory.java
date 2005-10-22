@@ -36,7 +36,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
 
 public class RSACBeanFactoryFactory implements ApplicationContextAware,
     ApplicationListener {
-  private RSACBeanGetter rsacbeangetter = null;
+  private RSACBeanLocator rsacbeanlocator = null;
 
   /**
    * Creates a RequestScopeAppContextPool from the given config locations and
@@ -46,7 +46,7 @@ public class RSACBeanFactoryFactory implements ApplicationContextAware,
    * @param parent
    * @return a new pool
    */
-  public static RSACBeanGetter createFactory(String configLocation,
+  public static RSACBeanLocator createFactory(String configLocation,
       ApplicationContext parent, ServletContext context) {
     GenericApplicationContext initialContext = new GenericApplicationContext();
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
@@ -76,7 +76,7 @@ public class RSACBeanFactoryFactory implements ApplicationContextAware,
 
     initialContext.setParent(parent);
 
-    return new RSACBeanGetter(initialContext);
+    return new RSACBeanLocator(initialContext);
 
   }
 
@@ -85,17 +85,17 @@ public class RSACBeanFactoryFactory implements ApplicationContextAware,
     WebApplicationContext wac = (WebApplicationContext) applicationContext;
     ServletContext sc = wac.getServletContext();
     String location = sc.getInitParameter("requestContextConfigLocation");
-    rsacbeangetter = createFactory(location, wac, sc);
+    rsacbeanlocator = createFactory(location, wac, sc);
   }
 
   public void onApplicationEvent(ApplicationEvent event) {
     if (event instanceof ContextRefreshedEvent) {
-      rsacbeangetter.init();
+      rsacbeanlocator.init();
     }
   }
 
-  public RSACBeanGetter getRSACBeanGetter() {
-    return rsacbeangetter;
+  public RSACBeanLocator getRSACBeanLocator() {
+    return rsacbeanlocator;
   }
 
 }

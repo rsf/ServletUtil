@@ -8,13 +8,15 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import uk.org.ponder.beanutil.RootBeanLocator;
+import uk.org.ponder.beanutil.BeanLocator;
 
 /**
+ * Converts a Spring BeanFactory to the much narrower BeanLocator interface.
+ * Currently disused.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */
-public class SpringRootBeanLocator implements RootBeanLocator, BeanFactoryAware {
+public class SpringRootBeanLocator implements BeanLocator, BeanFactoryAware {
   private BeanFactory factory;
 
   public SpringRootBeanLocator() {
@@ -24,7 +26,7 @@ public class SpringRootBeanLocator implements RootBeanLocator, BeanFactoryAware 
     this.factory = factory;
   }
 
-  public Object locateRootBean(String path) {
+  public Object locateBean(String path) {
     if (path.indexOf('.') != -1) {
       throw new NoSuchBeanDefinitionException(path, "Root path of " + path
           + " is not valid");

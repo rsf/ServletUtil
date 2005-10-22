@@ -14,6 +14,12 @@ import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.util.UrlPathHelper;
 
 /**
+ * A semi-obsolete class mapping URLs to SpringMVC "Handlers"/Controllers, 
+ * dating from the  days when we were still experimenting with getting using 
+ * SpringMVC as a  view locator. What we would "like" is to be able to refer 
+ * to views from out of Handlers in order to generate URLs, but this approach
+ * fails conceptually since Spring URL mappings are not in general one-to-one.
+ * This problem goes away in RSF with the ViewParameters system. 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */

@@ -27,24 +27,37 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import uk.org.ponder.beanutil.BeanGetter;
+import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
-import uk.org.ponder.saxalizer.SAXAccessMethod;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
 import uk.org.ponder.servletutil.RequestPostProcessor;
 import uk.org.ponder.servletutil.ServletRequestWrapper;
 import uk.org.ponder.stringutil.StringList;
-import uk.org.ponder.util.ClassGetter;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.ReflectiveCache;
 import uk.org.ponder.util.UniversalRuntimeException;
 
-public class RSACBeanGetter implements ApplicationContextAware,
-    ServletRequestWrapper, BeanGetter {
+/**
+ * The central class managing the Request Scope Application Context. This class
+ * will be due for some refactoring as soon as the next piece of functionality
+ * gets added, getting on for 400 lines. Please note that this class currently
+ * illegally casts BeanDefinitions received from Spring to
+ * AbstractBeanDefinition, which is a potential dependency weakness. This
+ * approach is known to work with Spring 1.1.2 through 1.1.5. It also calls the
+ * deprecated method BD.getBeanClass().
+ * 
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ * 
+ */
+
+public class RSACBeanLocator implements ApplicationContextAware,
+    ServletRequestWrapper {
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext livecontext;
   private SAXalizerMappingContext smc;
 
-  public RSACBeanGetter(ConfigurableApplicationContext context) {
+  public RSACBeanLocator(ConfigurableApplicationContext context) {
     this.blankcontext = context;
   }
 
@@ -68,7 +81,7 @@ public class RSACBeanGetter implements ApplicationContextAware,
    */
   public void protoStartRequest(HttpServletRequest request) {
     threadlocal.set(new PerRequestInfo());
-    RSACUtils.setRequestApplicationContext(request, getBeanGetter());
+    RSACUtils.setRequestApplicationContext(request, getBeanLocator());
   }
 
   /**
@@ -86,9 +99,26 @@ public class RSACBeanGetter implements ApplicationContextAware,
     addPostProcessor(rpp);
   }
 
-  /** Called at the end of a request. I advise doing this in a finally block.
+  /**
+   * Called at the end of a request. I advise doing this in a finally block.
    */
   public void endRequest() {
+    PerRequestInfo pri = getPerRequest();
+    for (int i = 0; i < pri.todestroy.size(); ++i) {
+      String todestroyname = pri.todestroy.stringAt(i);
+      String destroymethod = (String) rbimap.get(todestroyname);
+      Object todestroy = null;
+      try {
+        todestroy = getBean(pri, todestroyname);
+        ReflectiveCache.invokeMethod(todestroy, destroymethod);
+      }
+      // must try to destroy as many beans as possible, cannot propagate
+      // exception in a finally block in any case.
+      catch (Exception e) {
+        Logger.log.error("Error destroying bean " + todestroy + " with name "
+            + todestroyname, e);
+      }
+    }
     threadlocal.set(null);
   }
 
@@ -149,6 +179,7 @@ public class RSACBeanGetter implements ApplicationContextAware,
     Class beanclass;
     boolean isfactorybean = false;
     String initmethod;
+    String destroymethod;
     // key is dependent bean name, value is property name.
     // ultimately we will cache introspection info here.
     private HashMap localdepends = new HashMap();
@@ -192,25 +223,29 @@ public class RSACBeanGetter implements ApplicationContextAware,
         // skip recording the dependency if it was unresolvable (some
         // unrecognised
         // type) or was a single-valued type referring to a static dependency.
-        // NB - we now record ALL dependencies - bean-copying strategy discontinued.
-        if (beannames == null 
-            //|| beannames instanceof String
-            //&& !blankcontext.containsBean((String) beannames)
-            ) {
+        // NB - we now record ALL dependencies - bean-copying strategy
+        // discontinued.
+        if (beannames == null
+        // || beannames instanceof String
+        // && !blankcontext.containsBean((String) beannames)
+        ) {
           skip = true;
         }
         if (!skip) {
           rbi.recordDependency(thispv.getName(), beannames);
         }
       }
-      // yes, I am PERFECTLY aware this is a deprecated method, but it is the only
-      // visible way to determine ahead of time whether this will be a factory bean.
+      // yes, I am PERFECTLY aware this is a deprecated method, but it is the
+      // only
+      // visible way to determine ahead of time whether this will be a factory
+      // bean.
       Class beanclass = def.getBeanClass();
       rbi.beanclass = beanclass;
-   
+
       rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
       AbstractBeanDefinition abd = (AbstractBeanDefinition) def;
       rbi.initmethod = abd.getInitMethodName();
+      rbi.destroymethod = abd.getDestroyMethodName();
       rbimap.put(beanname, rbi);
     }
   }
@@ -224,6 +259,7 @@ public class RSACBeanGetter implements ApplicationContextAware,
   private static class PerRequestInfo {
     HashMap beans = new HashMap();
     ArrayList postprocessors = new ArrayList();
+    StringList todestroy = new StringList();
   }
 
   public void addPostProcessor(BeanPostProcessor beanpp) {
@@ -237,7 +273,7 @@ public class RSACBeanGetter implements ApplicationContextAware,
     }
     return bean;
   }
-  
+
   private Object getBean(PerRequestInfo pri, String beanname) {
     Object bean = null;
     if (blankcontext.containsBean(beanname)) {
@@ -248,7 +284,6 @@ public class RSACBeanGetter implements ApplicationContextAware,
     }
     return bean;
   }
-  
 
   private Object createBean(PerRequestInfo pri, String beanname) {
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
@@ -258,13 +293,13 @@ public class RSACBeanGetter implements ApplicationContextAware,
     // observe that a clone typically costs 1.6 reflective calls so in general
     // this method will win over a reflective solution.
     // NB - all Copiables simply copy dependencies manually for now, no cost.
-//    Copiable deadbean = (Copiable) livecontext.getBean(rbi.isfactorybean? "&" 
-//        +beanname : beanname);
+    // Copiable deadbean = (Copiable) livecontext.getBean(rbi.isfactorybean? "&"
+    // +beanname : beanname);
     // All the same, the following line will cost us close to 1us - unless it
     // invokes manual code!
     Object newbean = ReflectiveCache.construct(rbi.beanclass);
     MethodAnalyser ma = MethodAnalyser.getMethodAnalyser(rbi.beanclass, smc);
-    //Object clonebean = deadbean.copy();
+    // Object clonebean = deadbean.copy();
     // iterate over each LOCAL dependency of the bean with given name.
     for (Iterator depit = rbi.dependencies(); depit.hasNext();) {
       String propertyname = (String) depit.next();
@@ -284,14 +319,15 @@ public class RSACBeanGetter implements ApplicationContextAware,
         depbean = beanlist;
       }
 
-      SAXAccessMethod setter = ma.getAccessMethod(propertyname);
+      AccessMethod setter = ma.getAccessMethod(propertyname);
       // Deliver the dependent bean as member. This will at this point
       // OVERWRITE the "dead" bean inherited from the cloned parent.
       // Lose another 500ns here, until we bring on FastClass.
       setter.setChildObject(newbean, depbean);
     }
-    // process it FIRST since it will be the factory that is expecting the dependencies
-    // set! 
+    // process it FIRST since it will be the factory that is expecting the
+    // dependencies
+    // set!
     processNewBean(pri, beanname, newbean);
     if (newbean instanceof FactoryBean) {
       FactoryBean factorybean = (FactoryBean) newbean;
@@ -307,7 +343,10 @@ public class RSACBeanGetter implements ApplicationContextAware,
     if (rbi.initmethod != null) {
       ReflectiveCache.invokeMethod(newbean, rbi.initmethod);
     }
-  
+    if (rbi.destroymethod != null) {
+      pri.todestroy.add(beanname);
+    }
+
     return newbean;
   }
 
@@ -328,14 +367,15 @@ public class RSACBeanGetter implements ApplicationContextAware,
   }
 
   /**
-   * This method gets a BeanGetter which is good just for the current request
-   * scope.
+   * This method gets a BeanLocator which is good just for the current request
+   * scope. The ThreadLocal barrier has already been breached in the returned
+   * object, and evaluation will proceed quickly.
    */
-  public BeanGetter getBeanGetter() {
+  public BeanLocator getBeanLocator() {
     final PerRequestInfo pri = getPerRequest();
-    return new BeanGetter() {
-      public Object getBean(String beanname) {
-        return RSACBeanGetter.this.getLocalBean(pri, beanname);
+    return new BeanLocator() {
+      public Object locateBean(String beanname) {
+        return RSACBeanLocator.this.getLocalBean(pri, beanname);
       }
     };
   }
@@ -345,9 +385,8 @@ public class RSACBeanGetter implements ApplicationContextAware,
    * yet. It performs a ThreadLocal get for the current bean container on each
    * call.
    */
-  public Object getBean(String beanname) {
-    PerRequestInfo pri = getPerRequest();
-    return getLocalBean(pri, beanname);
-  }
-
+  // public Object getBean(String beanname) {
+  // PerRequestInfo pri = getPerRequest();
+  // return getLocalBean(pri, beanname);
+  // }
 }

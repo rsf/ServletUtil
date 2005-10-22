@@ -86,6 +86,10 @@ public class ServletForwardPackage {
     parametermap.putAll(req.getParameterMap());
   }
 
+  /** <it>Forward</it> the request request that this package represents 
+   * WITHIN this servlet container via a RequestDispatcher to the supplied
+   * URL.
+   */
   public void forwardTo(String baseurl) {
     Logger.log.info("**ServletForwardPackage beginning LOCAL forward to baseurl "
                 + baseurl);
@@ -136,7 +140,7 @@ public class ServletForwardPackage {
     this.unwrapredirect = unwrapredirect;
   }
   
-  /** Perform a dispatch of this request to a remote servlet using raw
+  /** Perform a <it>dispatch</it> of this request to a remote servlet using raw
    * HTTP. Return the target URL if the remote servlet issues a redirect, 
    * otherwise null.
    */

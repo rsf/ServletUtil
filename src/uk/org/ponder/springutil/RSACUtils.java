@@ -5,7 +5,7 @@ package uk.org.ponder.springutil;
 
 import javax.servlet.ServletRequest;
 
-import uk.org.ponder.beanutil.BeanGetter;
+import uk.org.ponder.beanutil.BeanLocator;
 
 /**
  * @author andrew, Antranig
@@ -15,13 +15,13 @@ public class RSACUtils {
   public static final String REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE = "requestScopeApplicationContext";
 
   public static void setRequestApplicationContext(
-      ServletRequest request, BeanGetter context) {
+      ServletRequest request, BeanLocator context) {
     request.setAttribute(REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE, context);
   }
 
-  public static BeanGetter getRequestApplicationContext(
+  public static BeanLocator getRequestApplicationContext(
       ServletRequest request) {
-    return (BeanGetter) request
+    return (BeanLocator) request
         .getAttribute(REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE);
   }
 

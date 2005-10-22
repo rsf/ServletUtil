@@ -12,7 +12,8 @@ import uk.org.ponder.errorutil.TargettedMessage;
 import uk.org.ponder.saxalizer.SAXLeafParser;
 import uk.org.ponder.util.Logger;
 
-/**
+/** An obsolete class used to deserialise an HttpServletRequest onto a 
+ * flat Object, predating the DataAlterationRequest architecture.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *  
  */
