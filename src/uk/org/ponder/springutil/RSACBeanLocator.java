@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import uk.org.ponder.beanutil.BeanGetter;
 import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
@@ -45,7 +44,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * illegally casts BeanDefinitions received from Spring to
  * AbstractBeanDefinition, which is a potential dependency weakness. This
  * approach is known to work with Spring 1.1.2 through 1.1.5. It also calls the
- * deprecated method BD.getBeanClass().
+ * deprecated method BeanDefinition.getBeanClass().
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 

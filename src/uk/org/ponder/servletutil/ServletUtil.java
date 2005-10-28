@@ -17,6 +17,11 @@ import uk.org.ponder.beanutil.BeanGetter;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
+ *  A collection of primitive utilities for working with Servlets, in particular
+ *  for inferring various parts of path components. This link is particularly 
+ *  useful in sorting out the various meanings of HttpServletRequest returns:
+ *  <a href="http://javaalmanac.com/egs/javax.servlet/GetReqUrl.html?l=new">
+ *  http://javaalmanac.com/egs/javax.servlet/GetReqUrl.html?l=new</a>
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
@@ -79,6 +84,20 @@ public class ServletUtil {
           + extrapath + " within request URL of " + requestURL);
     }
     return requestURL.substring(0, embedpoint);
+  }
+  
+  public static String getContextBaseURL2(HttpServletRequest hsr) {
+    String baseurl = getBaseURL2(hsr);
+    String servletpath = hsr.getServletPath();
+    if (servletpath == null || servletpath == "") {
+      return baseurl;
+    }
+    int embedpoint = baseurl.lastIndexOf(servletpath);
+    if (embedpoint == -1) {
+      throw new UniversalRuntimeException("Cannot locate servlet path of "
+          + servletpath + " within base url of of " + baseurl);
+    }
+    return baseurl.substring(0, embedpoint);
   }
 //  
 //  public static String getExtraPath(HttpServletRequest hsr) {
