@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
+import uk.org.ponder.conversion.StaticLeafParser;
 import uk.org.ponder.errorutil.TargettedMessage;
-import uk.org.ponder.saxalizer.SAXLeafParser;
 import uk.org.ponder.util.Logger;
 
 /** An obsolete class used to deserialise an HttpServletRequest onto a 
@@ -22,7 +22,7 @@ public class SimpleFormDecoder {
       HttpServletRequest hsr) {
     Class targclass = target.getClass();
     Field[] fields = targclass.getFields();
-    SAXLeafParser parser = SAXLeafParser.instance();
+    StaticLeafParser parser = StaticLeafParser.instance();
     ArrayList messages = new ArrayList();
 //    for (Iterator pit = hsr.getParameterMap().keySet().iterator(); pit.hasNext();) {
 //      String param = (String) pit.next();
@@ -33,7 +33,7 @@ public class SimpleFormDecoder {
       Class fieldtype = fields[i].getType();
       String fieldname = fields[i].getName();
       String param = hsr.getParameter(fieldname);
-      Class parsedtype = SAXLeafParser.wrapClass(fieldtype);
+      Class parsedtype = StaticLeafParser.wrapClass(fieldtype);
 //      Logger.log.info("Field name " + fieldname + " param " + param + " type " + parsedtype);
       if (param != null) {
         try {
