@@ -98,7 +98,7 @@ public class InformationServlet extends HttpServlet {
         TargettedMessageList errors = ThreadErrorState.getErrorState().errors;
         if (errors.size() > 0) {
           for (int i = 0; i < errors.size(); ++i) {
-            extraerrors += errors.messageAt(i).message
+            extraerrors += errors.messageAt(i).messagecode
                 + errors.messageAt(i).exceptionclass;
           }
         }

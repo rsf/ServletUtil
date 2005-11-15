@@ -179,6 +179,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
     boolean isfactorybean = false;
     String initmethod;
     String destroymethod;
+    String factorybean;
+    String factorymethod;
     // key is dependent bean name, value is property name.
     // ultimately we will cache introspection info here.
     private HashMap localdepends = new HashMap();
@@ -245,6 +247,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
       AbstractBeanDefinition abd = (AbstractBeanDefinition) def;
       rbi.initmethod = abd.getInitMethodName();
       rbi.destroymethod = abd.getDestroyMethodName();
+      rbi.factorybean = abd.getFactoryBeanName();
+      rbi.factorymethod = abd.getFactoryMethodName();
       rbimap.put(beanname, rbi);
     }
   }
@@ -286,7 +290,14 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private Object createBean(PerRequestInfo pri, String beanname) {
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-
+    
+    Object newbean;
+    if (rbi.factorybean != null) {
+      Object factorybean = getBean(pri, rbi.factorybean);
+      newbean = ReflectiveCache.invokeMethod(factorybean, rbi.factorymethod);
+      rbi.beanclass = newbean.getClass();
+    }
+    else {
     // Locate the "dead" bean from the genuine Spring context, and clone it
     // as quick as we can - bytecodes might do faster but in the meantime
     // observe that a clone typically costs 1.6 reflective calls so in general
@@ -296,7 +307,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
     // +beanname : beanname);
     // All the same, the following line will cost us close to 1us - unless it
     // invokes manual code!
-    Object newbean = ReflectiveCache.construct(rbi.beanclass);
+      newbean = ReflectiveCache.construct(rbi.beanclass);
+    }
     MethodAnalyser ma = MethodAnalyser.getMethodAnalyser(rbi.beanclass, smc);
     // Object clonebean = deadbean.copy();
     // iterate over each LOCAL dependency of the bean with given name.
