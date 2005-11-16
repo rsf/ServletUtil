@@ -26,7 +26,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.beanutil.ConcreteWBL;
+import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
@@ -260,7 +261,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
   }
 
   private static class PerRequestInfo {
-    HashMap beans = new HashMap();
+    //HashMap beans = new HashMap();
+    ConcreteWBL beans = new ConcreteWBL();
     ArrayList postprocessors = new ArrayList();
     StringList todestroy = new StringList();
   }
@@ -270,7 +272,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   }
 
   private Object getLocalBean(PerRequestInfo pri, String beanname) {
-    Object bean = pri.beans.get(beanname);
+    Object bean = pri.beans.locateBean(beanname);
     if (bean == null) {
       bean = createBean(pri, beanname);
     }
@@ -350,7 +352,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       }
     }
     // enter the bean into the req-specific map.
-    pri.beans.put(beanname, newbean);
+    pri.beans.set(beanname, newbean);
     if (rbi.initmethod != null) {
       ReflectiveCache.invokeMethod(newbean, rbi.initmethod);
     }
@@ -382,13 +384,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
    * scope. The ThreadLocal barrier has already been breached in the returned
    * object, and evaluation will proceed quickly.
    */
-  public BeanLocator getBeanLocator() {
+  public WriteableBeanLocator getBeanLocator() {
     final PerRequestInfo pri = getPerRequest();
-    return new BeanLocator() {
-      public Object locateBean(String beanname) {
-        return RSACBeanLocator.this.getLocalBean(pri, beanname);
-      }
-    };
+    return pri.beans;
   }
 
   /**
