@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import uk.org.ponder.util.Logger;
+
 /**
  * @author andrew
  * 
@@ -28,7 +30,10 @@ public class RSACFilter implements Filter {
   public void init(FilterConfig filterConfig)  {
     WebApplicationContext wac = WebApplicationContextUtils
         .getWebApplicationContext(filterConfig.getServletContext());
-    rsacbg = (RSACBeanLocator) wac.getBean("rsacbeangetter");
+    rsacbg = (RSACBeanLocator) wac.getBean("rsacbeanlocator");
+    if (rsacbg == null) {
+      Logger.log.fatal("Unable to load RSACBeanLocator from application context");
+    }
   }
   
   public void doFilter(ServletRequest request, ServletResponse response,
@@ -36,6 +41,10 @@ public class RSACFilter implements Filter {
     try {
       rsacbg.startRequest((HttpServletRequest)request, (HttpServletResponse) response);
       chain.doFilter(request, response);
+    }
+    catch (Exception e) {
+      // Catch and log this here because Tomcat's stack rendering is non-standard and crummy.
+      Logger.log.error("Error servicing RSAC request: ", e);
     }
     finally {
       rsacbg.endRequest();

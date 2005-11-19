@@ -3,6 +3,7 @@
  */
 package uk.org.ponder.springutil;
 
+import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,7 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Level;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -28,14 +32,17 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import uk.org.ponder.beanutil.ConcreteWBL;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
+import uk.org.ponder.reflect.ReflectUtils;
+import uk.org.ponder.reflect.ReflectiveCache;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
 import uk.org.ponder.servletutil.RequestPostProcessor;
 import uk.org.ponder.servletutil.ServletRequestWrapper;
 import uk.org.ponder.stringutil.StringList;
+import uk.org.ponder.util.Denumeration;
+import uk.org.ponder.util.EnumerationConverter;
 import uk.org.ponder.util.Logger;
-import uk.org.ponder.util.ReflectiveCache;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -53,9 +60,11 @@ import uk.org.ponder.util.UniversalRuntimeException;
 
 public class RSACBeanLocator implements ApplicationContextAware,
     ServletRequestWrapper {
+  private static Object BEAN_IN_CREATION_OBJECT = new Object();
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext livecontext;
   private SAXalizerMappingContext smc;
+  private ReflectiveCache reflectivecache;
 
   public RSACBeanLocator(ConfigurableApplicationContext context) {
     this.blankcontext = context;
@@ -69,6 +78,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
     livecontext = applicationContext;
   }
 
+  public void setReflectiveCache(ReflectiveCache reflectivecache) {
+    this.reflectivecache = reflectivecache;
+  }
+  
   /**
    * This method is to be used in the awkward situation where a request is
    * subject to a RequestDispatch partway through its lifecycle, and the request
@@ -110,7 +123,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       Object todestroy = null;
       try {
         todestroy = getBean(pri, todestroyname);
-        ReflectiveCache.invokeMethod(todestroy, destroymethod);
+        reflectivecache.invokeMethod(todestroy, destroymethod);
       }
       // must try to destroy as many beans as possible, cannot propagate
       // exception in a finally block in any case.
@@ -143,14 +156,21 @@ public class RSACBeanLocator implements ApplicationContextAware,
   // Object value)
   // throws BeansException {
 
-  // returns either a String or StringList of bean names.
+  private static class ValueHolder {
+    public ValueHolder(String value) {
+      this.value = value;
+    }
+    public String value;
+  }
+  
+  // returns either a String or StringList of bean names, or a ValueHolder
   private static Object propertyValueToBeanName(Object value) {
-    Object beanname = null;
+    Object beanspec = null;
     if (value instanceof BeanDefinitionHolder) {
       // Resolve BeanDefinitionHolder: contains BeanDefinition with name and
       // aliases.
       BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
-      beanname = bdHolder.getBeanName();
+      beanspec = bdHolder.getBeanName();
     }
     else if (value instanceof BeanDefinition) {
       throw new IllegalArgumentException(
@@ -158,7 +178,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     }
     else if (value instanceof RuntimeBeanReference) {
       RuntimeBeanReference ref = (RuntimeBeanReference) value;
-      beanname = ref.getBeanName();
+      beanspec = ref.getBeanName();
     }
     else if (value instanceof ManagedList) {
       List valuelist = (List) value;
@@ -167,9 +187,15 @@ public class RSACBeanLocator implements ApplicationContextAware,
         String thisbeanname = (String) propertyValueToBeanName(valuelist.get(i));
         togo.add(thisbeanname);
       }
-      beanname = togo;
+      beanspec = togo;
     }
-    return beanname;
+    else if (value instanceof String){
+      beanspec = new ValueHolder((String) value);
+    }
+    else {
+      Logger.log.warn("RSACBeanLocator Got value " + value + " of unknown type "+ value.getClass()+": ignoring");
+    }
+    return beanspec;
   }
 
   // the static information stored about each bean.
@@ -185,6 +211,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
     // key is dependent bean name, value is property name.
     // ultimately we will cache introspection info here.
     private HashMap localdepends = new HashMap();
+
+    public boolean hasDependencies() {
+      return !localdepends.isEmpty();
+    }
 
     public void recordDependency(String propertyname, Object beannames) {
       localdepends.put(propertyname, beannames);
@@ -214,43 +244,56 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
-      RSACBeanInfo rbi = new RSACBeanInfo();
-      BeanDefinition def = factory.getBeanDefinition(beanname);
-      MutablePropertyValues pvs = def.getPropertyValues();
-      PropertyValue[] values = pvs.getPropertyValues();
-      for (int j = 0; j < values.length; ++j) {
-        PropertyValue thispv = values[j];
-        Object beannames = propertyValueToBeanName(thispv.getValue());
-        boolean skip = false;
-        // skip recording the dependency if it was unresolvable (some
-        // unrecognised
-        // type) or was a single-valued type referring to a static dependency.
-        // NB - we now record ALL dependencies - bean-copying strategy
-        // discontinued.
-        if (beannames == null
-        // || beannames instanceof String
-        // && !blankcontext.containsBean((String) beannames)
-        ) {
-          skip = true;
+      try {
+        RSACBeanInfo rbi = new RSACBeanInfo();
+        BeanDefinition def = factory.getBeanDefinition(beanname);
+        MutablePropertyValues pvs = def.getPropertyValues();
+        PropertyValue[] values = pvs.getPropertyValues();
+        for (int j = 0; j < values.length; ++j) {
+          PropertyValue thispv = values[j];
+          Object beannames = propertyValueToBeanName(thispv.getValue());
+          boolean skip = false;
+          // skip recording the dependency if it was unresolvable (some
+          // unrecognised
+          // type) or was a single-valued type referring to a static dependency.
+          // NB - we now record ALL dependencies - bean-copying strategy
+          // discontinued.
+          if (beannames == null
+          // || beannames instanceof String
+          // && !blankcontext.containsBean((String) beannames)
+          ) {
+            skip = true;
+          }
+          if (!skip) {
+            rbi.recordDependency(thispv.getName(), beannames);
+          }
         }
-        if (!skip) {
-          rbi.recordDependency(thispv.getName(), beannames);
+        // yes, I am PERFECTLY aware this is a deprecated method, but it is the
+        // only
+        // visible way to determine ahead of time whether this will be a factory
+        // bean.
+        // Bit of a problem here with Spring flow - apparently the bean class
+        // will NOT be set for a "factory-method" bean UNTIL it has been
+        // instantiated
+        // via the logic in AbstractAutowireCapableBeanFactory l.376:
+        // protected BeanWrapper instantiateUsingFactoryMethod(
+        AbstractBeanDefinition abd = (AbstractBeanDefinition) def;
+        rbi.factorybean = abd.getFactoryBeanName();
+        rbi.factorymethod = abd.getFactoryMethodName();
+        rbi.initmethod = abd.getInitMethodName();
+        rbi.destroymethod = abd.getDestroyMethodName();
+        if (rbi.factorymethod == null) {
+          // all right then BE like that! We'll work out the class later.
+          Class beanclass = def.getBeanClass();
+          rbi.beanclass = beanclass;
+          rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
         }
-      }
-      // yes, I am PERFECTLY aware this is a deprecated method, but it is the
-      // only
-      // visible way to determine ahead of time whether this will be a factory
-      // bean.
-      Class beanclass = def.getBeanClass();
-      rbi.beanclass = beanclass;
 
-      rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
-      AbstractBeanDefinition abd = (AbstractBeanDefinition) def;
-      rbi.initmethod = abd.getInitMethodName();
-      rbi.destroymethod = abd.getDestroyMethodName();
-      rbi.factorybean = abd.getFactoryBeanName();
-      rbi.factorymethod = abd.getFactoryMethodName();
-      rbimap.put(beanname, rbi);
+        rbimap.put(beanname, rbi);
+      }
+      catch (Exception e) {
+        Logger.log.error("Error loading definition for bean " + beanname, e);
+      }
     }
   }
 
@@ -261,7 +304,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   }
 
   private static class PerRequestInfo {
-    //HashMap beans = new HashMap();
+    // HashMap beans = new HashMap();
     ConcreteWBL beans = new ConcreteWBL();
     ArrayList postprocessors = new ArrayList();
     StringList todestroy = new StringList();
@@ -273,7 +316,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private Object getLocalBean(PerRequestInfo pri, String beanname) {
     Object bean = pri.beans.locateBean(beanname);
-    if (bean == null) {
+    if (bean == BEAN_IN_CREATION_OBJECT) {
+      throw new BeanCurrentlyInCreationException(beanname);
+    }
+    else if (bean == null) {
       bean = createBean(pri, beanname);
     }
     return bean;
@@ -290,58 +336,111 @@ public class RSACBeanLocator implements ApplicationContextAware,
     return bean;
   }
 
+
+  private Object assembleVectorProperty(PerRequestInfo pri, StringList beannames, Class declaredType) {
+    Object deliver = ReflectUtils.instantiateContainer(declaredType, beannames.size(), reflectivecache);
+    Denumeration den = EnumerationConverter.getDenumeration(deliver);
+    for (int i = 0; i < beannames.size(); ++ i) {
+      String thisbeanname = beannames.stringAt(i);
+      Object bean = getBean(pri, thisbeanname);
+      den.add(bean);
+    }
+    return deliver;
+  }
+
+  
   private Object createBean(PerRequestInfo pri, String beanname) {
+    pri.beans.set(beanname, BEAN_IN_CREATION_OBJECT);
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
     
     Object newbean;
+    // NB - isn't this odd, and in fact generally undocumented - properties 
+    // defined for factory-method beans are set on the PRODUCT, whereas those
+    // set on FactoryBeans are set on the FACTORY!!
     if (rbi.factorybean != null) {
       Object factorybean = getBean(pri, rbi.factorybean);
-      newbean = ReflectiveCache.invokeMethod(factorybean, rbi.factorymethod);
+      newbean = reflectivecache.invokeMethod(factorybean, rbi.factorymethod);
       rbi.beanclass = newbean.getClass();
     }
     else {
-    // Locate the "dead" bean from the genuine Spring context, and clone it
-    // as quick as we can - bytecodes might do faster but in the meantime
-    // observe that a clone typically costs 1.6 reflective calls so in general
-    // this method will win over a reflective solution.
-    // NB - all Copiables simply copy dependencies manually for now, no cost.
-    // Copiable deadbean = (Copiable) livecontext.getBean(rbi.isfactorybean? "&"
-    // +beanname : beanname);
-    // All the same, the following line will cost us close to 1us - unless it
-    // invokes manual code!
-      newbean = ReflectiveCache.construct(rbi.beanclass);
+      // Locate the "dead" bean from the genuine Spring context, and clone it
+      // as quick as we can - bytecodes might do faster but in the meantime
+      // observe that a clone typically costs 1.6 reflective calls so in general
+      // this method will win over a reflective solution.
+      // NB - all Copiables simply copy dependencies manually for now, no cost.
+      // Copiable deadbean = (Copiable) livecontext.getBean(rbi.isfactorybean?
+      // "&"
+      // +beanname : beanname);
+      // All the same, the following line will cost us close to 1us - unless it
+      // invokes manual code!
+      newbean = reflectivecache.construct(rbi.beanclass);
     }
-    MethodAnalyser ma = MethodAnalyser.getMethodAnalyser(rbi.beanclass, smc);
-    // Object clonebean = deadbean.copy();
-    // iterate over each LOCAL dependency of the bean with given name.
-    for (Iterator depit = rbi.dependencies(); depit.hasNext();) {
-      String propertyname = (String) depit.next();
-      Object depbean = null;
-      Object beanref = rbi.beannames(propertyname);
-      if (beanref instanceof String) {
-        depbean = getBean(pri, (String) beanref);
-      }
-      else {
-        ArrayList beanlist = new ArrayList();
-        StringList beannames = (StringList) beanref;
-        for (int i = 0; i < beannames.size(); ++i) {
-          String thisbeanname = beannames.stringAt(i);
-          Object bean = getBean(pri, thisbeanname);
-          beanlist.add(bean);
+    if (rbi.hasDependencies()) {
+      // guard this block since if it is a factory-method bean it may be
+      // something
+      // extremely undesirable (like an inner class) that we should not even
+      // dream of reflecting over. If on the other hand the user has specified
+      // some dependencies they doubtless know what they are doing.
+      MethodAnalyser ma = MethodAnalyser.getMethodAnalyser(rbi.beanclass, smc);
+      // Object clonebean = deadbean.copy();
+      // iterate over each LOCAL dependency of the bean with given name.
+      for (Iterator depit = rbi.dependencies(); depit.hasNext();) {
+        String propertyname = (String) depit.next();
+        try {
+          AccessMethod setter = ma.getAccessMethod(propertyname);
+          Object depbean = null;
+          Object beanref = rbi.beannames(propertyname);
+          if (beanref instanceof String) {
+            depbean = getBean(pri, (String) beanref);
+          }
+          else if (beanref instanceof ValueHolder) {
+            Class accezzz = setter.getAccessedType();
+            String value = ((ValueHolder)beanref).value;
+            if (smc.saxleafparser.isLeafType(accezzz)) {
+              depbean = smc.saxleafparser.parse(accezzz, value);
+            }
+            else {
+              // exception def copied from the beast BeanWrapperImpl!
+              throw new TypeMismatchException(
+                  new PropertyChangeEvent(newbean, propertyname, null, value), accezzz, null);
+            }
+          }
+          else {
+//          Really need generalised conversion of vector values here.
+//          The code to do this is actually WITHIN the grotty BeanWrapperImpl itself 
+//          in a protected method with 5 arguments!!
+// This is a sort of 50% solution. It will deal with all 1-d array types and collections
+// although clearly there is no "value" support yet and probably never will be.
+            depbean = assembleVectorProperty(pri, (StringList) beanref, setter.getDeclaredType());
+          }
+          // Lose another 500ns here, until we bring on FastClass.
+          setter.setChildObject(newbean, depbean);
         }
-        depbean = beanlist;
+        catch (Exception e) {
+          throw UniversalRuntimeException.accumulate(e,
+              "Error setting dependency " + propertyname + " of bean "
+                  + beanname);
+        }
       }
-
-      AccessMethod setter = ma.getAccessMethod(propertyname);
-      // Deliver the dependent bean as member. This will at this point
-      // OVERWRITE the "dead" bean inherited from the cloned parent.
-      // Lose another 500ns here, until we bring on FastClass.
-      setter.setChildObject(newbean, depbean);
     }
     // process it FIRST since it will be the factory that is expecting the
     // dependencies
     // set!
     processNewBean(pri, beanname, newbean);
+    if (rbi.initmethod != null) {
+      reflectivecache.invokeMethod(newbean, rbi.initmethod);
+    }
+    if (newbean instanceof InitializingBean) {
+      try {
+        ((InitializingBean) newbean).afterPropertiesSet();
+      }
+      catch (Exception e) { // Evil Rod! Bad Juergen!
+        throw UniversalRuntimeException.accumulate(e);
+      }
+    }
+    if (rbi.destroymethod != null) {
+      pri.todestroy.add(beanname);
+    }
     if (newbean instanceof FactoryBean) {
       FactoryBean factorybean = (FactoryBean) newbean;
       try {
@@ -353,12 +452,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     }
     // enter the bean into the req-specific map.
     pri.beans.set(beanname, newbean);
-    if (rbi.initmethod != null) {
-      ReflectiveCache.invokeMethod(newbean, rbi.initmethod);
-    }
-    if (rbi.destroymethod != null) {
-      pri.todestroy.add(beanname);
-    }
+    // now the bean is initialised, attempt to call any init-method or InitBean.
 
     return newbean;
   }
@@ -386,7 +480,19 @@ public class RSACBeanLocator implements ApplicationContextAware,
    */
   public WriteableBeanLocator getBeanLocator() {
     final PerRequestInfo pri = getPerRequest();
-    return pri.beans;
+    return new WriteableBeanLocator() {
+      public Object locateBean(String beanname) {
+        return RSACBeanLocator.this.getLocalBean(pri, beanname);
+      }
+
+      public boolean remove(String beanname) {
+        return pri.beans.remove(beanname);
+      }
+
+      public void set(String beanname, Object toset) {
+        pri.beans.set(beanname, toset);
+      }
+    };
   }
 
   /**
