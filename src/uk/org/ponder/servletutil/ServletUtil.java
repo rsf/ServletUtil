@@ -71,7 +71,10 @@ public class ServletUtil {
     return baseURL; 
   }
   
-  // Migrate to this method preferentially.
+  /** Computes the "Base URL" of this servlet, defined as the complete
+   * request path, with any trailing string agreeing with the "PathInfo"
+   * removed. With the exception that the trailing slash IS reappended.
+   */
   public static String getBaseURL2(HttpServletRequest hsr) {
     String requestURL = hsr.getRequestURL().toString();
     String extrapath = hsr.getPathInfo();
@@ -83,9 +86,18 @@ public class ServletUtil {
       throw new UniversalRuntimeException("Cannot locate path info of "
           + extrapath + " within request URL of " + requestURL);
     }
-    return requestURL.substring(0, embedpoint);
+    String togo = requestURL.substring(0, embedpoint);
+    // I don't trust the Servlet API further than I can throw it. 
+    if (togo.charAt(togo.length() - 1) != '/') {
+      togo += '/';
+    }
+    return togo;
   }
   
+  /** Computes the "Context Base URL" of this servlet, which will *include*
+   * the extra stub of the path that refers to the mapping for the specific
+   * servlet.
+   */
   public static String getContextBaseURL2(HttpServletRequest hsr) {
     String baseurl = getBaseURL2(hsr);
     String servletpath = hsr.getServletPath();

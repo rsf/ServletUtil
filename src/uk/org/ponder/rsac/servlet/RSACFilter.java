@@ -1,7 +1,7 @@
 /*
  * Created on Sep 21, 2005
  */
-package uk.org.ponder.springutil;
+package uk.org.ponder.rsac.servlet;
 
 import java.io.IOException;
 
@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.util.Logger;
 
 /**
@@ -39,7 +40,8 @@ public class RSACFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response,
       FilterChain chain) throws IOException, ServletException {
     try {
-      rsacbg.startRequest((HttpServletRequest)request, (HttpServletResponse) response);
+      RSACUtils.startServletRequest((HttpServletRequest)request, (HttpServletResponse) response, 
+          rsacbg, RSACUtils.HTTP_SERVLET_FACTORY);
       chain.doFilter(request, response);
     }
     catch (Exception e) {

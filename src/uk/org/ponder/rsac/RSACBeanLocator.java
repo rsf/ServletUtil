@@ -1,16 +1,13 @@
 /*
  * Created on Sep 18, 2005
  */
-package uk.org.ponder.springutil;
+package uk.org.ponder.rsac;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Level;
 import org.springframework.beans.MutablePropertyValues;
@@ -19,6 +16,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -37,8 +35,6 @@ import uk.org.ponder.reflect.ReflectiveCache;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
-import uk.org.ponder.servletutil.RequestPostProcessor;
-import uk.org.ponder.servletutil.ServletRequestWrapper;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
@@ -58,8 +54,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanLocator implements ApplicationContextAware,
-    ServletRequestWrapper {
+public class RSACBeanLocator implements ApplicationContextAware {
   private static Object BEAN_IN_CREATION_OBJECT = new Object();
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext livecontext;
@@ -81,37 +76,19 @@ public class RSACBeanLocator implements ApplicationContextAware,
   public void setReflectiveCache(ReflectiveCache reflectivecache) {
     this.reflectivecache = reflectivecache;
   }
-  
-  /**
-   * This method is to be used in the awkward situation where a request is
-   * subject to a RequestDispatch partway through its lifecycle, and the request
-   * visible to it is not the one for which the RSAC context is required to
-   * execute, but client nonetheless wishes to populate or amend some beans into
-   * the request scope. Clearly none of these beans should be RequestAware. <br>
-   * This method has the effect of marking the bean container both onto the
-   * current thread and onto a request attributes, which it is assumed the
-   * request dispatcher has the sense not to trash.
-   */
-  public void protoStartRequest(HttpServletRequest request) {
-    threadlocal.set(new PerRequestInfo());
-    RSACUtils.setRequestApplicationContext(request, getBeanLocator());
-  }
 
   /**
    * Initialises the RSAC container if it has not already been so by
    * protoStartRequest. Enters the supplied request and response as
    * postprocessors for any RequestAware beans in the container.
    */
-  public void startRequest(HttpServletRequest request,
-      HttpServletResponse response) {
-    Object getter = threadlocal.get();
-    if (getter == null) {
-      protoStartRequest(request);
-    }
-    RequestPostProcessor rpp = new RequestPostProcessor(request, response);
-    addPostProcessor(rpp);
+  public void startRequest() {
+    threadlocal.set(new PerRequestInfo());
   }
 
+  public boolean isStarted() {
+    return threadlocal.get() != null;
+  }
   /**
    * Called at the end of a request. I advise doing this in a finally block.
    */
@@ -132,6 +109,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
             + todestroyname, e);
       }
     }
+//    System.out.println(pri.cbeans + " beans were created");
     threadlocal.set(null);
   }
 
@@ -155,7 +133,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   // String beanName, RootBeanDefinition mergedBeanDefinition, String argName,
   // Object value)
   // throws BeansException {
-
+ // Since actual values are the rarer case, make THEM the composite ones.
   private static class ValueHolder {
     public ValueHolder(String value) {
       this.value = value;
@@ -198,7 +176,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     return beanspec;
   }
 
-  // the static information stored about each bean.
+  // the static information stored about each bean. Constructed at startup from Spring info.
   private static class RSACBeanInfo {
     // The ACTUAL class of the bean to be FIRST constructed. The class of the
     // resultant bean may differ for a factory bean.
@@ -305,6 +283,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private static class PerRequestInfo {
     // HashMap beans = new HashMap();
+    int cbeans = 0;
     ConcreteWBL beans = new ConcreteWBL();
     ArrayList postprocessors = new ArrayList();
     StringList todestroy = new StringList();
@@ -350,8 +329,12 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   
   private Object createBean(PerRequestInfo pri, String beanname) {
+    ++pri.cbeans;
     pri.beans.set(beanname, BEAN_IN_CREATION_OBJECT);
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+    if (rbi == null) {
+      throw new NoSuchBeanDefinitionException(beanname, "Bean definition not found");
+    }
     
     Object newbean;
     // NB - isn't this odd, and in fact generally undocumented - properties 
