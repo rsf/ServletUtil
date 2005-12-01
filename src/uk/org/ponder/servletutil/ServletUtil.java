@@ -109,7 +109,11 @@ public class ServletUtil {
       throw new UniversalRuntimeException("Cannot locate servlet path of "
           + servletpath + " within base url of of " + baseurl);
     }
-    return baseurl.substring(0, embedpoint);
+    String togo = baseurl.substring(0, embedpoint);
+    if (togo.charAt(togo.length() - 1) != '/') {
+      togo += '/';
+    }
+    return togo;
   }
 //  
 //  public static String getExtraPath(HttpServletRequest hsr) {

@@ -14,8 +14,15 @@ import org.springframework.web.context.WebApplicationContext;
 
 import uk.org.ponder.rsac.RSACResourceLocator;
 
+/** Decodes the locations of request-scope bean containers from the 
+ * parent ServletContext of the current application context.
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ *
+ */
 public class ServletRSACResourceLocator implements RSACResourceLocator, 
     ApplicationContextAware {
+  public static final String REQUEST_CONTEXT_CONFIG_LOCATION = "requestContextConfigLocation";
+  
   private String[] configlocations;
   private ApplicationContext applicationcontext;
   public void setApplicationContext(ApplicationContext applicationContext)
@@ -23,7 +30,7 @@ public class ServletRSACResourceLocator implements RSACResourceLocator,
     this.applicationcontext = applicationContext;
     WebApplicationContext wac = (WebApplicationContext) applicationContext;
     ServletContext context = wac.getServletContext();
-    String configlocation = context.getInitParameter("requestContextConfigLocation");
+    String configlocation = context.getInitParameter(REQUEST_CONTEXT_CONFIG_LOCATION);
     configlocations = StringUtils.tokenizeToStringArray(configlocation,
         ConfigurableWebApplicationContext.CONFIG_LOCATION_DELIMITERS);
   }

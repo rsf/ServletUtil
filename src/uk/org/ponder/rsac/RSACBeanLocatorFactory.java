@@ -23,7 +23,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanFactoryFactory implements ApplicationListener {
+public class RSACBeanLocatorFactory implements ApplicationListener {
   private RSACBeanLocator rsacbeanlocator = null;
 
   /**
@@ -34,7 +34,7 @@ public class RSACBeanFactoryFactory implements ApplicationListener {
    * @param parent
    * @return a new pool
    */
-  public static RSACBeanLocator createFactory(String[] configLocations,
+  public static RSACBeanLocator createLocator(String[] configLocations,
       ApplicationContext parent) {
     GenericApplicationContext initialContext = new GenericApplicationContext();
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
@@ -64,7 +64,7 @@ public class RSACBeanFactoryFactory implements ApplicationListener {
   }
 
   public void setRSACResourceLocator(RSACResourceLocator resourcelocator) {
-    rsacbeanlocator = createFactory(resourcelocator.getConfigLocation(),
+    rsacbeanlocator = createLocator(resourcelocator.getConfigLocation(),
         resourcelocator.getApplicationContext());
   }
 

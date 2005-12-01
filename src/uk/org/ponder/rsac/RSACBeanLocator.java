@@ -14,6 +14,9 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
@@ -35,6 +39,7 @@ import uk.org.ponder.reflect.ReflectiveCache;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.springutil.BeanLocatorBeanFactory;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
@@ -83,7 +88,22 @@ public class RSACBeanLocator implements ApplicationContextAware {
    * postprocessors for any RequestAware beans in the container.
    */
   public void startRequest() {
-    threadlocal.set(new PerRequestInfo());
+    final PerRequestInfo pri = new PerRequestInfo();
+    pri.requestwbl = new WriteableBeanLocator() {
+      public Object locateBean(String beanname) {
+        return RSACBeanLocator.this.getBean(pri, beanname);
+      }
+
+      public boolean remove(String beanname) {
+        return pri.beans.remove(beanname);
+      }
+
+      public void set(String beanname, Object toset) {
+        pri.beans.set(beanname, toset);
+      }
+    };
+    pri.blfactory = new BeanLocatorBeanFactory(pri.requestwbl);
+    threadlocal.set(pri);  
   }
 
   public boolean isStarted() {
@@ -110,6 +130,8 @@ public class RSACBeanLocator implements ApplicationContextAware {
       }
     }
 //    System.out.println(pri.cbeans + " beans were created");
+    // Give the garbage collector a head start
+    pri.beans.clear();
     threadlocal.set(null);
   }
 
@@ -189,6 +211,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
     // key is dependent bean name, value is property name.
     // ultimately we will cache introspection info here.
     private HashMap localdepends = new HashMap();
+    public ConstructorArgumentValues constructorargvals;
 
     public boolean hasDependencies() {
       return !localdepends.isEmpty();
@@ -260,6 +283,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
         rbi.factorymethod = abd.getFactoryMethodName();
         rbi.initmethod = abd.getInitMethodName();
         rbi.destroymethod = abd.getDestroyMethodName();
+        if (abd.hasConstructorArgumentValues()) {
+          rbi.constructorargvals = abd.getConstructorArgumentValues();
+        }
         if (rbi.factorymethod == null) {
           // all right then BE like that! We'll work out the class later.
           Class beanclass = def.getBeanClass();
@@ -284,9 +310,11 @@ public class RSACBeanLocator implements ApplicationContextAware {
   private static class PerRequestInfo {
     // HashMap beans = new HashMap();
     int cbeans = 0;
-    ConcreteWBL beans = new ConcreteWBL();
+    ConcreteWBL beans = new ConcreteWBL(); // the raw bean container
+    WriteableBeanLocator requestwbl;       // "active" container with lazy-init
     ArrayList postprocessors = new ArrayList();
     StringList todestroy = new StringList();
+    BeanFactory blfactory;
   }
 
   public void addPostProcessor(BeanPostProcessor beanpp) {
@@ -441,18 +469,24 @@ public class RSACBeanLocator implements ApplicationContextAware {
   }
 
   private void processNewBean(PerRequestInfo pri, String beanname,
-      Object clonebean) {
+      Object newbean) {
     for (int i = 0; i < pri.postprocessors.size(); ++i) {
       BeanPostProcessor beanpp = (BeanPostProcessor) pri.postprocessors.get(i);
       try {
-        beanpp.postProcessBeforeInitialization(clonebean, beanname);
+        beanpp.postProcessBeforeInitialization(newbean, beanname);
         // someday we might put something in between here.
-        beanpp.postProcessAfterInitialization(clonebean, beanname);
+        beanpp.postProcessAfterInitialization(newbean, beanname); 
       }
       catch (Exception e) {
         Logger.log.log(Level.ERROR, "Exception processing bean "
-            + clonebean.getClass().getName(), e);
+            + newbean.getClass().getName(), e);
       }
+    }
+    if (newbean instanceof BeanFactoryAware) {
+      ((BeanFactoryAware)newbean).setBeanFactory(pri.blfactory);
+    }
+    if (newbean instanceof BeanNameAware) {
+      ((BeanNameAware)newbean).setBeanName(beanname);
     }
   }
 
@@ -462,22 +496,16 @@ public class RSACBeanLocator implements ApplicationContextAware {
    * object, and evaluation will proceed quickly.
    */
   public WriteableBeanLocator getBeanLocator() {
-    final PerRequestInfo pri = getPerRequest();
-    return new WriteableBeanLocator() {
-      public Object locateBean(String beanname) {
-        return RSACBeanLocator.this.getLocalBean(pri, beanname);
-      }
-
-      public boolean remove(String beanname) {
-        return pri.beans.remove(beanname);
-      }
-
-      public void set(String beanname, Object toset) {
-        pri.beans.set(beanname, toset);
-      }
-    };
+    PerRequestInfo pri = getPerRequest();
+    return pri.requestwbl;
   }
-
+  /** Scope of this BeanLocator is the same as previous, but it will NOT
+    * auto-create beans that are not present. 
+    */
+  public WriteableBeanLocator getDeadBeanLocator() {
+    PerRequestInfo pri = getPerRequest();
+    return pri.beans;
+  }
   /**
    * This method is a hack to prevent PostHandler from needing to be RSACed just
    * yet. It performs a ThreadLocal get for the current bean container on each
