@@ -31,9 +31,15 @@ public class RSACFilter implements Filter {
   public void init(FilterConfig filterConfig)  {
     WebApplicationContext wac = WebApplicationContextUtils
         .getWebApplicationContext(filterConfig.getServletContext());
-    rsacbg = (RSACBeanLocator) wac.getBean("rsacbeanlocator");
-    if (rsacbg == null) {
-      Logger.log.fatal("Unable to load RSACBeanLocator from application context");
+    Exception exception = null;
+    try {
+      rsacbg = (RSACBeanLocator) wac.getBean("rsacBeanLocator");
+    }
+    catch (Exception e) {
+      exception = e;
+    }
+    if (rsacbg == null || exception != null) {
+      Logger.log.fatal("Unable to load RSACBeanLocator from application context", exception);
     }
   }
   
