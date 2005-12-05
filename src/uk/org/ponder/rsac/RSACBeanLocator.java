@@ -488,6 +488,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
     if (newbean instanceof BeanNameAware) {
       ((BeanNameAware)newbean).setBeanName(beanname);
     }
+    if (newbean instanceof ApplicationContextAware) {
+      ((ApplicationContextAware)newbean).setApplicationContext(livecontext);
+    }
   }
 
   /**
