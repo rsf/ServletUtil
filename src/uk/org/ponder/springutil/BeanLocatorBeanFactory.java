@@ -10,6 +10,13 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import uk.org.ponder.beanutil.BeanLocator;
 
+/** A very simple adapter from BeanLocator to BeanFactory. Assumes that all
+ * beans are singletons, and will actually init any bean whose type is 
+ * requested.
+ * @author Antranig Basman (amb26@ponder.org.uk)
+ *
+ */
+
 public class BeanLocatorBeanFactory implements BeanFactory {
   private BeanLocator locator;
 
