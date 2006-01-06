@@ -4,6 +4,7 @@
 package uk.org.ponder.rsac;
 
 import java.beans.PropertyChangeEvent;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +14,6 @@ import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -496,13 +496,28 @@ public class RSACBeanLocator implements ApplicationContextAware {
   
   /** Returns the class of this bean, if it can be statically determined,
    * <code>null</code> if it cannot (i.e. this bean is the product of a 
-   * factory-method)
+   * factory-method of a class which is not yet known)
    * @param beanname
    * @return
    */
   public Class getBeanClass(String beanname) {
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-    return rbi == null? null : rbi.beanclass;
+    if (rbi == null) { 
+      return null;
+    }
+    else if (rbi.beanclass == null) {
+      return rbi.beanclass;
+    }
+    else if (rbi.factorymethod != null && rbi.factorybean != null) {
+      RSACBeanInfo factoryrbi = (RSACBeanInfo) rbimap.get(rbi.factorybean);
+      Class factoryclass = factoryrbi == null? null : factoryrbi.beanclass;
+      Method m = ReflectiveCache.getMethod(factoryclass, rbi.factorymethod);
+      if (m != null) {
+        rbi.beanclass = m.getReturnType();
+      }
+    }
+    // Noone could possibly say we didn't do our best to work out the type of this bean.
+    return rbi.beanclass;
   }
   
   /**

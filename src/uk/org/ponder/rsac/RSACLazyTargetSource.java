@@ -5,8 +5,6 @@ package uk.org.ponder.rsac;
 
 import org.springframework.aop.TargetSource;
 
-import uk.org.ponder.beanutil.BeanLocator;
-
 /**
  * An RSAC-specific TargetSource, which will be permanently maintained in the
  * RSAC ThreadLocal container. A sort of multi-way cross between 
