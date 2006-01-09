@@ -27,11 +27,6 @@ public class StringListFactory implements FactoryBean {
   }
   
   public void setStrings(String strings) {
-    stringlist = new StringList();
-    strings = strings.trim();
-    String[] split = strings.split(delim);
-    for (int i = 0; i < split.length; ++ i) {
-      stringlist.add(split[i].trim());
-    }
+    stringlist = StringList.fromString(strings);
   }
 }
