@@ -15,6 +15,13 @@ import uk.org.ponder.saxalizer.mapping.MappingLoader;
 import uk.org.ponder.saxalizer.mapping.MappingLoaderList;
 
 /** A Spring-aware loader which scours the context for all Hooznak, everywhere.
+ * More precisely, this will locate all beans of type MappingLoader and 
+ * MappingLoaderList in the current ApplicationContext, and invoke them to add
+ * any mappings they define to the mapping context set as a property in its
+ * superclass.
+ * <p>Note that in general Spring requires some form of generalised 
+ * object list collaboration scheme whereby this sort of task can be achieved
+ * in a more environmentally friendly way.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *
  */
