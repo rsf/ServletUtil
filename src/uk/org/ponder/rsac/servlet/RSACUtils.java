@@ -17,7 +17,7 @@ import uk.org.ponder.rsac.RSACBeanLocator;
 public class RSACUtils {
   public static final String REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE = "requestScopeApplicationContext";
   /** The default name for the bean representing the HttpServletFactory **/
-  public static final String HTTP_SERVLET_FACTORY = "httpservletfactory";
+  public static final String HTTP_SERVLET_FACTORY = "httpServletFactory";
 
   /**
    * This method is to be used in the awkward situation where a request is
