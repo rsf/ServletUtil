@@ -31,6 +31,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.beanutil.FallbackBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.reflect.ReflectUtils;
 import uk.org.ponder.reflect.ReflectiveCache;
@@ -59,7 +61,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
 public class RSACBeanLocator implements ApplicationContextAware {
   private static Object BEAN_IN_CREATION_OBJECT = new Object();
   private ConfigurableApplicationContext blankcontext;
-  private ApplicationContext livecontext;
+  private ApplicationContext parentcontext;
   private SAXalizerMappingContext smc;
   private ReflectiveCache reflectivecache;
 
@@ -72,7 +74,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
   }
 
   public void setApplicationContext(ApplicationContext applicationContext) {
-    livecontext = applicationContext;
+    parentcontext = applicationContext;
   }
 
   public void setReflectiveCache(ReflectiveCache reflectivecache) {
@@ -219,6 +221,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
   private HashMap rbimap;
   // this is a list of the beans of type RSACLazyTargetSources 
   private StringList lazysources;
+  // this is a list of "fallback" beans that will have their address space shunted
+  // into the root.
+  private StringList fallbacks;
 
   public void init() {
     // at this point we actually expect that the "Dead" factory is FULLY
@@ -230,6 +235,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
 
     rbimap = new HashMap();
     lazysources = new StringList();
+    fallbacks = new StringList();
 
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
@@ -281,6 +287,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
           rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
           if (abd.isLazyInit()) {
             lazysources.add(beanname);
+          }
+          if (FallbackBeanLocator.class.isAssignableFrom(beanclass)) {
+            fallbacks.add(beanname);
           }
         }
 
@@ -335,9 +344,22 @@ public class RSACBeanLocator implements ApplicationContextAware {
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
-      bean = this.livecontext.getBean(beanname);
+      bean = getFallbackBean(pri, beanname, nolazy);
+      if (bean == null) {
+        bean = this.parentcontext.getBean(beanname);
+      }
     }
     return bean;
+  }
+
+  private Object getFallbackBean(PerRequestInfo pri, String beanname, boolean nolazy) {
+    for (int i = 0; i < fallbacks.size(); ++ i) {
+      String fallbackbean = fallbacks.stringAt(i);
+      BeanLocator locator = (BeanLocator) getLocalBean(pri, fallbackbean, true);
+      Object togo = locator.locateBean(beanname);
+      if (togo != null) return togo;
+    }
+    return null;
   }
 
   private Object assembleVectorProperty(PerRequestInfo pri,
@@ -493,7 +515,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
       ((BeanNameAware) newbean).setBeanName(beanname);
     }
     if (newbean instanceof ApplicationContextAware) {
-      ((ApplicationContextAware) newbean).setApplicationContext(livecontext);
+      ((ApplicationContextAware) newbean).setApplicationContext(parentcontext);
     }
   }
 
