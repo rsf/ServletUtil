@@ -55,7 +55,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * deprecated method BeanDefinition.getBeanClass().
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
- *  
+ * 
  */
 
 public class RSACBeanLocator implements ApplicationContextAware {
@@ -114,7 +114,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
             + todestroyname, e);
       }
     }
-    //    System.out.println(pri.cbeans + " beans were created");
+    // System.out.println(pri.cbeans + " beans were created");
     // Give the garbage collector a head start
     pri.clear();
   }
@@ -219,10 +219,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
 
   // this is a map of bean names to RSACBeanInfo
   private HashMap rbimap;
-  // this is a list of the beans of type RSACLazyTargetSources 
+  // this is a list of the beans of type RSACLazyTargetSources
   private StringList lazysources;
-  // this is a list of "fallback" beans that will have their address space shunted
-  // into the root.
+  // this is a list of "fallback" beans that have already been queried
   private StringList fallbacks;
 
   public void init() {
@@ -317,7 +316,8 @@ public class RSACBeanLocator implements ApplicationContextAware {
     getPerRequest().postprocessors.add(beanpp);
   }
 
-  private Object getLocalBean(PerRequestInfo pri, String beanname, boolean nolazy) {
+  private Object getLocalBean(PerRequestInfo pri, String beanname,
+      boolean nolazy) {
     Object bean = pri.beans.locateBean(beanname);
     if (bean == BEAN_IN_CREATION_OBJECT) {
       throw new BeanCurrentlyInCreationException(beanname);
@@ -326,10 +326,11 @@ public class RSACBeanLocator implements ApplicationContextAware {
       FactoryBean pfb = (FactoryBean) pri.lazysources.get(beanname);
       if (pfb != null && !nolazy) {
         try {
-        return pfb.getObject();
+          return pfb.getObject();
         }
         catch (Exception e) {
-          throw UniversalRuntimeException.accumulate(e, "Error getting proxied bean");
+          throw UniversalRuntimeException.accumulate(e,
+              "Error getting proxied bean");
         }
       }
       else {
@@ -354,12 +355,21 @@ public class RSACBeanLocator implements ApplicationContextAware {
     return bean;
   }
 
-  private Object getFallbackBean(PerRequestInfo pri, String beanname, boolean nolazy) {
-    for (int i = 0; i < fallbacks.size(); ++ i) {
-      String fallbackbean = fallbacks.stringAt(i);
-      BeanLocator locator = (BeanLocator) getLocalBean(pri, fallbackbean, true);
-      Object togo = locator.locateBean(beanname);
-      if (togo != null) return togo;
+  private Object getFallbackBean(PerRequestInfo pri, String beanname,
+      boolean nolazy) {
+    for (int i = 0; i < fallbacks.size(); ++i) {
+      try {
+        String fallbackbean = fallbacks.stringAt(i);
+        BeanLocator locator = (BeanLocator) getLocalBean(pri, fallbackbean,
+            true);
+        Object togo = locator.locateBean(beanname);
+        if (togo != null)
+          return togo;
+      }
+      catch (BeanCurrentlyInCreationException e) {
+        // we may be attempting to get a Fallback bean as a dependence due to
+        // getting the fallback bean!!
+      }
     }
     return null;
   }
@@ -394,8 +404,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
       Object factorybean = getBean(pri, rbi.factorybean, false);
       newbean = reflectivecache.invokeMethod(factorybean, rbi.factorymethod);
       if (newbean == null) {
-        throw new IllegalArgumentException("Error: null returned from factory method " + 
-            rbi.factorymethod + " of bean " + rbi.factorybean);
+        throw new IllegalArgumentException(
+            "Error: null returned from factory method " + rbi.factorymethod
+                + " of bean " + rbi.factorybean);
       }
       rbi.beanclass = newbean.getClass();
     }
@@ -521,16 +532,17 @@ public class RSACBeanLocator implements ApplicationContextAware {
     }
   }
 
-  
-  /** Returns the class of this bean, if it can be statically determined,
-   * <code>null</code> if it cannot (i.e. this bean is the product of a 
+  /**
+   * Returns the class of this bean, if it can be statically determined,
+   * <code>null</code> if it cannot (i.e. this bean is the product of a
    * factory-method of a class which is not yet known)
+   * 
    * @param beanname
    * @return
    */
   public Class getBeanClass(String beanname) {
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-    if (rbi == null) { 
+    if (rbi == null) {
       return null;
     }
     else if (rbi.beanclass == null) {
@@ -538,16 +550,18 @@ public class RSACBeanLocator implements ApplicationContextAware {
     }
     else if (rbi.factorymethod != null && rbi.factorybean != null) {
       RSACBeanInfo factoryrbi = (RSACBeanInfo) rbimap.get(rbi.factorybean);
-      Class factoryclass = factoryrbi == null? null : factoryrbi.beanclass;
+      Class factoryclass = factoryrbi == null ? null
+          : factoryrbi.beanclass;
       Method m = ReflectiveCache.getMethod(factoryclass, rbi.factorymethod);
       if (m != null) {
         rbi.beanclass = m.getReturnType();
       }
     }
-    // Noone could possibly say we didn't do our best to work out the type of this bean.
+    // Noone could possibly say we didn't do our best to work out the type of
+    // this bean.
     return rbi.beanclass;
   }
-  
+
   /**
    * This method gets a BeanLocator which is good just for the current request
    * scope. The ThreadLocal barrier has already been breached in the returned
@@ -566,5 +580,5 @@ public class RSACBeanLocator implements ApplicationContextAware {
     PerRequestInfo pri = getPerRequest();
     return pri.beans;
   }
-  
+
 }

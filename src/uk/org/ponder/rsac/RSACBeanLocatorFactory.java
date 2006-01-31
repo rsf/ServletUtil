@@ -58,7 +58,7 @@ public class RSACBeanLocatorFactory implements ApplicationListener {
 
     beanDefinitionReader.loadBeanDefinitions(resources);
 
-    initialContext.setParent(parent);
+    //initialContext.setParent(parent);
 
     return new RSACBeanLocator(initialContext);
   }
