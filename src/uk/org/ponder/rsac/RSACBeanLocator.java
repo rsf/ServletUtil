@@ -282,7 +282,9 @@ public class RSACBeanLocator implements ApplicationContextAware {
         }
         if (rbi.factorymethod == null) {
           // all right then BE like that! We'll work out the class later.
-          Class beanclass = def.getBeanClass();
+          // NB - beandef.getBeanClass() was eliminated around 1.2, we must
+          // use the downcast even earlier now.
+          Class beanclass = abd.getBeanClass();
           rbi.beanclass = beanclass;
           rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
           if (abd.isLazyInit()) {
