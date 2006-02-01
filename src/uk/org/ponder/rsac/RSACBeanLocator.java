@@ -31,7 +31,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.beanutil.FallbackBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.reflect.ReflectUtils;
@@ -262,10 +261,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
             rbi.recordDependency(thispv.getName(), beannames);
           }
         }
-        // yes, I am PERFECTLY aware this is a deprecated method, but it is the
-        // only
-        // visible way to determine ahead of time whether this will be a factory
-        // bean.
+        // NB - illegal cast here is unavoidable.
         // Bit of a problem here with Spring flow - apparently the bean class
         // will NOT be set for a "factory-method" bean UNTIL it has been
         // instantiated
@@ -347,7 +343,6 @@ public class RSACBeanLocator implements ApplicationContextAware {
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
-      bean = getFallbackBean(pri, beanname, nolazy);
       if (bean == null) {
         bean = this.parentcontext.getBean(beanname);
       }
@@ -355,23 +350,8 @@ public class RSACBeanLocator implements ApplicationContextAware {
     return bean;
   }
 
-  private Object getFallbackBean(PerRequestInfo pri, String beanname,
-      boolean nolazy) {
-    for (int i = 0; i < fallbacks.size(); ++i) {
-      try {
-        String fallbackbean = fallbacks.stringAt(i);
-        BeanLocator locator = (BeanLocator) getLocalBean(pri, fallbackbean,
-            true);
-        Object togo = locator.locateBean(beanname);
-        if (togo != null)
-          return togo;
-      }
-      catch (BeanCurrentlyInCreationException e) {
-        // we may be attempting to get a Fallback bean as a dependence due to
-        // getting the fallback bean!!
-      }
-    }
-    return null;
+  public StringList getFallbackBeans() {
+    return fallbacks;
   }
 
   private Object assembleVectorProperty(PerRequestInfo pri,
