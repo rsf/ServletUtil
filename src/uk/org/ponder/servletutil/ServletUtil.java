@@ -3,6 +3,7 @@
  */
 package uk.org.ponder.servletutil;
 
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import uk.org.ponder.beanutil.BeanGetter;
+import uk.org.ponder.stringutil.URLUtil;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -82,6 +84,9 @@ public class ServletUtil {
    */
   public static String getBaseURL2(HttpServletRequest hsr) {
     String requestURL = hsr.getRequestURL().toString();
+   // In some totally unspecced way, javax implementation provides the URL
+   // ENCODED, whereas the PathInfo UNENCODED.
+    requestURL = URLUtil.decodeURL(requestURL);
     String extrapath = hsr.getPathInfo();
     String togo;
     if (extrapath == null || extrapath.equals("")) {
