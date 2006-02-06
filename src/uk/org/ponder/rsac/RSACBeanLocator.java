@@ -7,11 +7,8 @@ import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.log4j.Level;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -19,14 +16,8 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -50,7 +41,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * gets added, getting on for 400 lines. Please note that this class currently
  * illegally casts BeanDefinitions received from Spring to
  * AbstractBeanDefinition, which is a potential dependency weakness. This
- * approach is known to work with Spring 1.1.2 through 1.1.5. It also calls the
+ * approach is known to work with Spring 1.1.2 through 1.2.6. It also calls the
  * deprecated method BeanDefinition.getBeanClass().
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
@@ -67,7 +58,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
   public RSACBeanLocator(ConfigurableApplicationContext context) {
     this.blankcontext = context;
   }
-
+// NB - currently used only for leafparsers, which are currently JVM-static.
   public void setMappingContext(SAXalizerMappingContext smc) {
     this.smc = smc;
   }
@@ -118,104 +109,6 @@ public class RSACBeanLocator implements ApplicationContextAware {
     pri.clear();
   }
 
-  // magic evil code from AbstractBeanFactory l.443 - this is the main reason
-  // I abandoned Spring Forms and the like, and it will return to plague us.
-  // Just take a look at the constructor for BeanWrapperImpl - one of these
-  // is created for EVERY BEAN IN A FACTORY!
-
-  // protected BeanWrapper createBeanWrapper(Object beanInstance) {
-  // return (beanInstance != null ? new BeanWrapperImpl(beanInstance) : new
-  // BeanWrapperImpl());
-  // }
-
-  // this method is really
-  // resolveValueIfNecessary **LITE**, we assume all other resolution
-  // is done by the parent factory and are ONLY interested in propertyvalues
-  // that refer to other beans IN THIS CONTAINER.
-  // org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory
-  // l.900:
-  // protected Object resolveValueIfNecessary(
-  // String beanName, RootBeanDefinition mergedBeanDefinition, String argName,
-  // Object value)
-  // throws BeansException {
-  // Since actual values are the rarer case, make THEM the composite ones.
-  private static class ValueHolder {
-    public ValueHolder(String value) {
-      this.value = value;
-    }
-
-    public String value;
-  }
-
-  // returns either a String or StringList of bean names, or a ValueHolder
-  private static Object propertyValueToBeanName(Object value) {
-    Object beanspec = null;
-    if (value instanceof BeanDefinitionHolder) {
-      // Resolve BeanDefinitionHolder: contains BeanDefinition with name and
-      // aliases.
-      BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
-      beanspec = bdHolder.getBeanName();
-    }
-    else if (value instanceof BeanDefinition) {
-      throw new IllegalArgumentException(
-          "No idea what to do with bean definition!");
-    }
-    else if (value instanceof RuntimeBeanReference) {
-      RuntimeBeanReference ref = (RuntimeBeanReference) value;
-      beanspec = ref.getBeanName();
-    }
-    else if (value instanceof ManagedList) {
-      List valuelist = (List) value;
-      StringList togo = new StringList();
-      for (int i = 0; i < valuelist.size(); ++i) {
-        String thisbeanname = (String) propertyValueToBeanName(valuelist.get(i));
-        togo.add(thisbeanname);
-      }
-      beanspec = togo;
-    }
-    else if (value instanceof String) {
-      beanspec = new ValueHolder((String) value);
-    }
-    else {
-      Logger.log.warn("RSACBeanLocator Got value " + value
-          + " of unknown type " + value.getClass() + ": ignoring");
-    }
-    return beanspec;
-  }
-
-  // the static information stored about each bean. Constructed at startup from
-  // Spring info.
-  private static class RSACBeanInfo {
-    // The ACTUAL class of the bean to be FIRST constructed. The class of the
-    // resultant bean may differ for a factory bean.
-    Class beanclass;
-    boolean isfactorybean = false;
-    String initmethod;
-    String destroymethod;
-    String factorybean;
-    String factorymethod;
-    // key is dependent bean name, value is property name.
-    // ultimately we will cache introspection info here.
-    private HashMap localdepends = new HashMap();
-    public ConstructorArgumentValues constructorargvals;
-
-    public boolean hasDependencies() {
-      return !localdepends.isEmpty();
-    }
-
-    public void recordDependency(String propertyname, Object beannames) {
-      localdepends.put(propertyname, beannames);
-    }
-
-    public Iterator dependencies() {
-      return localdepends.keySet().iterator();
-    }
-
-    public Object beannames(String propertyname) {
-      return localdepends.get(propertyname);
-    }
-  }
-
   // this is a map of bean names to RSACBeanInfo
   private HashMap rbimap;
   // this is a list of the beans of type RSACLazyTargetSources
@@ -230,7 +123,6 @@ public class RSACBeanLocator implements ApplicationContextAware {
     String[] beanNames = blankcontext.getBeanDefinitionNames();
     ConfigurableListableBeanFactory factory = blankcontext.getBeanFactory();
     // prepare our list of dependencies.
-
     rbimap = new HashMap();
     lazysources = new StringList();
     fallbacks = new StringList();
@@ -238,58 +130,16 @@ public class RSACBeanLocator implements ApplicationContextAware {
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
       try {
-        RSACBeanInfo rbi = new RSACBeanInfo();
-        BeanDefinition def = factory.getBeanDefinition(beanname);
-        MutablePropertyValues pvs = def.getPropertyValues();
-        PropertyValue[] values = pvs.getPropertyValues();
-        for (int j = 0; j < values.length; ++j) {
-          PropertyValue thispv = values[j];
-          Object beannames = propertyValueToBeanName(thispv.getValue());
-          boolean skip = false;
-          // skip recording the dependency if it was unresolvable (some
-          // unrecognised
-          // type) or was a single-valued type referring to a static dependency.
-          // NB - we now record ALL dependencies - bean-copying strategy
-          // discontinued.
-          if (beannames == null
-          // || beannames instanceof String
-          // && !blankcontext.containsBean((String) beannames)
-          ) {
-            skip = true;
-          }
-          if (!skip) {
-            rbi.recordDependency(thispv.getName(), beannames);
-          }
-        }
-        // NB - illegal cast here is unavoidable.
-        // Bit of a problem here with Spring flow - apparently the bean class
-        // will NOT be set for a "factory-method" bean UNTIL it has been
-        // instantiated
-        // via the logic in AbstractAutowireCapableBeanFactory l.376:
-        // protected BeanWrapper instantiateUsingFactoryMethod(
-        AbstractBeanDefinition abd = (AbstractBeanDefinition) def;
-        rbi.factorybean = abd.getFactoryBeanName();
-        rbi.factorymethod = abd.getFactoryMethodName();
-        rbi.initmethod = abd.getInitMethodName();
-        rbi.destroymethod = abd.getDestroyMethodName();
-        if (abd.hasConstructorArgumentValues()) {
-          rbi.constructorargvals = abd.getConstructorArgumentValues();
-        }
-        if (rbi.factorymethod == null) {
-          // all right then BE like that! We'll work out the class later.
-          // NB - beandef.getBeanClass() was eliminated around 1.2, we must
-          // use the downcast even earlier now.
-          Class beanclass = abd.getBeanClass();
-          rbi.beanclass = beanclass;
-          rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
-          if (abd.isLazyInit()) {
+        RSACBeanInfo rbi = BeanDefUtil.convertBeanDef(factory, beanname);
+        
+        if (rbi.beanclass != null) {
+          if (rbi.islazyinit) {
             lazysources.add(beanname);
           }
-          if (FallbackBeanLocator.class.isAssignableFrom(beanclass)) {
+          if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)) {
             fallbacks.add(beanname);
           }
         }
-
         rbimap.put(beanname, rbi);
       }
       catch (Exception e) {
@@ -408,7 +258,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
       // extremely undesirable (like an inner class) that we should not even
       // dream of reflecting over. If on the other hand the user has specified
       // some dependencies they doubtless know what they are doing.
-      MethodAnalyser ma = MethodAnalyser.getMethodAnalyser(rbi.beanclass, smc);
+      MethodAnalyser ma = smc.getAnalyser(rbi.beanclass);
       // Object clonebean = deadbean.copy();
       // iterate over each LOCAL dependency of the bean with given name.
       for (Iterator depit = rbi.dependencies(); depit.hasNext();) {
