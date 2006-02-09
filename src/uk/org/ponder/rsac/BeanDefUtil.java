@@ -161,6 +161,7 @@ public class BeanDefUtil {
     rbi.factorymethod = abd.getFactoryMethodName();
     rbi.initmethod = abd.getInitMethodName();
     rbi.destroymethod = abd.getDestroyMethodName();
+    rbi.islazyinit = abd.isLazyInit();
     if (abd.hasConstructorArgumentValues()) {
       rbi.constructorargvals = abd.getConstructorArgumentValues();
     }
@@ -168,11 +169,8 @@ public class BeanDefUtil {
       // all right then BE like that! We'll work out the class later.
       // NB - beandef.getBeanClass() was eliminated around 1.2, we must
       // use the downcast even earlier now.
-      Class beanclass = abd.getBeanClass();
-      rbi.beanclass = beanclass;
-      rbi.isfactorybean = FactoryBean.class.isAssignableFrom(beanclass);
-      rbi.islazyinit = abd.isLazyInit();
-
+      rbi.beanclass = abd.getBeanClass();
+   
     }
     return rbi;
   }

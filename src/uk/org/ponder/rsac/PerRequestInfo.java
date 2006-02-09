@@ -9,11 +9,13 @@ import java.util.Map;
 
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanInitializationException;
 
 import uk.org.ponder.beanutil.ConcreteWBL;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.springutil.BeanLocatorBeanFactory;
 import uk.org.ponder.stringutil.StringList;
+import uk.org.ponder.util.UniversalRuntimeException;
 
 
 class PerRequestInfo {
@@ -59,8 +61,19 @@ class PerRequestInfo {
       String lazysource = lazysources.stringAt(i);
       ProxyFactoryBean pfb = new ProxyFactoryBean();
       
+      Class beanclass = rsacbl.getBeanClass(lazysource);
+      if (beanclass == null) {
+        throw UniversalRuntimeException.accumulate(new BeanInitializationException(""), 
+            "Unable to determine the class of bean " + lazysource 
+            + " which has bean marked as (very) lazy");
+      }
+      // NB - report as bug! This proxies NOTHING if the supplied class
+      // is not a concrete class.
       RSACLazyTargetSource rlts = new RSACLazyTargetSource(rsacbl, this,
-          rsacbl.getBeanClass(lazysource), lazysource);
+          beanclass, lazysource);
+      if (beanclass.isInterface()) {
+        pfb.setInterfaces(new Class[] {beanclass});
+      }
       pfb.setTargetSource(rlts);
       pfb.setBeanFactory(blfactory);
       thislazies.put(lazysource, pfb);

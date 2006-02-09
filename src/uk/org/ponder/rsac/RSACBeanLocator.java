@@ -58,7 +58,8 @@ public class RSACBeanLocator implements ApplicationContextAware {
   public RSACBeanLocator(ConfigurableApplicationContext context) {
     this.blankcontext = context;
   }
-// NB - currently used only for leafparsers, which are currently JVM-static.
+
+  // NB - currently used only for leafparsers, which are currently JVM-static.
   public void setMappingContext(SAXalizerMappingContext smc) {
     this.smc = smc;
   }
@@ -131,21 +132,65 @@ public class RSACBeanLocator implements ApplicationContextAware {
       String beanname = beanNames[i];
       try {
         RSACBeanInfo rbi = BeanDefUtil.convertBeanDef(factory, beanname);
-        
-        if (rbi.beanclass != null) {
-          if (rbi.islazyinit) {
-            lazysources.add(beanname);
-          }
-          if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)) {
-            fallbacks.add(beanname);
-          }
-        }
         rbimap.put(beanname, rbi);
       }
       catch (Exception e) {
         Logger.log.error("Error loading definition for bean " + beanname, e);
       }
     }
+    // Make a last-ditch attempt to infer bean types.
+    for (int i = 0; i < beanNames.length; ++i) {
+      String beanname = beanNames[i];
+      RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+      if (rbi.beanclass == null) {
+        rbi.beanclass = getBeanClass(beanname);
+      }
+      if (rbi.beanclass != null) {
+        if (rbi.islazyinit) { // this will cause an error at
+          lazysources.add(beanname);
+        }
+        if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)) {
+          fallbacks.add(beanname);
+        }
+        rbi.isfactorybean = FactoryBean.class.isAssignableFrom(rbi.beanclass);
+      }
+
+    }
+
+  }
+
+  /**
+   * Returns the class of this bean, if it can be statically determined,
+   * <code>null</code> if it cannot (i.e. this bean is the product of a
+   * factory-method of a class which is not yet known)
+   * 
+   * @param beanname
+   * @return
+   */
+  public Class getBeanClass(String beanname) {
+    RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+    if (rbi == null) {
+      return parentcontext.getType(beanname);
+    }
+    else if (rbi.beanclass != null) {
+      return rbi.beanclass;
+    }
+    else if (rbi.factorymethod != null && rbi.factorybean != null) {
+      try {
+        Class factoryclass = getBeanClass(rbi.factorybean);
+        Method m = ReflectiveCache.getMethod(factoryclass, rbi.factorymethod);
+        if (m != null) {
+          rbi.beanclass = m.getReturnType();
+        }
+      }
+      catch (Exception e) {
+        Logger.log.warn("Error reflecting for factory method "
+            + rbi.factorymethod + " in bean " + rbi.factorybean, e);
+      }
+    }
+    // Noone could possibly say we didn't do our best to work out the type of
+    // this bean.
+    return rbi.beanclass;
   }
 
   private ThreadLocal threadlocal = new ThreadLocal() {
@@ -238,7 +283,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
             "Error: null returned from factory method " + rbi.factorymethod
                 + " of bean " + rbi.factorybean);
       }
-      rbi.beanclass = newbean.getClass();
+    //  rbi.beanclass = newbean.getClass();
     }
     else {
       // Locate the "dead" bean from the genuine Spring context, and clone it
@@ -360,36 +405,6 @@ public class RSACBeanLocator implements ApplicationContextAware {
     if (newbean instanceof ApplicationContextAware) {
       ((ApplicationContextAware) newbean).setApplicationContext(parentcontext);
     }
-  }
-
-  /**
-   * Returns the class of this bean, if it can be statically determined,
-   * <code>null</code> if it cannot (i.e. this bean is the product of a
-   * factory-method of a class which is not yet known)
-   * 
-   * @param beanname
-   * @return
-   */
-  public Class getBeanClass(String beanname) {
-    RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-    if (rbi == null) {
-      return null;
-    }
-    else if (rbi.beanclass == null) {
-      return rbi.beanclass;
-    }
-    else if (rbi.factorymethod != null && rbi.factorybean != null) {
-      RSACBeanInfo factoryrbi = (RSACBeanInfo) rbimap.get(rbi.factorybean);
-      Class factoryclass = factoryrbi == null ? null
-          : factoryrbi.beanclass;
-      Method m = ReflectiveCache.getMethod(factoryclass, rbi.factorymethod);
-      if (m != null) {
-        rbi.beanclass = m.getReturnType();
-      }
-    }
-    // Noone could possibly say we didn't do our best to work out the type of
-    // this bean.
-    return rbi.beanclass;
   }
 
   /**
