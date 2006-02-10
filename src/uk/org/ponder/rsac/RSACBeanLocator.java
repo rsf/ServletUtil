@@ -234,6 +234,10 @@ public class RSACBeanLocator implements ApplicationContextAware {
   // package access ensures visibility from RSACLazyTargetSource
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {
     Object bean = null;
+    // NOTES on parentage: We actually WOULD like to make the "blank" context
+    // a child context of the parent, so that we could resolve parents across the
+    // gap - the problem is the line below, where we distinguish local beans from
+    // parent ones. Revisit this when we have a sensible idea about parent contexts.
     if (blankcontext.containsBean(beanname)) {
       bean = getLocalBean(pri, beanname, nolazy);
     }
