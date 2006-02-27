@@ -29,6 +29,7 @@ import uk.org.ponder.reflect.ReflectiveCache;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.springutil.BeanDefinitionSource;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
@@ -41,24 +42,23 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * gets added, getting on for 400 lines. Please note that this class currently
  * illegally casts BeanDefinitions received from Spring to
  * AbstractBeanDefinition, which is a potential dependency weakness. This
- * approach is known to work with Spring 1.1.2 through 1.2.6. It also calls the
- * deprecated method BeanDefinition.getBeanClass().
+ * approach is known to work with Spring 1.1.2 through 1.2.6.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
 
-public class RSACBeanLocator implements ApplicationContextAware {
+public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionSource {
   private static Object BEAN_IN_CREATION_OBJECT = new Object();
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext parentcontext;
   private SAXalizerMappingContext smc;
   private ReflectiveCache reflectivecache;
 
-  public RSACBeanLocator(ConfigurableApplicationContext context) {
-    this.blankcontext = context;
+  public void setBlankContext(ConfigurableApplicationContext blankcontext) {
+    this.blankcontext = blankcontext;
   }
-
+  
   // NB - currently used only for leafparsers, which are currently JVM-static.
   public void setMappingContext(SAXalizerMappingContext smc) {
     this.smc = smc;
@@ -70,6 +70,28 @@ public class RSACBeanLocator implements ApplicationContextAware {
 
   public void setReflectiveCache(ReflectiveCache reflectivecache) {
     this.reflectivecache = reflectivecache;
+  }
+
+  /**
+   * Returns a list of bean names which are known to correspond to beans
+   * implementing or derived from the supplied class. RSAC has tried slightly
+   * harder to resolve bean classes than Spring generally does, through walking
+   * chains of factory-methods.
+   * 
+   * @param clazz A class or interface class to be searched for.
+   * @return A list of derived bean names.
+   */
+  public String[] beanNamesForClass(Class clazz) {
+    StringList togo = new StringList();
+    String[] beanNames = blankcontext.getBeanDefinitionNames();
+    for (int i = 0; i < beanNames.length; i++) {
+      String beanname = beanNames[i];
+      RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+      if (rbi.beanclass != null && clazz.isAssignableFrom(rbi.beanclass)) {
+        togo.add(beanname);
+      }
+    }
+    return togo.toStringArray();
   }
 
   /**
@@ -146,7 +168,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
         rbi.beanclass = getBeanClass(beanname);
       }
       if (rbi.beanclass != null) {
-        if (rbi.islazyinit) { // this will cause an error at
+        if (rbi.islazyinit) {
           lazysources.add(beanname);
         }
         if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)) {
@@ -235,9 +257,12 @@ public class RSACBeanLocator implements ApplicationContextAware {
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {
     Object bean = null;
     // NOTES on parentage: We actually WOULD like to make the "blank" context
-    // a child context of the parent, so that we could resolve parents across the
-    // gap - the problem is the line below, where we distinguish local beans from
-    // parent ones. Revisit this when we have a sensible idea about parent contexts.
+    // a child context of the parent, so that we could resolve parents across
+    // the
+    // gap - the problem is the line below, where we distinguish local beans
+    // from
+    // parent ones. Revisit this when we have a sensible idea about parent
+    // contexts.
     if (blankcontext.containsBean(beanname)) {
       bean = getLocalBean(pri, beanname, nolazy);
     }
@@ -257,7 +282,8 @@ public class RSACBeanLocator implements ApplicationContextAware {
       StringList beannames, Class declaredType) {
     Object deliver = ReflectUtils.instantiateContainer(declaredType, beannames
         .size(), reflectivecache);
-    Denumeration den = EnumerationConverter.getDenumeration(deliver);
+    Denumeration den = EnumerationConverter.getDenumeration(deliver,
+        reflectivecache);
     for (int i = 0; i < beannames.size(); ++i) {
       String thisbeanname = beannames.stringAt(i);
       Object bean = getBean(pri, thisbeanname, false);
@@ -287,7 +313,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
             "Error: null returned from factory method " + rbi.factorymethod
                 + " of bean " + rbi.factorybean);
       }
-    //  rbi.beanclass = newbean.getClass();
+      // rbi.beanclass = newbean.getClass();
     }
     else {
       // Locate the "dead" bean from the genuine Spring context, and clone it
@@ -336,9 +362,7 @@ public class RSACBeanLocator implements ApplicationContextAware {
             // The code to do this is actually WITHIN the grotty BeanWrapperImpl
             // itself in a protected method with 5 arguments!!
             // This is a sort of 50% solution. It will deal with all 1-d array
-            // types and collections
-            // although clearly there is no "value" support yet and probably
-            // never will be.
+            // types and collections, and values of parseable types.
             depbean = assembleVectorProperty(pri, (StringList) beanref, setter
                 .getDeclaredType());
           }

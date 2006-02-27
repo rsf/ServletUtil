@@ -5,9 +5,7 @@ package uk.org.ponder.rsac;
 
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -23,8 +21,9 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanLocatorFactory implements ApplicationListener {
+public class RSACBeanLocatorFactory {
   private RSACBeanLocator rsacbeanlocator = null;
+  private RSACResourceLocator resourcelocator;
 
   /**
    * Creates a RequestScopeAppContextPool from the given config locations and
@@ -34,7 +33,7 @@ public class RSACBeanLocatorFactory implements ApplicationListener {
    * @param parent
    * @return a new pool
    */
-  public static RSACBeanLocator createLocator(String[] configLocations,
+  public static ConfigurableApplicationContext readContext(String[] configLocations,
       ApplicationContext parent) {
     GenericApplicationContext initialContext = new GenericApplicationContext();
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
@@ -50,28 +49,23 @@ public class RSACBeanLocatorFactory implements ApplicationListener {
           resources = (Resource[]) ArrayUtil.concat(resources, newresources);
         }
         catch (Exception e) {
-          throw UniversalRuntimeException.accumulate(e, "ConfigLocation: "
-              + location + " causes cannot be loaded ");
+          throw UniversalRuntimeException
+              .accumulate(e, "Bad configuration location " + location
+                  + " for RSACBeanLocator");
         }
       }
     }
-
     beanDefinitionReader.loadBeanDefinitions(resources);
-
-    //initialContext.setParent(parent);
-
-    return new RSACBeanLocator(initialContext);
+    // initialContext.setParent(parent);
+    return initialContext;
   }
 
   public void setRSACResourceLocator(RSACResourceLocator resourcelocator) {
-    rsacbeanlocator = createLocator(resourcelocator.getConfigLocation(),
+    this.resourcelocator = resourcelocator;
+    ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocation(),
         resourcelocator.getApplicationContext());
-  }
-
-  public void onApplicationEvent(ApplicationEvent event) {
-    if (event instanceof ContextRefreshedEvent) {
-      rsacbeanlocator.init();
-    }
+    rsacbeanlocator = new RSACBeanLocator();
+    rsacbeanlocator.setBlankContext(cac);
   }
 
   public RSACBeanLocator getRSACBeanLocator() {
