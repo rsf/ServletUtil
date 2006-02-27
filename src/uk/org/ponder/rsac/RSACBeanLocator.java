@@ -50,6 +50,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
 
 public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionSource {
   private static Object BEAN_IN_CREATION_OBJECT = new Object();
+  private static String REQUEST_STARTED_KEY = ".request  started";
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext parentcontext;
   private SAXalizerMappingContext smc;
@@ -72,39 +73,28 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     this.reflectivecache = reflectivecache;
   }
 
-  /**
-   * Returns a list of bean names which are known to correspond to beans
-   * implementing or derived from the supplied class. RSAC has tried slightly
-   * harder to resolve bean classes than Spring generally does, through walking
-   * chains of factory-methods.
-   * 
-   * @param clazz A class or interface class to be searched for.
-   * @return A list of derived bean names.
-   */
-  public String[] beanNamesForClass(Class clazz) {
-    StringList togo = new StringList();
-    String[] beanNames = blankcontext.getBeanDefinitionNames();
-    for (int i = 0; i < beanNames.length; i++) {
-      String beanname = beanNames[i];
-      RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-      if (rbi.beanclass != null && clazz.isAssignableFrom(rbi.beanclass)) {
-        togo.add(beanname);
-      }
+
+  private ThreadLocal threadlocal = new ThreadLocal() {
+    public Object initialValue() {
+      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
     }
-    return togo.toStringArray();
-  }
+  };
+
+  
 
   /**
-   * Initialises the RSAC container if it has not already been so by
-   * protoStartRequest. Enters the supplied request and response as
-   * postprocessors for any RequestAware beans in the container.
+   * Starts the request-scope container for the current thread.
    */
+  
   public void startRequest() {
-
+    PerRequestInfo pri = getPerRequest();
+    pri.beans.set(REQUEST_STARTED_KEY, BEAN_IN_CREATION_OBJECT);
   }
+
 
   public boolean isStarted() {
-    return threadlocal.get() != null;
+    PerRequestInfo pri = getPerRequest();
+    return pri.beans.locateBean(REQUEST_STARTED_KEY) != null;
   }
 
   /**
@@ -176,11 +166,31 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
         }
         rbi.isfactorybean = FactoryBean.class.isAssignableFrom(rbi.beanclass);
       }
-
     }
-
   }
 
+  /**
+   * Returns a list of bean names which are known to correspond to beans
+   * implementing or derived from the supplied class. RSAC has tried slightly
+   * harder to resolve bean classes than Spring generally does, through walking
+   * chains of factory-methods.
+   * 
+   * @param clazz A class or interface class to be searched for.
+   * @return A list of derived bean names.
+   */
+  public String[] beanNamesForClass(Class clazz) {
+    StringList togo = new StringList();
+    String[] beanNames = blankcontext.getBeanDefinitionNames();
+    for (int i = 0; i < beanNames.length; i++) {
+      String beanname = beanNames[i];
+      RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+      if (rbi.beanclass != null && clazz.isAssignableFrom(rbi.beanclass)) {
+        togo.add(beanname);
+      }
+    }
+    return togo.toStringArray();
+  }
+  
   /**
    * Returns the class of this bean, if it can be statically determined,
    * <code>null</code> if it cannot (i.e. this bean is the product of a
@@ -214,12 +224,6 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     // this bean.
     return rbi.beanclass;
   }
-
-  private ThreadLocal threadlocal = new ThreadLocal() {
-    public Object initialValue() {
-      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
-    }
-  };
 
   private PerRequestInfo getPerRequest() {
     return (PerRequestInfo) threadlocal.get();
