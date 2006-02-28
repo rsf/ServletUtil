@@ -4,7 +4,7 @@
   <artifactId>j-servletutil</artifactId>
   <name>J-ServletUtil</name>
   <groupId>j-servletutil</groupId>
-  <currentVersion>1.0</currentVersion>
+  <currentVersion>${jservletutil.version}</currentVersion>
   <shortDescription>ServletUtil Servlet and Spring libraries</shortDescription>
   <description>Contains libraries for abstracting over servlet dispatch and request scope container (aka RSAC)</description>
   <inceptionYear>2005</inceptionYear>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>ponderutilcore</groupId>
       <artifactId>ponderutilcore</artifactId>
-      <version>1.0</version>
+      <version>${ponderutilcore.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>

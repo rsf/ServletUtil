@@ -80,6 +80,8 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
 //      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
 //    }
 //  };
+  // We do not use a genuine ThreadLocal here because of a terrible JVM bug
+  // discovered in JDK 1.4.2_08 and 09 (apparently fixed in 1.5).
   private Map threadlocal;
 
   private PerRequestInfo getPerRequest() {
