@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.springframework.beans.TypeMismatchException;
@@ -71,16 +72,25 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
 
   public void setReflectiveCache(ReflectiveCache reflectivecache) {
     this.reflectivecache = reflectivecache;
+    threadlocal = reflectivecache.getConcurrentMap(1);
   }
 
+//  private ThreadLocal threadlocal = new ThreadLocal() {
+//    public Object initialValue() {
+//      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
+//    }
+//  };
+  private Map threadlocal;
 
-  private ThreadLocal threadlocal = new ThreadLocal() {
-    public Object initialValue() {
-      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
+  private PerRequestInfo getPerRequest() {
+    Thread thread = Thread.currentThread();
+    PerRequestInfo pri = (PerRequestInfo) threadlocal.get(thread);
+    if (pri == null) {
+      pri = new PerRequestInfo(RSACBeanLocator.this, lazysources);
+      threadlocal.put(thread, pri);
     }
-  };
-
-  
+   return pri;
+  }
 
   /**
    * Starts the request-scope container for the current thread.
@@ -225,9 +235,6 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     return rbi.beanclass;
   }
 
-  private PerRequestInfo getPerRequest() {
-    return (PerRequestInfo) threadlocal.get();
-  }
 
   public void addPostProcessor(BeanPostProcessor beanpp) {
     getPerRequest().postprocessors.add(beanpp);
