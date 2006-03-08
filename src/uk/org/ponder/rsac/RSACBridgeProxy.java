@@ -12,7 +12,17 @@ import uk.org.ponder.springutil.BeanLocatorBeanFactory;
 
 
 /** An "AOP Alliance" proxy that allows request-scope dependencies to
- * be injected into application scope.
+ * be injected into application scope. A parent bean definition is in 
+ * <code>rsf-config.xml</code> - just inherit from it, and set the
+ * <code>targetBeanName</code> field, preferably using an <code>idref</code>
+ * for link-safety. For example:
+ * <pre>
+ * &lt;bean id="RSACSafeBeanLocatorProxy" parent="RSACBridgeProxy"&gt;
+ *   &lt;property name="targetBeanName"&gt;
+ *     &lt;idref bean="rsacSafeBeanLocator" /&gt;
+ *   &lt;/property&gt;
+ * &lt;/bean&gt;
+ * </pre>
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *
  */

@@ -34,15 +34,15 @@ public class SpringXMLMappingLoader extends MappingLoadManager
   
   public void init() {
     MappingLoaderList loaders = new MappingLoaderList();
-    Map maplists = applicationContext.getBeansOfType(MappingLoader.class, false, true);
-    for (Iterator bit = maplists.values().iterator(); bit.hasNext();) {
-      MappingLoader loader = (MappingLoader) bit.next();
+    String[] names = applicationContext.getBeanDefinitionNames(MappingLoader.class);
+    for (int i = 0; i < names.length; ++ i) {
+      MappingLoader loader = (MappingLoader) applicationContext.getBean(names[i]);
       loaders.add(loader);
     }
-    Map mapllists = applicationContext.getBeansOfType(MappingLoaderList.class, false, true);
-    for (Iterator bit = mapllists.values().iterator(); bit.hasNext();) {
-      MappingLoaderList loader = (MappingLoaderList) bit.next();
-      loaders.add(loader);
+    names = applicationContext.getBeanDefinitionNames(MappingLoaderList.class);
+      for (int i = 0; i < names.length; ++ i) {
+      MappingLoaderList loader = (MappingLoaderList) applicationContext.getBean(names[i]);
+      loaders.addAll(loader);
     }
     super.setMappingLoaders(loaders);
   }
