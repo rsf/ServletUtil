@@ -116,11 +116,11 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     PerRequestInfo pri = getPerRequest();
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
-      String destroymethod = (String) rbimap.get(todestroyname);
+      RSACBeanInfo destroybean = (RSACBeanInfo) rbimap.get(todestroyname);
       Object todestroy = null;
       try {
         todestroy = getBean(pri, todestroyname, false);
-        reflectivecache.invokeMethod(todestroy, destroymethod);
+        reflectivecache.invokeMethod(todestroy, destroybean.destroymethod);
       }
       // must try to destroy as many beans as possible, cannot propagate
       // exception in a finally block in any case.
@@ -387,6 +387,11 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
               "Error setting dependency " + propertyname + " of bean "
                   + beanname);
         }
+      }
+    }
+    if (rbi.dependson != null) {
+      for (int i = 0; i < rbi.dependson.length; ++ i) {
+        getBean(pri, rbi.dependson[i], false);
       }
     }
     // process it FIRST since it will be the factory that is expecting the

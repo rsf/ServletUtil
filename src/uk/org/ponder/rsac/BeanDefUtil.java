@@ -31,7 +31,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -162,6 +161,7 @@ public class BeanDefUtil {
     rbi.initmethod = abd.getInitMethodName();
     rbi.destroymethod = abd.getDestroyMethodName();
     rbi.islazyinit = abd.isLazyInit();
+    rbi.dependson = abd.getDependsOn();
     if (abd.hasConstructorArgumentValues()) {
       rbi.constructorargvals = abd.getConstructorArgumentValues();
     }

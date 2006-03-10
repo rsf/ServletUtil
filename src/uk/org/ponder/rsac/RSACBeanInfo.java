@@ -17,6 +17,7 @@ class RSACBeanInfo {
   String destroymethod;
   String factorybean;
   String factorymethod;
+  String[] dependson;
   boolean islazyinit;
   // key is dependent bean name, value is property name.
   // ultimately we will cache introspection info here.
