@@ -23,6 +23,9 @@ class RSACBeanInfo {
   // ultimately we will cache introspection info here.
   private HashMap localdepends = new HashMap();
   public ConstructorArgumentValues constructorargvals;
+  // each member is either an app-static RunnableWrapper or a reference to
+  // one which can be fetched
+  public Object[] fetchwrappers;
 
   public boolean hasDependencies() {
     return !localdepends.isEmpty();

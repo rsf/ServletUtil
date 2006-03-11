@@ -35,10 +35,21 @@ import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
 import uk.org.ponder.util.Logger;
+import uk.org.ponder.util.RunnableWrapper;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
- * The central class managing the Request Scope Application Context. This class
+ * The central class managing the Request Scope Application Context. 
+ * <p>The principal method useful to users is <code>getBeanLocator()</code>
+ * which returns a BeanLocator holding the request context for the current
+ * thread. For each thread entering an RSAC request, it must call 
+ * <code>startRequest()</code> before acquiring any request beans, and
+ * <code>endRequest()</code> at the end of its cycle (the latter is most important).
+ * <p>
+ * In a "pure RSAC" application, the request logic will be defined by the
+ * getting of a single "root bean" from the BeanLocator, although initial setup
+ * and any proxies may require additional calls to <code>getBeanLocator()</code>.
+ * <p>This class
  * will be due for some refactoring as soon as the next piece of functionality
  * gets added, getting on for 400 lines. Please note that this class currently
  * illegally casts BeanDefinitions received from Spring to
@@ -49,8 +60,9 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionSource {
-  private static Object BEAN_IN_CREATION_OBJECT = new Object();
+public class RSACBeanLocator implements ApplicationContextAware,
+    BeanDefinitionSource {
+  private static CreationMarker BEAN_IN_CREATION_OBJECT = new CreationMarker(0);
   private static String REQUEST_STARTED_KEY = ".request  started";
   private ConfigurableApplicationContext blankcontext;
   private ApplicationContext parentcontext;
@@ -60,7 +72,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
   public void setBlankContext(ConfigurableApplicationContext blankcontext) {
     this.blankcontext = blankcontext;
   }
-  
+
   // NB - currently used only for leafparsers, which are currently JVM-static.
   public void setMappingContext(SAXalizerMappingContext smc) {
     this.smc = smc;
@@ -75,11 +87,11 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     threadlocal = reflectivecache.getConcurrentMap(1);
   }
 
-//  private ThreadLocal threadlocal = new ThreadLocal() {
-//    public Object initialValue() {
-//      return new PerRequestInfo(RSACBeanLocator.this, lazysources);
-//    }
-//  };
+  // private ThreadLocal threadlocal = new ThreadLocal() {
+  // public Object initialValue() {
+  // return new PerRequestInfo(RSACBeanLocator.this, lazysources);
+  // }
+  // };
   // We do not use a genuine ThreadLocal here because of a terrible JVM bug
   // discovered in JDK 1.4.2_08 and 09 (apparently fixed in 1.5).
   private Map threadlocal;
@@ -91,28 +103,45 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
       pri = new PerRequestInfo(RSACBeanLocator.this, lazysources);
       threadlocal.put(thread, pri);
     }
-   return pri;
+    return pri;
   }
 
   /**
    * Starts the request-scope container for the current thread.
    */
-  
+
   public void startRequest() {
+    if (isStarted()) {
+      throw UniversalRuntimeException.accumulate(new IllegalStateException(),
+          "RSAC container has already been started: ");
+    }
     PerRequestInfo pri = getPerRequest();
     pri.beans.set(REQUEST_STARTED_KEY, BEAN_IN_CREATION_OBJECT);
   }
 
-
+  /** Determines whether the container has already been started for the
+   * current thread.
+   */
+  
   public boolean isStarted() {
     PerRequestInfo pri = getPerRequest();
     return pri.beans.locateBean(REQUEST_STARTED_KEY) != null;
+  }
+
+  private void assertIsStarted() {
+    if (!isStarted()) {
+      throw UniversalRuntimeException.accumulate(new IllegalStateException(),
+          "RSAC container has not been started properly: ");
+    }
+    // TODO Auto-generated method stub
+
   }
 
   /**
    * Called at the end of a request. I advise doing this in a finally block.
    */
   public void endRequest() {
+    assertIsStarted();
     PerRequestInfo pri = getPerRequest();
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
@@ -179,6 +208,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
         rbi.isfactorybean = FactoryBean.class.isAssignableFrom(rbi.beanclass);
       }
     }
+    BracketerPopulator.populateBracketers(parentcontext, rbimap);
   }
 
   /**
@@ -187,7 +217,8 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
    * harder to resolve bean classes than Spring generally does, through walking
    * chains of factory-methods.
    * 
-   * @param clazz A class or interface class to be searched for.
+   * @param clazz
+   *          A class or interface class to be searched for.
    * @return A list of derived bean names.
    */
   public String[] beanNamesForClass(Class clazz) {
@@ -202,7 +233,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     }
     return togo.toStringArray();
   }
-  
+
   /**
    * Returns the class of this bean, if it can be statically determined,
    * <code>null</code> if it cannot (i.e. this bean is the product of a
@@ -237,7 +268,6 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     return rbi.beanclass;
   }
 
-
   public void addPostProcessor(BeanPostProcessor beanpp) {
     getPerRequest().postprocessors.add(beanpp);
   }
@@ -245,7 +275,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
   private Object getLocalBean(PerRequestInfo pri, String beanname,
       boolean nolazy) {
     Object bean = pri.beans.locateBean(beanname);
-    if (bean == BEAN_IN_CREATION_OBJECT) {
+    if (bean instanceof CreationMarker) {
       throw new BeanCurrentlyInCreationException(beanname);
     }
     else if (bean == null) {
@@ -305,14 +335,39 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
     return deliver;
   }
 
-  private Object createBean(PerRequestInfo pri, String beanname) {
-    ++pri.cbeans;
-    pri.beans.set(beanname, BEAN_IN_CREATION_OBJECT);
+  private Object createBean(final PerRequestInfo pri, final String beanname) {
+    CreationMarker marker = (CreationMarker) pri.beans.locateBean(beanname);
+    if (marker == null) {
+      marker = BEAN_IN_CREATION_OBJECT;
+      pri.beans.set(beanname, marker);
+    }
     RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
     if (rbi == null) {
       throw new NoSuchBeanDefinitionException(beanname,
           "Bean definition not found");
     }
+    // implement fetch wrappers in such a way that doesn't slow normal creation.
+    if (rbi.fetchwrappers != null
+        && marker.wrapperindex < rbi.fetchwrappers.length) {
+      if (marker.wrapperindex == 0) {
+        pri.beans.set(beanname, new CreationMarker(1));
+      }
+      else {
+        ++marker.wrapperindex;
+      }
+      Object wrappero = rbi.fetchwrappers[marker.wrapperindex];
+      RunnableWrapper wrapper = (RunnableWrapper) (wrappero instanceof RunnableWrapper ? wrappero
+          : getBean(pri, (String) wrappero, true));
+      final Object[] togo = new Object[1];
+      wrapper.wrapRunnable(new Runnable() {
+        public void run() {
+          togo[0] = createBean(pri, beanname);
+        }
+
+      }).run();
+      return togo[0];
+    }
+    ++pri.cbeans;
 
     Object newbean;
     // NB - isn't this odd, and in fact generally undocumented - properties
@@ -390,7 +445,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
       }
     }
     if (rbi.dependson != null) {
-      for (int i = 0; i < rbi.dependson.length; ++ i) {
+      for (int i = 0; i < rbi.dependson.length; ++i) {
         getBean(pri, rbi.dependson[i], false);
       }
     }
@@ -459,6 +514,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
    * object, and evaluation will proceed quickly.
    */
   public WriteableBeanLocator getBeanLocator() {
+    assertIsStarted();
     PerRequestInfo pri = getPerRequest();
     return pri.requestwbl;
   }
@@ -468,6 +524,7 @@ public class RSACBeanLocator implements ApplicationContextAware, BeanDefinitionS
    * auto-create beans that are not present.
    */
   public WriteableBeanLocator getDeadBeanLocator() {
+    assertIsStarted();
     PerRequestInfo pri = getPerRequest();
     return pri.beans;
   }

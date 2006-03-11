@@ -10,11 +10,17 @@ import org.springframework.aop.TargetSource;
  * RSAC ThreadLocal container. A sort of multi-way cross between 
  * ThreadLocalTargetSource, HotSwappableTargetSource and
  * LazyInitTargetSource...
+ * <p>An RLTS will be automatically created for every bean in the context
+ * marked as <code>lazy-init="true"</code>, converting it into a 
+ * <a href="http://www2.caret.cam.ac.uk/rsfwiki/Wiki.jsp?page=VeryLazyBeans">
+ * very lazy bean</a>
  * <p>Note that the one exposed dependency, targetBeanName, is actually fake.
  * Since we have only ONE RLTS per thread, the name is actually stashed by
  * RSACBeanLocator, which on thread init creates not only a ProxyFactoryBean,
  * but also a forked instance of this bean, with all the dependencies 
  * delivered via constructor.
+ * <p>This facility could be provided by a Spring AutoProxyCreator but there
+ * isn't time during a request cycle.
  * @author Antranig Basman (amb26@ponder.org.uk)
  * 
  */

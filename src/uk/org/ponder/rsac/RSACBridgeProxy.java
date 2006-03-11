@@ -6,9 +6,8 @@ package uk.org.ponder.rsac;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
-
-import uk.org.ponder.springutil.BeanLocatorBeanFactory;
 
 
 /** An "AOP Alliance" proxy that allows request-scope dependencies to
@@ -27,7 +26,8 @@ import uk.org.ponder.springutil.BeanLocatorBeanFactory;
  *
  */
 
-public class RSACBridgeProxy implements TargetSource, FactoryBean {
+public class RSACBridgeProxy implements TargetSource, FactoryBean,
+  BeanFactoryAware {
   
   private RSACBeanLocator rsacbl;
   private String targetbean;
@@ -57,6 +57,7 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean {
   }
 
   Object proxy = null;
+  private BeanFactory beanFactory;
   
   private void createProxy() {
     ProxyFactoryBean pfb = new ProxyFactoryBean();
@@ -65,8 +66,7 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean {
       pfb.setInterfaces(new Class[] {beanclass});
     }
     pfb.setTargetSource(this);
-    BeanFactory blfactory = new BeanLocatorBeanFactory(rsacbl.getBeanLocator());
-    pfb.setBeanFactory(blfactory);
+    pfb.setBeanFactory(beanFactory);
     proxy = pfb.getObject();
   }
   
@@ -83,6 +83,10 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean {
 
   public boolean isSingleton() {
     return true;
+  }
+
+  public void setBeanFactory(BeanFactory beanFactory)  {
+    this.beanFactory = beanFactory;
   }
 
 }
