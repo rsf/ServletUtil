@@ -51,7 +51,7 @@ public class InformationServlet extends HttpServlet {
       if (handlerroot == null) {
         BeanGetter beangetter = ServletUtil.getBeanFactory(getServletContext());
         handlerroot = (InformationHandlerRoot) beangetter
-            .getBean("informationhandlerroot");
+            .getBean("informationHandlerRoot");
         baseURL = ServletUtil.getBaseURL(req);
       }
       String baseURL2 = ServletUtil.getBaseURL2(req);
