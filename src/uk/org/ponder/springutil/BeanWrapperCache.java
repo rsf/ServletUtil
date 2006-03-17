@@ -30,7 +30,7 @@ public class BeanWrapperCache implements ApplicationContextAware {
     BeanWrapper wrapper = (BeanWrapper) wrapperforpath.get(path);
     if (wrapper == null) {
       Object bean = factory.getBean(path);
-      wrapper = new BeanWrapperImpl(bean, path);
+      wrapper = new BeanWrapperImpl(bean, path, factory);
       wrapperforpath.put(path, wrapper);
     }
     return wrapper;
