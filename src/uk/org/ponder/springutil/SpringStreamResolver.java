@@ -9,6 +9,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 import uk.org.ponder.streamutil.StreamResolver;
 import uk.org.ponder.util.UniversalRuntimeException;
@@ -19,22 +20,28 @@ import uk.org.ponder.util.UniversalRuntimeException;
  */
 public class SpringStreamResolver implements ApplicationContextAware,
     StreamResolver {
-  private ApplicationContext applicationContext;
+  private ResourceLoader resourceLoader;
 
+  public SpringStreamResolver() {}
+
+  public SpringStreamResolver(ResourceLoader resourceLoader) {
+    this.resourceLoader = resourceLoader;
+  }
+  
   public void setApplicationContext(ApplicationContext applicationContext)
       throws BeansException {
-    this.applicationContext = applicationContext;
+    this.resourceLoader = applicationContext;
   }
-
+  
   public InputStream openStream(String path) {
     try {
-      Resource res = applicationContext.getResource(path);
+      Resource res = resourceLoader.getResource(path);
       return res.getInputStream();
     }
     catch (Exception e) {
       throw UniversalRuntimeException.accumulate(e,
           "Unable to open resource with path " + path
-              + " from application context" + applicationContext);
+              + " from application context" + resourceLoader);
     }
   }
 

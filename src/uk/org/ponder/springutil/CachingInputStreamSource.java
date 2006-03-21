@@ -17,18 +17,21 @@ import uk.org.ponder.streamutil.StreamResolver;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
-/** A "caching" source of InputStreams that will only poll the filesystem
- * for changes after a specified lag. Currently any non-filesystem resources
- * are assumed to be ALWAYS STALE, that is, they will always have their 
- * streams returned rather than the marker.
+/**
+ * A "caching" source of InputStreams that will only poll the filesystem for
+ * changes after a specified lag. Currently any non-filesystem resources are
+ * assumed to be ALWAYS STALE, that is, they will always have their streams
+ * returned rather than the marker.
+ * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 
 public class CachingInputStreamSource implements StreamResolver {
-  /** If the stream is considered up to date, either through actually being
-   * up to date or through having been polled within the last <code>cacheSeconds</code>,
-   * this marker value is returned from getInputStream. Do not attempt to use
-   * any methods of this object!
+  /**
+   * If the stream is considered up to date, either through actually being up to
+   * date or through having been polled within the last
+   * <code>cacheSeconds</code>, this marker value is returned from
+   * getInputStream. Do not attempt to use any methods of this object!
    */
   public static final InputStream UP_TO_DATE = new ByteArrayInputStream(
       new byte[0]);
@@ -36,23 +39,35 @@ public class CachingInputStreamSource implements StreamResolver {
   private int cachesecs;
 
   public static final int ALWAYS_STALE = 0;
-  
-  /** Sets the lag after which the filesystem will be checked again for change
-   * of datestamp. At a value of ALWAYS_STALE (0) the resource will always be
-   * reloaded. 
+
+  /**
+   * Sets the lag after which the filesystem will be checked again for change of
+   * datestamp. At a value of ALWAYS_STALE (0) the resource will always be
+   * reloaded.
    */
-  
+
   public void setCacheSeconds(int cachesecs) {
     this.cachesecs = cachesecs;
   }
-  
-  public ResourceLoader resourceloader;
+
+  private ResourceLoader resourceloader;
+
+  private StreamResolver baseresolver;
 
   private Map stalenesses = new HashMap();
 
   public CachingInputStreamSource(ResourceLoader resourceloader, int cachesecs) {
     this.resourceloader = resourceloader;
     this.cachesecs = cachesecs;
+    init();
+  }
+
+  public void init() {
+    baseresolver = new SpringStreamResolver(resourceloader);
+  }
+
+  public StreamResolver getNonCachingResolver() {
+    return baseresolver;
   }
 
   public InputStream openStream(String fullpath) {
@@ -67,29 +82,29 @@ public class CachingInputStreamSource implements StreamResolver {
 
     Resource res = null;
     try {
-    if (now > staleness.lastchecked + cachesecs * 1000) {
-      res = resourceloader.getResource(fullpath);
-      if (!res.exists())
-        return null;
-      try {
-        Logger.log.info("Trying to load from path " + fullpath);
-        File f = res.getFile(); // throws IOException
-        long modtime = f.lastModified();
-        if (modtime > staleness.modtime) {
-          staleness.modtime = modtime;
-          isstale = true;
+      if (now > staleness.lastchecked + cachesecs * 1000) {
+        res = resourceloader.getResource(fullpath);
+        if (!res.exists())
+          return null;
+        try {
+          Logger.log.info("Trying to load from path " + fullpath);
+          File f = res.getFile(); // throws IOException
+          long modtime = f.lastModified();
+          if (modtime > staleness.modtime) {
+            staleness.modtime = modtime;
+            isstale = true;
+          }
+          if (isnew) {
+            stalenesses.put(fullpath, staleness);
+          }
         }
-        if (isnew) {
-          stalenesses.put(fullpath, staleness);
+        catch (Exception e) {
+          // If it's not a file, it's always stale.
+          return res.getInputStream();
         }
       }
-      catch (Exception e) { 
-        // If it's not a file, it's always stale.
-        return res.getInputStream();
-      }
-    }
-    staleness.lastchecked = now;
-  
+      staleness.lastchecked = now;
+
       return isstale ? res.getInputStream()
           : UP_TO_DATE;
     }
