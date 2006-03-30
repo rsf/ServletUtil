@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.rsac.RSACBeanLocator;
+import uk.org.ponder.util.Logger;
 
 /**
  * @author andrew, Antranig
@@ -36,6 +37,7 @@ public class RSACUtils {
   
   public static void startServletRequest(HttpServletRequest request, 
       HttpServletResponse response, RSACBeanLocator rsacbl, String httpfactorybean) {
+    Logger.log.info("Got rsacbg " + rsacbl);
     if (!rsacbl.isStarted()) {
       rsacbl.startRequest();
     }

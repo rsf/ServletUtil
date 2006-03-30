@@ -5,9 +5,12 @@ package uk.org.ponder.rsac;
 
 import java.lang.reflect.Method;
 
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.NoOp;
 
 import org.springframework.aop.TargetSource;
 
@@ -19,7 +22,7 @@ import org.springframework.aop.TargetSource;
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
-
+// http://www.ociweb.com/jnb/jnbNov2005.html
 public class RSACPeaProxyFactory implements MethodInterceptor {
 
   private Class targetclass;
@@ -42,15 +45,15 @@ public class RSACPeaProxyFactory implements MethodInterceptor {
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(targetclass);
 
-//    enhancer.setCallbackFilter(new CallbackFilter() {
-//
-//      public int accept(Method method) {
-//        return method.getName().equals("get") ? 1
-//            : 0;
-//      }
-//    });
+    enhancer.setCallbackFilter(new CallbackFilter() {
+      public int accept(Method method) {
+        return method.getName().equals("get") ? 1
+            : 0;
+      }
+    });
 
-    enhancer.setCallback(this);
+    enhancer.setCallbacks(
+        new Callback[] {NoOp.INSTANCE, this});
     return enhancer.create();
   }
 

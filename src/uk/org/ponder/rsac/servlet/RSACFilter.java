@@ -33,7 +33,8 @@ public class RSACFilter implements Filter {
         .getWebApplicationContext(filterConfig.getServletContext());
     Exception exception = null;
     try {
-      rsacbg = (RSACBeanLocator) wac.getBean("rsacBeanLocator");
+      rsacbg = (RSACBeanLocator) wac.getBean("RSACBeanLocator");
+      Logger.log.info("Got rsacbg " + rsacbg);
     }
     catch (Exception e) {
       exception = e;

@@ -63,18 +63,18 @@ public class ServletUtil {
   // off "PathInfo" from RequestURL. Note that RequestURL can be the
   // ORIGINAL url (before a dispatch) and hence not agree with a URL that
   // could be used to invoke the current request.
-  public static String getBaseURL(HttpServletRequest hsr) {
-    String requestURL = hsr.getRequestURL().toString();
-    String requestpath = hsr.getServletPath();
-    int embedpoint = requestURL.indexOf(requestpath);
-    if (embedpoint == -1) {
-      throw new UniversalRuntimeException("Cannot locate request path of "
-          + requestpath + " within request URL of " + requestURL);
-    }
-    String baseURL = requestURL.substring(0, embedpoint + requestpath.length()
-        + 1);
-    return baseURL;
-  }
+//  public static String getBaseURL(HttpServletRequest hsr) {
+//    String requestURL = hsr.getRequestURL().toString();
+//    String requestpath = hsr.getServletPath();
+//    int embedpoint = requestURL.indexOf(requestpath);
+//    if (embedpoint == -1) {
+//      throw new UniversalRuntimeException("Cannot locate request path of "
+//          + requestpath + " within request URL of " + requestURL);
+//    }
+//    String baseURL = requestURL.substring(0, embedpoint + requestpath.length()
+//        + 1);
+//    return baseURL;
+//  }
 
   /**
    * Computes the "Base URL" of this servlet, defined as the complete request
