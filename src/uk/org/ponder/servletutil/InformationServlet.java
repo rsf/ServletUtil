@@ -81,7 +81,7 @@ public class InformationServlet extends HttpServlet {
         XMLProvider xmlprovider = handlerroot.getXMLProvider();
         Throwable t = null;
         String errorid = null;
-        String extraerrors = "";
+        //String extraerrors = "";
         try {
           //String input = StreamCopier.streamToString(req.getInputStream());
           Object arg = xmlprovider.readXML(null, req.getInputStream());
@@ -101,22 +101,22 @@ public class InformationServlet extends HttpServlet {
           errorid = handlerroot.getIDGenerator().generateID();
           t = t1;
         }
-        ErrorStateEntry threaderrors = ThreadErrorState.getErrorState();
-        TargettedMessageList errors = null;
-        
-        if (threaderrors == null) {
-          Logger.log.error("Got null ESE from ThreadLocal");
-          errors = new TargettedMessageList();
-        }
-        else {
-          errors = threaderrors.errors;
-        }
-        if (errors.size() > 0) {
-          for (int i = 0; i < errors.size(); ++i) {
-            extraerrors += errors.messageAt(i).messagecode
-                + errors.messageAt(i).exceptionclass;
-          }
-        }
+//        ErrorStateEntry threaderrors = ThreadErrorState.getErrorState();
+//        TargettedMessageList errors = null;
+//        
+//        if (threaderrors == null) {
+//          Logger.log.error("Got null ESE from ThreadLocal");
+//          errors = new TargettedMessageList();
+//        }
+//        else {
+//          errors = threaderrors.errors;
+//        }
+//        if (errors.size() > 0) {
+//          for (int i = 0; i < errors.size(); ++i) {
+//            extraerrors += errors.messageAt(i).messagecode
+//                + errors.messageAt(i).exceptionclass;
+//          }
+//        }
         if (errorid != null) {
           ErrorObject err = new ErrorObject("Error ID " + errorid
               + " processing request " + req.getRequestURI(), handlerID, t);

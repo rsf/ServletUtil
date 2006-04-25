@@ -41,7 +41,7 @@ public class SimpleFormDecoder {
           fields[i].set(target, parsed);
         }
         catch (Exception e) {
-          messages.add(new TargettedMessage(e.getMessage(), e.getClass(),
+          messages.add(new TargettedMessage(e.getMessage(), e,
               fieldname));
           Logger.log.warn("Error parsing field " + fieldname + " for "
               + fieldtype, e);
