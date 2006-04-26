@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import uk.org.ponder.errorutil.ErrorStateEntry;
-import uk.org.ponder.errorutil.TargettedMessageList;
 import uk.org.ponder.errorutil.ThreadErrorState;
 import uk.org.ponder.hashutil.EighteenIDGenerator;
 import uk.org.ponder.rsac.RSACBeanLocator;
@@ -48,7 +46,7 @@ public class InformationServlet extends HttpServlet {
 
   public void init(ServletConfig config) {
     ServletContext sc = config.getServletContext();
-    Logger.log.warn("ReasonableSpringServlet starting up for context "
+    Logger.log.warn("Information starting up for context "
         + sc.getRealPath(""));
     WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(sc);
     rsacbeanlocator = (RSACBeanLocator) wac.getBean("RSACBeanLocator");
