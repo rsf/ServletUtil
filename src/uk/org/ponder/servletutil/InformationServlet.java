@@ -34,7 +34,7 @@ import uk.org.ponder.webapputil.ErrorObject;
 public class InformationServlet extends HttpServlet {
   private InformationHandlerRoot handlerroot;
 
-  private RSACBeanLocator rsacbeanlocator;
+  //private RSACBeanLocator rsacbeanlocator;
 
   public void doGet(HttpServletRequest req, HttpServletResponse res) {
     service(req, res);
@@ -49,7 +49,7 @@ public class InformationServlet extends HttpServlet {
     Logger.log.warn("Information starting up for context "
         + sc.getRealPath(""));
     WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(sc);
-    rsacbeanlocator = (RSACBeanLocator) wac.getBean("RSACBeanLocator");
+    //rsacbeanlocator = (RSACBeanLocator) wac.getBean("RSACBeanLocator");
     handlerroot = (InformationHandlerRoot) wac.getBean("informationHandlerRoot");
   }
  
@@ -57,8 +57,8 @@ public class InformationServlet extends HttpServlet {
 
   public void service(HttpServletRequest req, HttpServletResponse res) {
     ThreadErrorState.beginRequest();
-    RSACUtils.startServletRequest(req, res, 
-        rsacbeanlocator, RSACUtils.HTTP_SERVLET_FACTORY);
+//    RSACUtils.startServletRequest(req, res, 
+//        rsacbeanlocator, RSACUtils.HTTP_SERVLET_FACTORY);
     try {
       String baseURL2 = ServletUtil.getBaseURL2(req);
       Logger.log.info("baseURL2: " + baseURL2);
@@ -135,8 +135,7 @@ public class InformationServlet extends HttpServlet {
           "Fatal exception in InformationServlet");
     }
     finally {
-      rsacbeanlocator.endRequest();
-//      ServletUtil.getServletState().clear();
+//      rsacbeanlocator.endRequest();
     }
   }
 }
