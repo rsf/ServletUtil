@@ -7,7 +7,6 @@ import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.springframework.beans.TypeMismatchException;
@@ -82,26 +81,23 @@ public class RSACBeanLocator implements ApplicationContextAware,
     parentcontext = applicationContext;
   }
 
-  public void setReflectiveCache(ReflectiveCache reflectivecache) {
-    this.reflectivecache = reflectivecache;
-    threadlocal = reflectivecache.getConcurrentMap(1);
-  }
-
   // private ThreadLocal threadlocal = new ThreadLocal() {
   // public Object initialValue() {
   // return new PerRequestInfo(RSACBeanLocator.this, lazysources);
   // }
   // };
-  // We do not use a genuine ThreadLocal here because of a terrible JVM bug
-  // discovered in JDK 1.4.2_08 and 09 (apparently fixed in 1.5).
-  private Map threadlocal;
+  // We do not use initialValue here because of bug 
+  // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5025230 which corrupts
+  // the table when initialising a further ThreadLocal from within initialValue().
+  // in this case the ThreadLocal is created within CGLib while instantiating the
+  // RSACLazyTargetSource proxies.
+  private ThreadLocal threadlocal;
 
   private PerRequestInfo getPerRequest() {
-    Thread thread = Thread.currentThread();
-    PerRequestInfo pri = (PerRequestInfo) threadlocal.get(thread);
+    PerRequestInfo pri = (PerRequestInfo) threadlocal.get();
     if (pri == null) {
       pri = new PerRequestInfo(RSACBeanLocator.this, lazysources);
-      threadlocal.put(thread, pri);
+      threadlocal.set(pri);
     }
     return pri;
   }
@@ -115,6 +111,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       throw UniversalRuntimeException.accumulate(new IllegalStateException(),
           "RSAC container has already been started: ");
     }
+    GlobalBeanAccessor.startRequest(this.parentcontext);
     PerRequestInfo pri = getPerRequest();
     pri.beans.set(REQUEST_STARTED_KEY, BEAN_IN_CREATION_OBJECT);
   }
@@ -158,6 +155,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
             + todestroyname, e);
       }
     }
+    GlobalBeanAccessor.endRequest();
     // System.out.println(pri.cbeans + " beans were created");
     // Give the garbage collector a head start
     pri.clear();
