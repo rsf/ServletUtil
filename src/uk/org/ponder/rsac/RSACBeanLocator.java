@@ -81,6 +81,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
     parentcontext = applicationContext;
   }
 
+  public void setReflectiveCache(ReflectiveCache reflectivecache) {
+    this.reflectivecache = reflectivecache;
+  }
+
   // private ThreadLocal threadlocal = new ThreadLocal() {
   // public Object initialValue() {
   // return new PerRequestInfo(RSACBeanLocator.this, lazysources);
@@ -91,7 +95,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   // the table when initialising a further ThreadLocal from within initialValue().
   // in this case the ThreadLocal is created within CGLib while instantiating the
   // RSACLazyTargetSource proxies.
-  private ThreadLocal threadlocal;
+  private ThreadLocal threadlocal = new ThreadLocal();
 
   private PerRequestInfo getPerRequest() {
     PerRequestInfo pri = (PerRequestInfo) threadlocal.get();
@@ -102,6 +106,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     return pri;
   }
 
+
   /**
    * Starts the request-scope container for the current thread.
    */
@@ -111,7 +116,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       throw UniversalRuntimeException.accumulate(new IllegalStateException(),
           "RSAC container has already been started: ");
     }
-    GlobalBeanAccessor.startRequest(this.parentcontext);
+    GlobalBeanAccessor.startRequest(parentcontext);
     PerRequestInfo pri = getPerRequest();
     pri.beans.set(REQUEST_STARTED_KEY, BEAN_IN_CREATION_OBJECT);
   }
@@ -139,6 +144,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
    */
   public void endRequest() {
     assertIsStarted();
+    GlobalBeanAccessor.endRequest();
     PerRequestInfo pri = getPerRequest();
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
@@ -155,7 +161,6 @@ public class RSACBeanLocator implements ApplicationContextAware,
             + todestroyname, e);
       }
     }
-    GlobalBeanAccessor.endRequest();
     // System.out.println(pri.cbeans + " beans were created");
     // Give the garbage collector a head start
     pri.clear();
