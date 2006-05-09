@@ -37,7 +37,7 @@ public class RSACUtils {
   
   public static void startServletRequest(HttpServletRequest request, 
       HttpServletResponse response, RSACBeanLocator rsacbl, String httpfactorybean) {
-    Logger.log.info("Got rsacbg " + rsacbl);
+//    Logger.log.info("Got rsacbg " + rsacbl);
     if (!rsacbl.isStarted()) {
       rsacbl.startRequest();
     }
