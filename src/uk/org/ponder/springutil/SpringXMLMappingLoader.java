@@ -31,12 +31,12 @@ public class SpringXMLMappingLoader extends MappingLoadManager
   
   public void init() {
     MappingLoaderList loaders = new MappingLoaderList();
-    String[] names = applicationContext.getBeanDefinitionNames(MappingLoader.class);
+    String[] names = applicationContext.getBeanNamesForType(MappingLoader.class, false, false);
     for (int i = 0; i < names.length; ++ i) {
       MappingLoader loader = (MappingLoader) applicationContext.getBean(names[i]);
       loaders.add(loader);
     }
-    names = applicationContext.getBeanDefinitionNames(MappingLoaderList.class);
+    names = applicationContext.getBeanNamesForType(MappingLoaderList.class, false, false);
       for (int i = 0; i < names.length; ++ i) {
       MappingLoaderList loader = (MappingLoaderList) applicationContext.getBean(names[i]);
       loaders.addAll(loader);

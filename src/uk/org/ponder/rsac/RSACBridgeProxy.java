@@ -79,8 +79,12 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean,
       if (beanclass.isInterface()) {
         pfb.setInterfaces(new Class[] { beanclass });
       }
+      else {
+        pfb.setProxyTargetClass(true);
+      }
       pfb.setTargetSource(this);
       pfb.setBeanFactory(beanFactory);
+      
       proxy = pfb.getObject();
     }
   }

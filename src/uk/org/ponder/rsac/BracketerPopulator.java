@@ -22,7 +22,7 @@ public class BracketerPopulator {
       Map rbimap) {
     HashMap build = new HashMap();
     String[] names = applicationContext
-        .getBeanDefinitionNames(BeanFetchBracketer.class);
+        .getBeanNamesForType(BeanFetchBracketer.class, false, false);
     for (int i = 0; i < names.length; ++i) {
       BeanFetchBracketer bracketer = (BeanFetchBracketer) applicationContext
           .getBean(names[i]);

@@ -74,8 +74,12 @@ class PerRequestInfo {
       if (beanclass.isInterface()) {
         pfb.setInterfaces(new Class[] {beanclass});
       }
+      else {
+        pfb.setProxyTargetClass(true);
+      }
       pfb.setTargetSource(rlts);
       pfb.setBeanFactory(blfactory);
+      
       thislazies.put(lazysource, pfb);
     }
     this.lazysources = thislazies;
