@@ -55,7 +55,9 @@ public class CachingInputStreamSource implements StreamResolver {
   private StreamResolver baseresolver;
 
   private Map stalenesses = new HashMap();
-
+// The first argument here is typically the ApplicationContext - note that
+// it will stubbornly interpret ALL paths as relative to the ServletContext,
+// whether they begin with slash or no - @see ServletContextResource
   public CachingInputStreamSource(ResourceLoader resourceloader, int cachesecs) {
     this.resourceloader = resourceloader;
     this.cachesecs = cachesecs;
