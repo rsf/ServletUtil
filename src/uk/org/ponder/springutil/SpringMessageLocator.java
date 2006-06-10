@@ -3,6 +3,8 @@
  */
 package uk.org.ponder.springutil;
 
+import java.util.Locale;
+
 import org.springframework.context.MessageSource;
 
 import uk.org.ponder.errorutil.MessageLocator;
@@ -13,7 +15,7 @@ import uk.org.ponder.stringutil.LocaleGetter;
  * 
  */
 public class SpringMessageLocator extends MessageLocator {
-  MessageSource messagesource;
+  private MessageSource messagesource;
   private LocaleGetter localegetter;
 
   public void setMessageSource(MessageSource messagesource) {
@@ -25,6 +27,8 @@ public class SpringMessageLocator extends MessageLocator {
   }
 
   public String getMessage(String code, Object[] args) {
-    return messagesource.getMessage(code, args, localegetter.get());
+    return messagesource.getMessage(code, args, localegetter == null ? Locale
+        .getDefault()
+        : localegetter.get());
   }
 }
