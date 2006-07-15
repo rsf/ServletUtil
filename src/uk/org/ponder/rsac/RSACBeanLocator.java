@@ -404,7 +404,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       // extremely undesirable (like an inner class) that we should not even
       // dream of reflecting over. If on the other hand the user has specified
       // some dependencies they doubtless know what they are doing.
-      MethodAnalyser ma = smc.getAnalyser(rbi.beanclass);
+      MethodAnalyser ma = smc.getAnalyser(newbean.getClass());
       // Object clonebean = deadbean.copy();
       // iterate over each LOCAL dependency of the bean with given name.
       for (Iterator depit = rbi.dependencies(); depit.hasNext();) {

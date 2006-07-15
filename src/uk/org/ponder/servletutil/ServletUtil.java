@@ -107,7 +107,7 @@ public class ServletUtil {
   }
 
   /*****************************************************************************
-   * Computes the "Context Base URL" of this servlet, which will *include the
+   * Computes the "Context Base URL" of this servlet, which will include the
    * extra stub of the path that refers to the mapping for the specific servlet.
    */
   public static String getContextBaseURL2(HttpServletRequest hsr) {
