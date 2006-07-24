@@ -453,9 +453,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
       }
     }
     // process it FIRST since it will be the factory that is expecting the
-    // dependencies
-    // set!
+    // dependencies set!
     processNewBean(pri, beanname, newbean);
+    // now the bean is initialised, attempt to call any init-method or InitBean.
     if (rbi.initmethod != null) {
       reflectivecache.invokeMethod(newbean, rbi.initmethod);
     }
@@ -481,19 +481,19 @@ public class RSACBeanLocator implements ApplicationContextAware,
     }
     // enter the bean into the req-specific map.
     pri.beans.set(beanname, newbean);
-    // now the bean is initialised, attempt to call any init-method or InitBean.
 
     return newbean;
   }
 
-  private void processNewBean(PerRequestInfo pri, String beanname,
+  private Object processNewBean(PerRequestInfo pri, String beanname,
       Object newbean) {
     for (int i = 0; i < pri.postprocessors.size(); ++i) {
       BeanPostProcessor beanpp = (BeanPostProcessor) pri.postprocessors.get(i);
       try {
-        beanpp.postProcessBeforeInitialization(newbean, beanname);
-        // someday we might put something in between here.
-        beanpp.postProcessAfterInitialization(newbean, beanname);
+        newbean = beanpp.postProcessBeforeInitialization(newbean, beanname);
+        // TODO: Timing of this next line is incorrect - should occur after
+        // initialisation in caller. 
+        //beanpp.postProcessAfterInitialization(newbean, beanname);
       }
       catch (Exception e) {
         Logger.log.log(Level.ERROR, "Exception processing bean "
@@ -509,6 +509,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     if (newbean instanceof ApplicationContextAware) {
       ((ApplicationContextAware) newbean).setApplicationContext(parentcontext);
     }
+    return newbean;
   }
 
   /**
