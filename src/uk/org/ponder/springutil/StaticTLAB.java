@@ -13,7 +13,7 @@ package uk.org.ponder.springutil;
  *
  */
 
-public class TargetListAggregatingBean {
+public class StaticTLAB {
   private String targetBean;
   private String targetProperty;
   private Object value;
@@ -26,9 +26,17 @@ public class TargetListAggregatingBean {
     this.targetBean = targetBean;
   }
   
+  public String getTargetBean() {
+    return targetBean;
+  }
+  
   /** The name of the list-valued property of the target bean **/
   public void setTargetProperty(String targetProperty) {
     this.targetProperty = targetProperty;
+  }
+  
+  public String getTargetProperty() {
+    return targetProperty;
   }
   
   /** A compact alternative to specifying <code>targetBean</code> and 
@@ -36,7 +44,7 @@ public class TargetListAggregatingBean {
    * a single dot-separated "EL" as <code>targetBean.targetProperty</code>
    */
   public void setTargetPath(String targetPath) {
-    int dotpos = targetPath.lastIndexOf('.');
+    int dotpos = targetPath.indexOf('.');
     if (dotpos == -1) {
       throw new IllegalArgumentException("target path " + targetPath + " must contain a dot");
     }
@@ -50,6 +58,10 @@ public class TargetListAggregatingBean {
   public void setValue(Object value) {
     this.value = value;
   }
+  
+  public Object getValue() {
+    return value;
+  }
   /** If set to <code>false</code> (the default is <code>true</code>,
    * any list-valued object will be delivered "in the raw" into the target 
    * property list, rather than being unpacked into it.
@@ -59,5 +71,7 @@ public class TargetListAggregatingBean {
     this.unwraplists = unwraplists;
   }
   
-  
+  public boolean getUnwrapLists() {
+    return unwraplists;
+  }
 }
