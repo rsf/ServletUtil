@@ -10,40 +10,44 @@ import org.springframework.validation.ObjectError;
 import uk.org.ponder.errorutil.TargettedMessage;
 import uk.org.ponder.errorutil.TargettedMessageList;
 
-
-/** Provides conversion between PUC "TargettedMessage"s and Spring "Error" 
+/**
+ * Provides conversion between PUC "TargettedMessage"s and Spring "Error"
  * objects. This conversion is slightly lossy, since PUC doesn't support the
- * idea of "objectName" or "rejectedValue", and Spring doesn't support 
- * message severities.
+ * idea of "objectName" or "rejectedValue", and Spring doesn't support message
+ * severities.
+ * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  */
 
 public class SpringErrorConverter {
-  
+
   public static TargettedMessage SpringErrortoTargettedMessage(Object erroro) {
-   
-    if (erroro instanceof ObjectError) {
-      ObjectError error = (ObjectError) erroro;
-      TargettedMessage togo = new TargettedMessage(error.getCode(), error.getArguments(), 
-          TargettedMessage.TARGET_NONE);
-      return togo;
-    }
-    else if (erroro instanceof FieldError) {
+    if (erroro instanceof FieldError) {
       FieldError error = (FieldError) erroro;
-      TargettedMessage togo = new TargettedMessage(error.getCode(), error.getArguments(), 
-          error.getField());
+      TargettedMessage togo = new TargettedMessage(error.getCodes(), error
+          .getArguments(), error.getField());
       return togo;
     }
-    else throw new IllegalArgumentException("Cannot convert Spring Error of unknown " + erroro.getClass());
+    else if (erroro instanceof ObjectError) {
+      ObjectError error = (ObjectError) erroro;
+      TargettedMessage togo = new TargettedMessage(error.getCodes(), error
+          .getArguments(), TargettedMessage.TARGET_NONE);
+      return togo;
+    }
+    else
+      throw new IllegalArgumentException(
+          "Cannot convert Spring Error of unknown " + erroro.getClass());
   }
-  
+
   public static Object targettedMessageToSpringError(TargettedMessage message) {
     if (message.targetid.equals(TargettedMessage.TARGET_NONE)) {
-      ObjectError togo = new ObjectError("", new String[] {message.messagecode}, message.args, null);
+      ObjectError togo = new ObjectError("", message.messagecodes,
+          message.args, null);
       return togo;
-      }
+    }
     else {
-      FieldError togo = new FieldError("", message.targetid, "", false, new String[] {message.messagecode}, message.args, null);
+      FieldError togo = new FieldError("", message.targetid, "", false,
+          message.messagecodes, message.args, null);
       return togo;
     }
   }
@@ -53,6 +57,6 @@ public class SpringErrorConverter {
       tml.addMessage(SpringErrorConverter.SpringErrortoTargettedMessage(errors
           .getAllErrors().get(i)));
     }
-    
+
   }
 }

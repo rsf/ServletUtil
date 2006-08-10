@@ -26,10 +26,14 @@ public class BracketerPopulator {
     for (int i = 0; i < names.length; ++i) {
       BeanFetchBracketer bracketer = (BeanFetchBracketer) applicationContext
           .getBean(names[i]);
-      List bracks = (ArrayList) build.get(bracketer.getTargetBeanName());
+      String targetname = bracketer.getTargetBeanName();
+      if (targetname == null) 
+        throw new IllegalArgumentException("Error in configuration: BeanFetchBracketer " +
+            names[i] + " does not carry a targetBeanName");
+      List bracks = (ArrayList) build.get(targetname);
       if (bracks == null) {
         bracks = new ArrayList();
-        build.put(bracketer.getTargetBeanName(), bracks);
+        build.put(targetname, bracks);
       }
       bracks.add(bracketer.getWrappingBean());
     }

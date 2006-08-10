@@ -15,14 +15,16 @@ public class BeanFetchBracketer {
    *  that will be used to perform the bracketing. 
    */ 
   private Object wrappingBean;
-  
+   
   public void setTargetBeanName(String targetBeanName) {
     this.targetBeanName = targetBeanName;
   }
   public String getTargetBeanName() {
     return targetBeanName;
   }
-  
+  /** Either a RunnableWrapper, or an EL expression where such can be
+   * found.
+   */
   public void setWrappingBean(Object wrappingBeanName) {
     this.wrappingBean = wrappingBeanName;
   }
