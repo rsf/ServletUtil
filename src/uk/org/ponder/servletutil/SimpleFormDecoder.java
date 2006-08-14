@@ -15,8 +15,8 @@ import uk.org.ponder.util.Logger;
 /** An obsolete class used to deserialise an HttpServletRequest onto a 
  * flat Object, predating the DataAlterationRequest architecture.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
- *  
  */
+// NB used in NST!
 public class SimpleFormDecoder {
   public static TargettedMessage[] decodeForm(Object target,
       HttpServletRequest hsr) {
