@@ -100,8 +100,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   // the table when initialising a further ThreadLocal from within
   // initialValue().
   // in this case the ThreadLocal is created within CGLib while instantiating
-  // the
-  // RSACLazyTargetSource proxies.
+  // the RSACLazyTargetSource proxies.
   private ThreadLocal threadlocal = new ThreadLocal();
 
   private PerRequestInfo getPerRequest() {
@@ -142,8 +141,6 @@ public class RSACBeanLocator implements ApplicationContextAware,
       throw UniversalRuntimeException.accumulate(new IllegalStateException(),
           "RSAC container has not been started properly: ");
     }
-    // TODO Auto-generated method stub
-
   }
 
   /**
@@ -400,15 +397,13 @@ public class RSACBeanLocator implements ApplicationContextAware,
         // Locate the "dead" bean from the genuine Spring context, and clone it
         // as quick as we can - bytecodes might do faster but in the meantime
         // observe that a clone typically costs 1.6 reflective calls so in
-        // general
-        // this method will win over a reflective solution.
+        // general this method will win over a reflective solution.
         // NB - all Copiables simply copy dependencies manually for now, no
         // cost.
         // Copiable deadbean = (Copiable) livecontext.getBean(rbi.isfactorybean?
         // "&" +beanname : beanname);
         // All the same, the following line will cost us close to 1us - unless
-        // it
-        // invokes manual code!
+        // it invokes manual code!
         newbean = reflectivecache.construct(rbi.beanclass);
       }
       if (rbi.hasDependencies()) {
