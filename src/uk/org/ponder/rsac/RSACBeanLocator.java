@@ -359,13 +359,13 @@ public class RSACBeanLocator implements ApplicationContextAware,
       // creation.
       if (rbi.fetchwrappers != null
           && marker.wrapperindex < rbi.fetchwrappers.length) {
+        Object wrappero = rbi.fetchwrappers[marker.wrapperindex];
         if (marker.wrapperindex == 0) {
           pri.beans.set(beanname, new CreationMarker(1));
         }
         else {
           ++marker.wrapperindex;
         }
-        Object wrappero = rbi.fetchwrappers[marker.wrapperindex];
         RunnableWrapper wrapper = (RunnableWrapper) (wrappero instanceof RunnableWrapper ? wrappero
             : getBean(pri, (String) wrappero, true));
         final Object[] togo = new Object[1];
