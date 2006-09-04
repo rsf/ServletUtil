@@ -384,8 +384,25 @@ public class RSACBeanLocator implements ApplicationContextAware,
       // defined for factory-method beans are set on the PRODUCT, whereas those
       // set on FactoryBeans are set on the FACTORY!!
       if (rbi.factorybean != null) {
-        Object factorybean = getBean(pri, rbi.factorybean, false);
-        newbean = reflectivecache.invokeMethod(factorybean, rbi.factorymethod);
+
+        Object factorybean = null;
+        try {
+          factorybean = getBean(pri, rbi.factorybean, false);
+        }
+        catch (Exception e) {
+          throw UniversalRuntimeException.accumulate(e,
+              "Error fetching factory bean " + rbi.factorybean
+                  + " to initialise bean " + beanname);
+        }
+        try {
+          newbean = reflectivecache
+              .invokeMethod(factorybean, rbi.factorymethod);
+        }
+        catch (Exception e) {
+          throw UniversalRuntimeException.accumulate(e, "Error fetching bean "
+              + beanname + " from factory method " + rbi.factorymethod
+              + " of factory bean " + rbi.factorybean);
+        }
         if (newbean == null) {
           throw new IllegalArgumentException(
               "Error: null returned from factory method " + rbi.factorymethod
@@ -467,7 +484,14 @@ public class RSACBeanLocator implements ApplicationContextAware,
       // now the bean is initialised, attempt to call any init-method or
       // InitBean.
       if (rbi.initmethod != null) {
-        reflectivecache.invokeMethod(newbean, rbi.initmethod);
+        try {
+          reflectivecache.invokeMethod(newbean, rbi.initmethod);
+        }
+        catch (Exception e) {
+          throw UniversalRuntimeException.accumulate(e,
+              "Error invoking init method " + rbi.initmethod + " on bean "
+                  + beanname);
+        }
       }
       if (newbean instanceof InitializingBean) {
         try {
