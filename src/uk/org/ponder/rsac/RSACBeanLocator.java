@@ -436,6 +436,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
           String propertyname = (String) depit.next();
           try {
             AccessMethod setter = ma.getAccessMethod(propertyname);
+            if (setter == null) {
+              throw new IllegalArgumentException(newbean.getClass()
+                  + " has no writeable property named " + propertyname);
+            }
             Object depbean = null;
             Object beanref = rbi.beannames(propertyname);
             if (beanref instanceof String) {
