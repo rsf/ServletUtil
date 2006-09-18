@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.springframework.beans.TypeMismatchException;
@@ -171,11 +172,13 @@ public class RSACBeanLocator implements ApplicationContextAware,
   }
 
   // this is a map of bean names to RSACBeanInfo
-  private HashMap rbimap;
+  private Map rbimap;
   // this is a list of the beans of type RSACLazyTargetSources
   private StringList lazysources;
   // this is a list of "fallback" beans that have already been queried
   private StringList fallbacks;
+  // this is a map of alias names to "canonical" bean names
+  private Map aliasMap;
 
   public void init() {
     // at this point we actually expect that the "Dead" factory is FULLY
@@ -187,12 +190,16 @@ public class RSACBeanLocator implements ApplicationContextAware,
     rbimap = new HashMap();
     lazysources = new StringList();
     fallbacks = new StringList();
+    aliasMap = new HashMap();
 
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
       try {
         RSACBeanInfo rbi = BeanDefUtil.convertBeanDef(factory, beanname);
         rbimap.put(beanname, rbi);
+        for (int j = 0; j < rbi.aliases.length; ++ j) {
+          aliasMap.put(rbi.aliases[j], beanname);
+        }
       }
       catch (Exception e) {
         Logger.log.error("Error loading definition for bean " + beanname, e);
@@ -278,8 +285,14 @@ public class RSACBeanLocator implements ApplicationContextAware,
     getPerRequest().postprocessors.add(beanpp);
   }
 
+  private String getTransformedBeanName(String beanname) {
+    String alias = (String) aliasMap.get(beanname);
+    return alias == null? beanname : alias;
+  }
+  
   private Object getLocalBean(PerRequestInfo pri, String beanname,
       boolean nolazy) {
+    beanname = getTransformedBeanName(beanname);
     Object bean = pri.beans.locateBean(beanname);
     if (bean instanceof CreationMarker) {
       throw new BeanCurrentlyInCreationException(beanname);

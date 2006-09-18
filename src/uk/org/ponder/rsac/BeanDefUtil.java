@@ -162,6 +162,7 @@ public class BeanDefUtil {
     rbi.destroymethod = abd.getDestroyMethodName();
     rbi.islazyinit = abd.isLazyInit();
     rbi.dependson = abd.getDependsOn();
+    rbi.aliases = factory.getAliases(beanname);
     if (abd.hasConstructorArgumentValues()) {
       rbi.constructorargvals = abd.getConstructorArgumentValues();
     }
