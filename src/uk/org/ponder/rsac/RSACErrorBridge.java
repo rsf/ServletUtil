@@ -6,14 +6,16 @@ package uk.org.ponder.rsac;
 import uk.org.ponder.errorutil.ErrorStateEntry;
 import uk.org.ponder.errorutil.TargettedMessageList;
 import uk.org.ponder.errorutil.ThreadErrorState;
-import uk.org.ponder.util.RunnableWrapper;
+import uk.org.ponder.util.RunnableInvoker;
 
-/** Link the PonderUtilCore ThreadErrorState marker with the lifecycle
- * of a request bean (in practice as a BeanFetchBracketer)
+/**
+ * Link the PonderUtilCore ThreadErrorState marker with the lifecycle of a
+ * request bean (in practice as a BeanFetchBracketer)
+ * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
- *
+ * 
  */
-public class RSACErrorBridge implements RunnableWrapper {
+public class RSACErrorBridge implements RunnableInvoker {
 
   private String tmlbeanname;
   private RSACBeanLocator rsacbeanlocator;
@@ -25,23 +27,19 @@ public class RSACErrorBridge implements RunnableWrapper {
   public void setTMLBeanName(String tmlbeanname) {
     this.tmlbeanname = tmlbeanname;
   }
-  
-  public Runnable wrapRunnable(final Runnable towrap) {
-    return new Runnable() {
-      public void run() {
-        TargettedMessageList tml = 
-          (TargettedMessageList) rsacbeanlocator.getBeanLocator().locateBean(tmlbeanname);
-        ThreadErrorState.beginRequest();
-        ErrorStateEntry ese = ThreadErrorState.getErrorState();
-        ese.errors = tml;
-        try {
-          towrap.run();
-        }
-        finally {
-          ThreadErrorState.endRequest();
-        }
-      }
-    };
+
+  public void invokeRunnable(Runnable towrap) {
+    TargettedMessageList tml = (TargettedMessageList) rsacbeanlocator
+        .getBeanLocator().locateBean(tmlbeanname);
+    ThreadErrorState.beginRequest();
+    ErrorStateEntry ese = ThreadErrorState.getErrorState();
+    ese.errors = tml;
+    try {
+      towrap.run();
+    }
+    finally {
+      ThreadErrorState.endRequest();
+    }
   }
 
 }

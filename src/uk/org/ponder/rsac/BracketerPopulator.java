@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
-import uk.org.ponder.util.RunnableWrapper;
+import uk.org.ponder.util.RunnableInvoker;
 
 /**
  * Acquire all beans of type BeanFetchBracketer and add them into the RBIMap.
@@ -44,13 +44,13 @@ public class BracketerPopulator {
       Object[] resolved = new Object[wrappers.size()];
       for (int i = 0; i < wrappers.size(); ++i) {
         Object wrappero = wrappers.get(i);
-        if (wrappero instanceof RunnableWrapper) {
+        if (wrappero instanceof RunnableInvoker) {
           resolved[i] = wrappero;
         }
         else {
           String wrappername = (String) wrappero;
           if (applicationContext.containsBeanDefinition(wrappername)) {
-            RunnableWrapper wrapper = (RunnableWrapper) applicationContext
+            RunnableInvoker wrapper = (RunnableInvoker) applicationContext
                 .getBean(wrappername);
             resolved[i] = wrapper;
           }

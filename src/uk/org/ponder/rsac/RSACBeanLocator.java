@@ -35,7 +35,7 @@ import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
 import uk.org.ponder.util.Logger;
-import uk.org.ponder.util.RunnableWrapper;
+import uk.org.ponder.util.RunnableInvoker;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -379,15 +379,15 @@ public class RSACBeanLocator implements ApplicationContextAware,
         else {
           ++marker.wrapperindex;
         }
-        RunnableWrapper wrapper = (RunnableWrapper) (wrappero instanceof RunnableWrapper ? wrappero
+        RunnableInvoker wrapper = (RunnableInvoker) (wrappero instanceof RunnableInvoker ? wrappero
             : getBean(pri, (String) wrappero, true));
         final Object[] togo = new Object[1];
-        wrapper.wrapRunnable(new Runnable() {
+        wrapper.invokeRunnable(new Runnable() {
           public void run() {
             togo[0] = createBean(pri, beanname);
           }
 
-        }).run();
+        });
         return togo[0];
       }
       ++pri.cbeans;
