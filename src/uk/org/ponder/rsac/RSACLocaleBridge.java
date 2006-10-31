@@ -5,7 +5,7 @@ package uk.org.ponder.rsac;
 
 import java.util.Locale;
 
-import uk.org.ponder.stringutil.LocaleGetter;
+import uk.org.ponder.localeutil.LocaleGetter;
 
 
 /** Yet another final, interfaceless class in the JDK! This class bridges
