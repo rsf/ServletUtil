@@ -8,6 +8,9 @@
   <shortDescription>ServletUtil Servlet and Spring libraries</shortDescription>
   <description>Contains libraries for abstracting over servlet dispatch and request scope container (aka RSAC)</description>
   <inceptionYear>2005</inceptionYear>
+  <properties>
+    <deploy.type>jar</deploy.type>
+  </properties>
   <logo>/images/logo.gif</logo>
   <mailingLists>
     <mailingList>
