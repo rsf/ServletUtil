@@ -13,6 +13,7 @@ class RSACBeanInfo {
   // resultant bean may differ for a factory bean.
   Class beanclass;
   boolean isfactorybean = false;
+  boolean issingleton = true;
   String initmethod;
   String destroymethod;
   String factorybean;

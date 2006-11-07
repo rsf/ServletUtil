@@ -358,16 +358,19 @@ public class RSACBeanLocator implements ApplicationContextAware,
   private Object createBean(final PerRequestInfo pri, final String beanname) {
     CreationMarker marker = (CreationMarker) pri.beans.locateBean(beanname);
     boolean success = false;
-    if (marker == null) {
-      marker = BEAN_IN_CREATION_OBJECT;
-      pri.beans.set(beanname, marker);
-    }
+   
     try {
       RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
       if (rbi == null) {
         throw new NoSuchBeanDefinitionException(beanname,
             "Bean definition not found");
       }
+      
+      if (marker == null && !rbi.issingleton) {
+        marker = BEAN_IN_CREATION_OBJECT;
+        pri.beans.set(beanname, marker);
+      }
+      
       // implement fetch wrappers in such a way that doesn't slow normal
       // creation.
       if (rbi.fetchwrappers != null
@@ -531,7 +534,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
         }
       }
       // enter the bean into the req-specific map.
-      pri.beans.set(beanname, newbean);
+      if (!rbi.issingleton) {
+        pri.beans.set(beanname, newbean);
+      }
       success = true;
       return newbean;
     }
