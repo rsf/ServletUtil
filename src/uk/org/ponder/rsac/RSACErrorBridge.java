@@ -33,7 +33,7 @@ public class RSACErrorBridge implements RunnableInvoker {
         .getBeanLocator().locateBean(tmlbeanname);
     ThreadErrorState.beginRequest();
     ErrorStateEntry ese = ThreadErrorState.getErrorState();
-    ese.errors = tml;
+    ese.messages = tml;
     try {
       towrap.run();
     }

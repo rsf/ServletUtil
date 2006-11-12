@@ -309,7 +309,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
         }
       }
       else {
-        bean = createBean(pri, beanname);
+        bean = createBean(pri, beanname, BEAN_IN_CREATION_OBJECT);
       }
     }
     return bean;
@@ -355,8 +355,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
     return deliver;
   }
 
-  private Object createBean(final PerRequestInfo pri, final String beanname) {
-    CreationMarker marker = (CreationMarker) pri.beans.locateBean(beanname);
+  private Object createBean(final PerRequestInfo pri, final String beanname, 
+      CreationMarker marker) {
     boolean success = false;
    
     try {
@@ -366,9 +366,11 @@ public class RSACBeanLocator implements ApplicationContextAware,
             "Bean definition not found");
       }
       
-      if (marker == null && !rbi.issingleton) {
+      if (marker == null) {
         marker = BEAN_IN_CREATION_OBJECT;
-        pri.beans.set(beanname, marker);
+        if (rbi.issingleton) {
+          pri.beans.set(beanname, marker);
+        }
       }
       
       // implement fetch wrappers in such a way that doesn't slow normal
@@ -377,7 +379,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
           && marker.wrapperindex < rbi.fetchwrappers.length) {
         Object wrappero = rbi.fetchwrappers[marker.wrapperindex];
         if (marker.wrapperindex == 0) {
-          pri.beans.set(beanname, new CreationMarker(1));
+          marker = new CreationMarker(1);
+          if (rbi.issingleton) {
+            pri.beans.set(beanname, marker);
+          }
         }
         else {
           ++marker.wrapperindex;
@@ -385,15 +390,18 @@ public class RSACBeanLocator implements ApplicationContextAware,
         RunnableInvoker wrapper = (RunnableInvoker) (wrappero instanceof RunnableInvoker ? wrappero
             : getBean(pri, (String) wrappero, true));
         final Object[] togo = new Object[1];
+        final CreationMarker nextmarker = marker;
         wrapper.invokeRunnable(new Runnable() {
           public void run() {
-            togo[0] = createBean(pri, beanname);
+            togo[0] = createBean(pri, beanname, nextmarker);
           }
 
         });
         return togo[0];
       }
-      ++pri.cbeans;
+      if (rbi.issingleton) {
+        ++pri.cbeans;
+      }
 
       Object newbean;
       // NB - isn't this odd, and in fact generally undocumented - properties
@@ -534,15 +542,18 @@ public class RSACBeanLocator implements ApplicationContextAware,
         }
       }
       // enter the bean into the req-specific map.
-      if (!rbi.issingleton) {
+      if (rbi.issingleton) {
         pri.beans.set(beanname, newbean);
       }
       success = true;
       return newbean;
     }
     finally {
-      if (marker == BEAN_IN_CREATION_OBJECT && !success) {
-        pri.beans.remove(beanname);
+      if (marker.wrapperindex > 0) { 
+        --marker.wrapperindex;
+          if (marker.wrapperindex == 0 && !success) {
+          pri.beans.remove(beanname);
+        }
       }
     }
 

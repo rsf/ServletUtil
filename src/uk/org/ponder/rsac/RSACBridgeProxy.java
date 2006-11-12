@@ -34,6 +34,7 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean,
   private RSACBeanLocator rsacbl;
   private String targetbean;
   private boolean pea = false;
+  private Class targetclass;
 
   public void setRSACBeanLocator(RSACBeanLocator rsacbl) {
     this.rsacbl = rsacbl;
@@ -44,9 +45,13 @@ public class RSACBridgeProxy implements TargetSource, FactoryBean,
   }
 
   public Class getTargetClass() {
-    return rsacbl.getBeanClass(targetbean);
+    return targetclass == null? rsacbl.getBeanClass(targetbean) : targetclass;
   }
 
+  public void setTargetClass(Class targetclass) {
+    this.targetclass = targetclass;
+  }
+  
   public boolean isStatic() {
     return false;
   }
