@@ -12,6 +12,7 @@ class RSACBeanInfo {
   // The ACTUAL class of the bean to be FIRST constructed. The class of the
   // resultant bean may differ for a factory bean.
   Class beanclass;
+  String beanname;
   boolean isfactorybean = false;
   boolean issingleton = true;
   String initmethod;
@@ -33,15 +34,15 @@ class RSACBeanInfo {
     return !localdepends.isEmpty();
   }
 
-  public void recordDependency(String propertyname, Object beannames) {
-    localdepends.put(propertyname, beannames);
+  public void recordDependency(String propertyname, Object beanref) {
+    localdepends.put(propertyname, beanref);
   }
 
   public Iterator dependencies() {
     return localdepends.keySet().iterator();
   }
 
-  public Object beannames(String propertyname) {
+  public Object beanref(String propertyname) {
     return localdepends.get(propertyname);
   }
 }

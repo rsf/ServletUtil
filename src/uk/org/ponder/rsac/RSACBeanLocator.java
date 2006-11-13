@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Level;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +37,7 @@ import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
 import uk.org.ponder.util.Logger;
+import uk.org.ponder.util.ObjectFactory;
 import uk.org.ponder.util.RunnableInvoker;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -192,23 +195,31 @@ public class RSACBeanLocator implements ApplicationContextAware,
     fallbacks = new StringList();
     aliasMap = new HashMap();
 
+    RBIBeanDefConverter converter = new RBIBeanDefConverter(factory);
+
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
+      BeanDefinition beandef = factory.getBeanDefinition(beanname);
       try {
-        RSACBeanInfo rbi = BeanDefUtil.convertBeanDef(factory, beanname);
-        rbimap.put(beanname, rbi);
-        for (int j = 0; j < rbi.aliases.length; ++ j) {
-          aliasMap.put(rbi.aliases[j], beanname);
-        }
+        converter.convertBeanDef(beandef, beanname);
       }
       catch (Exception e) {
         Logger.log.error("Error loading definition for bean " + beanname, e);
       }
     }
+    for (int i = 0; i < converter.rbilist.size(); ++i) {
+      RSACBeanInfo rbi = (RSACBeanInfo) converter.rbilist.get(i);
+      String beanname = rbi.beanname;
+      rbimap.put(beanname, rbi);
+      for (int j = 0; j < rbi.aliases.length; ++j) {
+        aliasMap.put(rbi.aliases[j], beanname);
+      }
+    }
+
     // Make a last-ditch attempt to infer bean types.
-    for (int i = 0; i < beanNames.length; ++i) {
-      String beanname = beanNames[i];
-      RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
+    for (int i = 0; i < converter.rbilist.size(); ++i) {
+      RSACBeanInfo rbi = (RSACBeanInfo) converter.rbilist.get(i);
+      String beanname = rbi.beanname;
       if (rbi.beanclass == null) {
         rbi.beanclass = getBeanClass(beanname);
       }
@@ -287,9 +298,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private String getTransformedBeanName(String beanname) {
     String alias = (String) aliasMap.get(beanname);
-    return alias == null? beanname : alias;
+    return alias == null ? beanname
+        : alias;
   }
-  
+
   private Object getLocalBean(PerRequestInfo pri, String beanname,
       boolean nolazy) {
     beanname = getTransformedBeanName(beanname);
@@ -326,7 +338,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     // NB - we check the container since some fiend might have thrown it in
     // manually on inchuck - but actually this is faster than Spring anyway.
     if (pri.beans.locateBean(beanname) != null
-        || blankcontext.containsBean(beanname)) {
+        || rbimap.containsKey(beanname)) {
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
@@ -355,24 +367,24 @@ public class RSACBeanLocator implements ApplicationContextAware,
     return deliver;
   }
 
-  private Object createBean(final PerRequestInfo pri, final String beanname, 
+  private Object createBean(final PerRequestInfo pri, final String beanname,
       CreationMarker marker) {
     boolean success = false;
-   
+
     try {
       RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
       if (rbi == null) {
         throw new NoSuchBeanDefinitionException(beanname,
             "Bean definition not found");
       }
-      
+
       if (marker == null) {
         marker = BEAN_IN_CREATION_OBJECT;
         if (rbi.issingleton) {
           pri.beans.set(beanname, marker);
         }
       }
-      
+
       // implement fetch wrappers in such a way that doesn't slow normal
       // creation.
       if (rbi.fetchwrappers != null
@@ -465,9 +477,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
                   + " has no writeable property named " + propertyname);
             }
             Object depbean = null;
-            Object beanref = rbi.beannames(propertyname);
+            Object beanref = rbi.beanref(propertyname);
             if (beanref instanceof String) {
-              depbean = getBean(pri, (String) beanref, false);
+              depbean = fetchDependent(pri, (String) beanref, setter);
             }
             else if (beanref instanceof ValueHolder) {
               Class accezzz = setter.getAccessedType();
@@ -549,14 +561,36 @@ public class RSACBeanLocator implements ApplicationContextAware,
       return newbean;
     }
     finally {
-      if (marker.wrapperindex > 0) { 
+      if (marker.wrapperindex > 0) {
         --marker.wrapperindex;
-          if (marker.wrapperindex == 0 && !success) {
+        if (marker.wrapperindex == 0 && !success) {
           pri.beans.remove(beanname);
         }
       }
     }
 
+  }
+
+  private Object fetchDependent(final PerRequestInfo pri,
+      final String beanname, final AccessMethod setter) {
+    Class targetclazz = setter.getAccessedType();
+    if (ObjectFactory.class.isAssignableFrom(targetclazz)) {
+      return new ObjectFactory() {
+        public Object getObject() {
+          return getBean(pri, beanname, false);
+        }
+      };
+    }
+    else if (org.springframework.beans.factory.ObjectFactory.class
+        .isAssignableFrom(targetclazz)) {
+      return new org.springframework.beans.factory.ObjectFactory() {
+        public Object getObject() throws BeansException {
+          return getBean(pri, beanname, false);
+        }
+      };
+    }
+    else
+      return getBean(pri, beanname, false);
   }
 
   private Object processNewBean(PerRequestInfo pri, String beanname,

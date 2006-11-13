@@ -41,6 +41,7 @@ import org.springframework.beans.factory.support.ChildBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
+import uk.org.ponder.conversion.StringArrayParser;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Logger;
 
@@ -122,17 +123,17 @@ public class BeanDefUtil {
     }
   }
 
-  static RSACBeanInfo convertBeanDef(ConfigurableListableBeanFactory factory,
-      String beanname) {
+  static RSACBeanInfo convertBeanDef(BeanDefinition origdef, String beanname,
+      ConfigurableListableBeanFactory factory, BeanDefConverter converter) {
     RSACBeanInfo rbi = new RSACBeanInfo();
-    BeanDefinition origdef = factory.getBeanDefinition(beanname);
     AbstractBeanDefinition def = getMergedBeanDefinition(factory, beanname,
         origdef);
     MutablePropertyValues pvs = def.getPropertyValues();
     PropertyValue[] values = pvs.getPropertyValues();
     for (int j = 0; j < values.length; ++j) {
       PropertyValue thispv = values[j];
-      Object beannames = BeanDefUtil.propertyValueToBeanName(thispv.getValue());
+      Object beannames = BeanDefUtil.propertyValueToBeanName(thispv.getValue(),
+          converter);
       boolean skip = false;
       // skip recording the dependency if it was unresolvable (some
       // unrecognised
@@ -163,7 +164,9 @@ public class BeanDefUtil {
     rbi.islazyinit = abd.isLazyInit();
     rbi.dependson = abd.getDependsOn();
     rbi.issingleton = abd.isSingleton();
-    rbi.aliases = factory.getAliases(beanname);
+    rbi.aliases = factory.containsBeanDefinition(beanname) ? factory
+        .getAliases(beanname)
+        : StringArrayParser.EMPTY_STRINGL;
     if (abd.hasConstructorArgumentValues()) {
       rbi.constructorargvals = abd.getConstructorArgumentValues();
     }
@@ -172,7 +175,7 @@ public class BeanDefUtil {
       // NB - beandef.getBeanClass() was eliminated around 1.2, we must
       // use the downcast even earlier now.
       rbi.beanclass = abd.getBeanClass();
-   
+
     }
     return rbi;
   }
@@ -200,13 +203,16 @@ public class BeanDefUtil {
   // Since actual values are the rarer case, make THEM the composite ones.
 
   // returns either a String or StringList of bean names, or a ValueHolder
-  public static Object propertyValueToBeanName(Object value) {
+  public static Object propertyValueToBeanName(Object value,
+      BeanDefConverter converter) {
     Object beanspec = null;
     if (value instanceof BeanDefinitionHolder) {
       // Resolve BeanDefinitionHolder: contains BeanDefinition with name and
       // aliases.
       BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
-      beanspec = bdHolder.getBeanName();
+      String beanname = bdHolder.getBeanName();
+      converter.convertBeanDef(bdHolder.getBeanDefinition(), beanname);
+      beanspec = beanname;
     }
     else if (value instanceof BeanDefinition) {
       throw new IllegalArgumentException(
@@ -220,7 +226,8 @@ public class BeanDefUtil {
       List valuelist = (List) value;
       StringList togo = new StringList();
       for (int i = 0; i < valuelist.size(); ++i) {
-        String thisbeanname = (String) propertyValueToBeanName(valuelist.get(i));
+        String thisbeanname = (String) propertyValueToBeanName(
+            valuelist.get(i), converter);
         togo.add(thisbeanname);
       }
       beanspec = togo;
