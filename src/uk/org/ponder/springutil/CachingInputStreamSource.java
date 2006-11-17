@@ -9,12 +9,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 import uk.org.ponder.fileutil.StalenessEntry;
 import uk.org.ponder.streamutil.StreamResolver;
-import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -40,6 +40,8 @@ public class CachingInputStreamSource implements StreamResolver {
 
   public static final int ALWAYS_STALE = 0;
 
+  public static final long NEVER_STALE_MODTIME = Long.MAX_VALUE;
+
   /**
    * Sets the lag after which the filesystem will be checked again for change of
    * datestamp. At a value of ALWAYS_STALE (0) the resource will always be
@@ -55,9 +57,10 @@ public class CachingInputStreamSource implements StreamResolver {
   private StreamResolver baseresolver;
 
   private Map stalenesses = new HashMap();
-// The first argument here is typically the ApplicationContext - note that
-// it will stubbornly interpret ALL paths as relative to the ServletContext,
-// whether they begin with slash or no - @see ServletContextResource
+
+  // The first argument here is typically the ApplicationContext - note that
+  // it will stubbornly interpret ALL paths as relative to the ServletContext,
+  // whether they begin with slash or no - @see ServletContextResource
   public CachingInputStreamSource(ResourceLoader resourceloader, int cachesecs) {
     this.resourceloader = resourceloader;
     this.cachesecs = cachesecs;
@@ -84,17 +87,23 @@ public class CachingInputStreamSource implements StreamResolver {
 
     Resource res = null;
     try {
-      if (now > staleness.lastchecked + cachesecs * 1000) {
+      if (staleness.modtime != NEVER_STALE_MODTIME
+          && now > staleness.lastchecked + cachesecs * 1000) {
         res = resourceloader.getResource(fullpath);
         if (!res.exists())
           return null;
         try {
-          Logger.log.info("Trying to load from path " + fullpath);
-          File f = res.getFile(); // throws IOException
-          long modtime = f.lastModified();
-          if (modtime > staleness.modtime) {
-            staleness.modtime = modtime;
-            isstale = true;
+          if (res instanceof ClassPathResource) {
+            staleness.modtime = NEVER_STALE_MODTIME;
+          }
+          else {
+            // Logger.log.debug("Trying to load from path " + fullpath);
+            File f = res.getFile(); // throws IOException
+            long modtime = f.lastModified();
+            if (modtime > staleness.modtime) {
+              staleness.modtime = modtime;
+              isstale = true;
+            }
           }
           if (isnew) {
             stalenesses.put(fullpath, staleness);

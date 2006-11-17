@@ -152,8 +152,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
    */
   public void endRequest() {
     assertIsStarted();
-    GlobalBeanAccessor.endRequest();
     PerRequestInfo pri = getPerRequest();
+    Runnable lazarusList = (Runnable) pri.beans.locateBean("RSACLazarusList");
+    GlobalBeanAccessor.endRequest();
+  
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
       RSACBeanInfo destroybean = (RSACBeanInfo) rbimap.get(todestroyname);
@@ -172,6 +174,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
     // System.out.println(pri.cbeans + " beans were created");
     // Give the garbage collector a head start
     pri.clear();
+    if (lazarusList != null) {
+      lazarusList.run();
+    }
   }
 
   // this is a map of bean names to RSACBeanInfo
