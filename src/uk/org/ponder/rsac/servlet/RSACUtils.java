@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.rsac.RSACBeanLocator;
-import uk.org.ponder.util.Logger;
 
 /**
  * @author andrew, Antranig
@@ -17,7 +17,7 @@ import uk.org.ponder.util.Logger;
  */
 public class RSACUtils {
   public static final String REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE = "requestScopeApplicationContext";
-  /** The default name for the bean representing the HttpServletFactory **/
+  /** The default name for the bean representing the HttpServletFactory * */
   public static final String HTTP_SERVLET_FACTORY = "httpServletFactory";
 
   /**
@@ -29,34 +29,35 @@ public class RSACUtils {
    * This method has the effect of marking the bean container both onto the
    * current thread and onto a request attributes, which it is assumed the
    * request dispatcher has the sense not to trash.
-   * @param rsacbl 
+   * 
+   * @param rsacbl
    */
-  public static void protoStartServletRequest(HttpServletRequest request, RSACBeanLocator rsacbl) {
+  public static void protoStartServletRequest(HttpServletRequest request,
+      RSACBeanLocator rsacbl) {
     rsacbl.startRequest();
   }
-  
-  public static void startServletRequest(HttpServletRequest request, 
-      HttpServletResponse response, RSACBeanLocator rsacbl, String httpfactorybean) {
-//    Logger.log.info("Got rsacbg " + rsacbl);
+
+  public static void startServletRequest(HttpServletRequest request,
+      HttpServletResponse response, RSACBeanLocator rsacbl,
+      String httpfactorybean) {
+    // Logger.log.info("Got rsacbg " + rsacbl);
     if (!rsacbl.isStarted()) {
       rsacbl.startRequest();
     }
-    BeanLocator locator = rsacbl.getBeanLocator();
-    HttpServletFactory factory = (HttpServletFactory) locator.locateBean(httpfactorybean);
-    if (factory != null) {
-      factory.setHttpServletRequest(request);
-      factory.setHttpServletResponse(response);
-    }
+    WriteableBeanLocator locator = rsacbl.getBeanLocator();
+    HttpServletFactory factory = new HttpServletFactory();
+    factory.setHttpServletRequest(request);
+    factory.setHttpServletResponse(response);
+    locator.set(httpfactorybean, factory);
     setRequestApplicationContext(request, locator);
   }
-  
-  public static void setRequestApplicationContext(
-      ServletRequest request, BeanLocator context) {
+
+  public static void setRequestApplicationContext(ServletRequest request,
+      BeanLocator context) {
     request.setAttribute(REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE, context);
   }
 
-  public static BeanLocator getRequestApplicationContext(
-      ServletRequest request) {
+  public static BeanLocator getRequestApplicationContext(ServletRequest request) {
     return (BeanLocator) request
         .getAttribute(REQUEST_SCOPE_APP_CONTEXT_ATTRIBUTE);
   }

@@ -29,6 +29,7 @@ class PerRequestInfo {
   BeanFactory blfactory;
   // the container of RSACLazyTargetSources, permanent in this ThreadLocal.
   Map lazysources;
+  Map seedbeans = new HashMap();
 
   public void clear() {
     cbeans = 0;
@@ -52,6 +53,7 @@ class PerRequestInfo {
       }
 
       public void set(String beanname, Object toset) {
+        seedbeans.put(beanname, toset);
         beans.set(beanname, toset);
       }
     };

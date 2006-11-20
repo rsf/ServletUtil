@@ -59,7 +59,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * functionality gets added, getting on for 400 lines. Please note that this
  * class currently illegally casts BeanDefinitions received from Spring to
  * AbstractBeanDefinition, which is a potential dependency weakness. This
- * approach is known to work with Spring 1.1.2 through 1.2.6.
+ * approach is known to work with Spring 1.1.2 through 2.0.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
