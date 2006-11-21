@@ -331,7 +331,12 @@ public class RSACBeanLocator implements ApplicationContextAware,
     }
     return bean;
   }
-
+  
+  // package access ensures visibility from RSACLazarusList
+  Map getSeedMap() {
+    return getPerRequest().seedbeans;
+  }
+  
   // package access ensures visibility from RSACLazyTargetSource
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {
     Object bean = null;

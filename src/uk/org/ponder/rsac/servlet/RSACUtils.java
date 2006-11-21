@@ -39,16 +39,18 @@ public class RSACUtils {
 
   public static void startServletRequest(HttpServletRequest request,
       HttpServletResponse response, RSACBeanLocator rsacbl,
-      String httpfactorybean) {
+      String factorybeanname) {
     // Logger.log.info("Got rsacbg " + rsacbl);
     if (!rsacbl.isStarted()) {
       rsacbl.startRequest();
     }
     WriteableBeanLocator locator = rsacbl.getBeanLocator();
-    StaticHttpServletFactory factory = new StaticHttpServletFactory();
+    HttpServletFactory factory = (HttpServletFactory) 
+      locator.locateBean(factorybeanname);
     factory.setHttpServletRequest(request);
     factory.setHttpServletResponse(response);
-    locator.set(httpfactorybean, factory);
+    locator.set(factorybeanname, factory);
+    // notify the "seed list" of the change.
     setRequestApplicationContext(request, locator);
   }
 
