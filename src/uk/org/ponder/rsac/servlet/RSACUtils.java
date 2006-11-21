@@ -45,7 +45,7 @@ public class RSACUtils {
       rsacbl.startRequest();
     }
     WriteableBeanLocator locator = rsacbl.getBeanLocator();
-    HttpServletFactory factory = new HttpServletFactory();
+    StaticHttpServletFactory factory = new StaticHttpServletFactory();
     factory.setHttpServletRequest(request);
     factory.setHttpServletResponse(response);
     locator.set(httpfactorybean, factory);
