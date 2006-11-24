@@ -3,6 +3,10 @@
  */
 package uk.org.ponder.servletutil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import uk.org.ponder.stringutil.URLUtil;
@@ -96,5 +100,35 @@ public class ServletUtil {
   // String baseURL = getBaseURL(hsr);
   // return hsr.getRequestURL().substring(baseURL.length());
   // }
+  public static final String TEST_RESOURCE = "/WEB-INF/web.xml";
 
+  public static String computeContextName(ServletContext context) {
+    try {
+      URL weburl = context.getResource(TEST_RESOURCE);
+      String weburls = weburl.toExternalForm();
+      // plus one to include trailing slash
+      int backhack = 1 + weburls.length() - TEST_RESOURCE.length();
+      int protpos = weburls.indexOf(":");
+      if (protpos == -1 ) {
+        throw new MalformedURLException(
+            "Could not find protocol in URL " + weburls);
+      }
+      ++ protpos;
+      while (true) {
+        if (weburls.charAt(protpos) == '/') ++ protpos;
+        else break;
+      }
+      int endhostpos = weburls.indexOf('/', protpos + 3);
+      if (endhostpos == -1) {
+        throw new MalformedURLException(
+            "Could not find host and protocol in URL " + weburls);
+      }
+      return weburls.substring(endhostpos, backhack);
+    }
+    catch (Exception e) {
+      throw UniversalRuntimeException.accumulate(e,
+          "Error computing context name");
+    }
+  }
+  
 }
