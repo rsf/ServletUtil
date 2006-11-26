@@ -90,7 +90,7 @@ public class CachingInputStreamSource implements StreamResolver {
       if (staleness.modtime != NEVER_STALE_MODTIME
           && now > staleness.lastchecked + cachesecs * 1000) {
         res = resourceloader.getResource(fullpath);
-        if (!res.exists())
+        if (res == null || !res.exists())
           return null;
         try {
           if (res instanceof ClassPathResource) {
