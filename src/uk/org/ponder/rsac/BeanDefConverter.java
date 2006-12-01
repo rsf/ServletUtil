@@ -6,5 +6,5 @@ package uk.org.ponder.rsac;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 public interface BeanDefConverter {
-   void convertBeanDef(BeanDefinition origdef, String beanname);
+   void convertBeanDef(BeanDefinition origdef, String beanname, boolean inner);
 }

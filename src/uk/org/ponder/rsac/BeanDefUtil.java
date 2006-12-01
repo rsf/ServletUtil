@@ -211,7 +211,7 @@ public class BeanDefUtil {
       // aliases.
       BeanDefinitionHolder bdHolder = (BeanDefinitionHolder) value;
       String beanname = bdHolder.getBeanName();
-      converter.convertBeanDef(bdHolder.getBeanDefinition(), beanname);
+      converter.convertBeanDef(bdHolder.getBeanDefinition(), beanname, true);
       beanspec = beanname;
     }
     else if (value instanceof BeanDefinition) {

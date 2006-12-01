@@ -206,7 +206,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       String beanname = beanNames[i];
       BeanDefinition beandef = factory.getBeanDefinition(beanname);
       try {
-        converter.convertBeanDef(beandef, beanname);
+        converter.convertBeanDef(beandef, beanname, false);
       }
       catch (Exception e) {
         Logger.log.error("Error loading definition for bean " + beanname, e);
