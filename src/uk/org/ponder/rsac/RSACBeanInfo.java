@@ -15,6 +15,7 @@ class RSACBeanInfo {
   String beanname;
   boolean isfactorybean = false;
   boolean issingleton = true;
+  boolean isabstract;
   String initmethod;
   String destroymethod;
   String factorybean;

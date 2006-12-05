@@ -3,6 +3,7 @@
  */
 package uk.org.ponder.springutil;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 
 import org.springframework.context.MessageSource;
@@ -24,7 +25,7 @@ public class SpringMessageLocator extends MessageLocator {
   private MessageSource messagesource;
   private LocaleGetter localegetter;
   private String defaultmessagekey;
-  private String defaultmessage = "[Message not found]";
+  private String defaultmessage = "[Message for key {0} not found]";
 
   public void setMessageSource(MessageSource messagesource) {
     this.messagesource = messagesource;
@@ -53,7 +54,8 @@ public class SpringMessageLocator extends MessageLocator {
       catch (Exception nsme2) {
       }
     }
-    return defaultmessage;
+    MessageFormat mf = new MessageFormat(defaultmessage);
+    return mf.format(new Object[] {codes[0]});
   }
 
   /** The ultimate fallback message to be rendered in the case of complete 

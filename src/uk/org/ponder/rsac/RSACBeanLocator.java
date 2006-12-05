@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Level;
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
@@ -155,7 +156,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     PerRequestInfo pri = getPerRequest();
     Runnable lazarusList = (Runnable) pri.beans.locateBean("RSACLazarusList");
     GlobalBeanAccessor.endRequest();
-  
+
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
       RSACBeanInfo destroybean = (RSACBeanInfo) rbimap.get(todestroyname);
@@ -232,7 +233,8 @@ public class RSACBeanLocator implements ApplicationContextAware,
         if (rbi.islazyinit) {
           lazysources.add(beanname);
         }
-        if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)) {
+        if (FallbackBeanLocator.class.isAssignableFrom(rbi.beanclass)
+            && !rbi.isabstract) {
           fallbacks.add(beanname);
         }
         rbi.isfactorybean = FactoryBean.class.isAssignableFrom(rbi.beanclass);
@@ -331,12 +333,12 @@ public class RSACBeanLocator implements ApplicationContextAware,
     }
     return bean;
   }
-  
+
   // package access ensures visibility from RSACLazarusList
   Map getSeedMap() {
     return getPerRequest().seedbeans;
   }
-  
+
   // package access ensures visibility from RSACLazyTargetSource
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {
     Object bean = null;
@@ -347,8 +349,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     // contexts.
     // NB - we check the container since some fiend might have thrown it in
     // manually on inchuck - but actually this is faster than Spring anyway.
-    if (pri.beans.locateBean(beanname) != null
-        || rbimap.containsKey(beanname)) {
+    if (pri.beans.locateBean(beanname) != null || rbimap.containsKey(beanname)) {
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
@@ -386,6 +387,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
       if (rbi == null) {
         throw new NoSuchBeanDefinitionException(beanname,
             "Bean definition not found");
+      }
+      if (rbi.isabstract) {
+        throw new BeanInstantiationException(rbi.beanclass, "Abstract bean "
+            + rbi.beanname + " cannot be instantiated");
       }
 
       if (marker == null) {

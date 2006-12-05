@@ -164,6 +164,7 @@ public class BeanDefUtil {
     rbi.islazyinit = abd.isLazyInit();
     rbi.dependson = abd.getDependsOn();
     rbi.issingleton = abd.isSingleton();
+    rbi.isabstract = abd.isAbstract();
     rbi.aliases = factory.containsBeanDefinition(beanname) ? factory
         .getAliases(beanname)
         : StringArrayParser.EMPTY_STRINGL;
