@@ -42,6 +42,9 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import uk.org.ponder.conversion.StringArrayParser;
+import uk.org.ponder.reflect.ClassGetter;
+import uk.org.ponder.saxalizer.AccessMethod;
+import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Logger;
 
@@ -124,7 +127,8 @@ public class BeanDefUtil {
   }
 
   static RSACBeanInfo convertBeanDef(BeanDefinition origdef, String beanname,
-      ConfigurableListableBeanFactory factory, BeanDefConverter converter) {
+      ConfigurableListableBeanFactory factory, MethodAnalyser abdAnalyser, 
+      BeanDefConverter converter) {
     RSACBeanInfo rbi = new RSACBeanInfo();
     AbstractBeanDefinition def = getMergedBeanDefinition(factory, beanname,
         origdef);
@@ -172,11 +176,20 @@ public class BeanDefUtil {
       rbi.constructorargvals = abd.getConstructorArgumentValues();
     }
     if (rbi.factorymethod == null) {
+ // Core Spring change at 2.0M5 - ALL bean classes are now irrevocably lazy!!
+ // Package org.springframework.beans
+ // introduced lazy loading (and lazy validation) of bean classes in standard bean factories and bean definition readers
+      AccessMethod bcnaccess = abdAnalyser.getAccessMethod("beanClassName");
+      if (bcnaccess != null) {
+        String bcn = (String) bcnaccess.getChildObject(abd);
+        rbi.beanclass = ClassGetter.forName(bcn);
+      }
+      else {
       // all right then BE like that! We'll work out the class later.
       // NB - beandef.getBeanClass() was eliminated around 1.2, we must
       // use the downcast even earlier now.
       rbi.beanclass = abd.getBeanClass();
-
+      }
     }
     return rbi;
   }

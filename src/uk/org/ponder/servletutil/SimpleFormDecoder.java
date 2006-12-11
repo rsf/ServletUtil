@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 
 import uk.org.ponder.conversion.StaticLeafParser;
-import uk.org.ponder.errorutil.TargettedMessage;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.util.Logger;
 
 /** An obsolete class used to deserialise an HttpServletRequest onto a 

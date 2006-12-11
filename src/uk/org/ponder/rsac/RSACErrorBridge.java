@@ -4,8 +4,8 @@
 package uk.org.ponder.rsac;
 
 import uk.org.ponder.errorutil.ErrorStateEntry;
-import uk.org.ponder.errorutil.TargettedMessageList;
 import uk.org.ponder.errorutil.ThreadErrorState;
+import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.util.RunnableInvoker;
 
 /**

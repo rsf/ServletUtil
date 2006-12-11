@@ -201,7 +201,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     fallbacks = new StringList();
     aliasMap = new HashMap();
 
-    RBIBeanDefConverter converter = new RBIBeanDefConverter(factory);
+    RBIBeanDefConverter converter = new RBIBeanDefConverter(factory, smc);
 
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];

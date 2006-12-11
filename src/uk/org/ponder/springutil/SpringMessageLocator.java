@@ -9,8 +9,8 @@ import java.util.Locale;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 
-import uk.org.ponder.errorutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;
+import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.util.Logger;
 
 /**
