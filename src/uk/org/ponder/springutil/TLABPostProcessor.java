@@ -37,6 +37,12 @@ public class TLABPostProcessor implements BeanPostProcessor,
     this.mappingContext = mappingContext;
   }
 
+  public void init() {
+    if (mappingContext == null) {
+      mappingContext = SAXalizerMappingContext.instance();
+    }
+  }
+  
   public void setApplicationContext(ApplicationContext applicationContext) {
     // We do this here so that fewer will have to come after us!
     String[] viewbeans = applicationContext.getBeanNamesForType(

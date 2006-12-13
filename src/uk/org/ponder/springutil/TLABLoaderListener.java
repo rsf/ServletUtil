@@ -52,7 +52,7 @@ public class TLABLoaderListener implements ApplicationListener,
   public void afterPropertiesSet() throws Exception {
     TLABPostProcessor processor = new TLABPostProcessor();
     processor.setApplicationContext(applicationContext);
-    processor.setMappingContext(mappingContext);
+    processor.setMappingContext(mappingContext == null? SAXalizerMappingContext.instance() : mappingContext);
     ConfigurableApplicationContext cac = (ConfigurableApplicationContext) applicationContext;
     ((ConfigurableBeanFactory) cac.getBeanFactory())
         .addBeanPostProcessor(processor);
