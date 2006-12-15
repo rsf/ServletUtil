@@ -34,6 +34,7 @@ import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
 import uk.org.ponder.springutil.BeanDefinitionSource;
+import uk.org.ponder.springutil.TLABPostProcessor;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Denumeration;
 import uk.org.ponder.util.EnumerationConverter;
@@ -77,6 +78,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   private ApplicationContext parentcontext;
   private SAXalizerMappingContext smc;
   private ReflectiveCache reflectivecache;
+  private TLABPostProcessor tlabpp;
 
   public void setBlankContext(ConfigurableApplicationContext blankcontext) {
     this.blankcontext = blankcontext;
@@ -241,6 +243,12 @@ public class RSACBeanLocator implements ApplicationContextAware,
       }
     }
     BracketerPopulator.populateBracketers(parentcontext, rbimap);
+    
+    // we must add this manually because it expects a DIFFERENT applicationContext
+    // to the real one. Also the lifecycle is somewhat different.
+    tlabpp = new TLABPostProcessor();
+    tlabpp.setMappingContext(smc);
+    tlabpp.setApplicationContext(blankcontext);
   }
 
   /**
@@ -535,7 +543,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       }
       // process it FIRST since it will be the factory that is expecting the
       // dependencies set!
-      processNewBean(pri, beanname, newbean);
+      newbean = processNewBean(pri, beanname, newbean);
       // now the bean is initialised, attempt to call any init-method or
       // InitBean.
       if (rbi.initmethod != null) {
@@ -610,6 +618,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private Object processNewBean(PerRequestInfo pri, String beanname,
       Object newbean) {
+    tlabpp.postProcessBeforeInitialization(newbean, beanname);
     for (int i = 0; i < pri.postprocessors.size(); ++i) {
       BeanPostProcessor beanpp = (BeanPostProcessor) pri.postprocessors.get(i);
       try {
