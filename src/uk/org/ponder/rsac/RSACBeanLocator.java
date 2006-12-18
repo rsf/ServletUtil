@@ -16,6 +16,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -26,6 +27,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import uk.org.ponder.beanutil.BeanUtil;
 import uk.org.ponder.beanutil.FallbackBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.reflect.ReflectUtils;
@@ -361,13 +363,14 @@ public class RSACBeanLocator implements ApplicationContextAware,
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
-      if (bean == null && this.parentcontext.containsBean(beanname)) {
+      if (bean == null &&  this.parentcontext.containsBean(beanname)) {
         bean = this.parentcontext.getBean(beanname);
       }
     }
     return bean;
   }
-
+  
+  /** Return a list of names of beans of type FallbackBeanLocator **/
   public StringList getFallbackBeans() {
     return fallbacks;
   }
@@ -502,7 +505,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
             Object depbean = null;
             Object beanref = rbi.beanref(propertyname);
             if (beanref instanceof String) {
-              depbean = fetchDependent(pri, (String) beanref, setter);
+              String depbeanname = (String) beanref;
+              depbean = fetchDependent(pri, depbeanname, setter);
+              BeanUtil.censorNullBean(depbeanname, depbean);
             }
             else if (beanref instanceof ValueHolder) {
               Class accezzz = setter.getAccessedType();
@@ -526,6 +531,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
               depbean = assembleVectorProperty(pri, (StringList) beanref,
                   setter.getDeclaredType());
             }
+        
             // Lose another 500ns here, until we bring on FastClass.
             setter.setChildObject(newbean, depbean);
           }
