@@ -83,6 +83,9 @@ public class TLABPostProcessor implements BeanPostProcessor,
       Object value = listprops.get(propname);
       MethodAnalyser ma = mappingContext.getAnalyser(bean.getClass());
       AccessMethod sam = ma.getAccessMethod(propname);
+      if (sam == null || !sam.canSet()) {
+        throw new IllegalArgumentException("TLAB target bean " + beanName + " does not have any writeable property named " + propname);
+      }
       sam.setChildObject(bean, value);
     }
     return bean;
