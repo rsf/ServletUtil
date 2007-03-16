@@ -102,6 +102,10 @@ public class ServletUtil {
   // }
   public static final String TEST_RESOURCE = "/WEB-INF/web.xml";
 
+  /** Returns the context name of this ServletContext, using an algorithm
+   * based on using the context's web.xml file as a "test resource". This
+   * name will include both leading and trailing slash.
+   */
   public static String computeContextName(ServletContext context) {
     try {
       URL weburl = context.getResource(TEST_RESOURCE);

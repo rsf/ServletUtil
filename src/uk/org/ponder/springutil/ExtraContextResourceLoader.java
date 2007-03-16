@@ -13,18 +13,32 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.ServletContextResource;
 
+import uk.org.ponder.servletutil.ServletContextLocator;
+
 public class ExtraContextResourceLoader implements ApplicationContextAware,
  ResourceLoader {
 
   private ApplicationContext applicationContext;
   private WebApplicationContext wac;
   
+  private ServletContextLocator servletContextLocator;
+  
+  public void setServletContextLocator(ServletContextLocator servletContextLocator) {
+    this.servletContextLocator = servletContextLocator;
+  }
+
   public Resource getResource(String location) {
     if (wac != null && location.startsWith("/..")) {
       int slashpos = location.indexOf('/', 4);
       String uripath = location.substring(3, slashpos); // include leading /
-      String relpath = location.substring(slashpos + 1); 
-      ServletContext extracontext = wac.getServletContext().getContext(uripath);
+      String relpath = location.substring(slashpos + 1);
+      ServletContext extracontext = null;
+      if (servletContextLocator != null) {
+        extracontext = servletContextLocator.locateContext(uripath);
+      }
+      if (extracontext == null) {
+        extracontext = wac.getServletContext().getContext(uripath);
+      }
       if (extracontext == null) {
         return null;
       }
