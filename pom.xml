@@ -7,15 +7,17 @@
   <artifactId>j-servletutil</artifactId>
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
-  <version>1.1.4</version>
+  <properties>
+    <ponderutilcore.version>1.2.1RC2</ponderutilcore.version>
+    <jservletutil.version>1.2.1RC2</jservletutil.version>
+  </properties>
+  <version>${jservletutil.version}</version>
   <description>
     Libraries for abstracting over servlet dispatch, Spring utilities
     including fast request scope container (aka RSAC)
   </description>
   <inceptionYear>2005</inceptionYear>
-  <properties>
-    <deploy.type>jar</deploy.type>
-  </properties>
+  <packaging>jar</packaging>
   <mailingLists>
     <mailingList>
       <name>${pom.name} Dev List</name>
@@ -69,7 +71,7 @@
     <dependency>
       <groupId>uk.org.ponder</groupId>
       <artifactId>ponderutilcore</artifactId>
-      <version>1.1.4</version>
+      <version>${ponderutilcore.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
