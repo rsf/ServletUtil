@@ -36,6 +36,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
+import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.ChildBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
@@ -248,6 +249,9 @@ public class BeanDefUtil {
     }
     else if (value instanceof String) {
       beanspec = new ValueHolder((String) value);
+    }
+    else if (value instanceof TypedStringValue) {
+      beanspec = new ValueHolder(((TypedStringValue)value).getValue());
     }
     else {
       Logger.log.warn("RSACBeanLocator Got value " + value
