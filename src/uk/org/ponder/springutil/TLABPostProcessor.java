@@ -43,6 +43,20 @@ public class TLABPostProcessor implements BeanPostProcessor,
     }
   }
   
+// VERY temporary method just to get support for bindafter="*"
+  private void sortTLABs(List tlabs) {
+    int limit = tlabs.size();
+    for (int i = 0; i < limit; ++ i) {
+      TargetListAggregatingBean tlab = (TargetListAggregatingBean) tlabs.get(i);
+      Object bindafter = tlab.getBindAfter();
+      if (bindafter == null && bindafter.equals("*")) {
+        tlabs.remove(i);
+        tlabs.add(tlab);
+        --i; --limit;
+      }
+    }
+  }
+  
   public void setApplicationContext(ApplicationContext applicationContext) {
     // We do this here so that fewer will have to come after us!
     String[] viewbeans = applicationContext.getBeanNamesForType(
@@ -51,6 +65,11 @@ public class TLABPostProcessor implements BeanPostProcessor,
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) applicationContext
           .getBean(viewbeans[i]);
       MapUtil.putMultiMap(targetMap, tlab.getTargetBean(), tlab);
+    }
+    
+    for (Iterator values = targetMap.values().iterator(); values.hasNext();) {
+      List tlabs = (List) values.next();
+      sortTLABs(tlabs);
     }
   }
 
