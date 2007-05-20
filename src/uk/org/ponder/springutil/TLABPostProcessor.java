@@ -49,7 +49,7 @@ public class TLABPostProcessor implements BeanPostProcessor,
     for (int i = 0; i < limit; ++ i) {
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) tlabs.get(i);
       Object bindafter = tlab.getBindAfter();
-      if (bindafter == null && bindafter.equals("*")) {
+      if (bindafter != null && bindafter.equals("*")) {
         tlabs.remove(i);
         tlabs.add(tlab);
         --i; --limit;
