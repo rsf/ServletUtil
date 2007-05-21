@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -17,6 +18,7 @@ import uk.org.ponder.arrayutil.MapUtil;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
  * Does the work of collecting and focusing all the distributed property
@@ -32,6 +34,7 @@ public class TLABPostProcessor implements BeanPostProcessor,
   private Map targetMap = new HashMap();
 
   private SAXalizerMappingContext mappingContext;
+  private ApplicationContext applicationContext;
 
   public void setMappingContext(SAXalizerMappingContext mappingContext) {
     this.mappingContext = mappingContext;
@@ -58,12 +61,18 @@ public class TLABPostProcessor implements BeanPostProcessor,
   }
   
   public void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
     // We do this here so that fewer will have to come after us!
     String[] viewbeans = applicationContext.getBeanNamesForType(
         TargetListAggregatingBean.class, false, false);
     for (int i = 0; i < viewbeans.length; ++i) {
+      String viewbean = viewbeans[i];
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) applicationContext
-          .getBean(viewbeans[i]);
+          .getBean(viewbean);
+      if (!(tlab.getValue() == null ^ tlab.getValueRef() == null)) {
+        throw new IllegalArgumentException("Error reading TargetListAggregatingBean " + viewbean + 
+            ": exactly one of value or valueRef must be set");
+      }
       MapUtil.putMultiMap(targetMap, tlab.getTargetBean(), tlab);
     }
     
@@ -80,12 +89,16 @@ public class TLABPostProcessor implements BeanPostProcessor,
   public Object postProcessBeforeInitialization(Object bean, String beanName)
       throws BeansException {
     // Perhaps in Ruby, Perl, or Haskell, this method body is just 4 lines!
+    
     List tlabs = (List) targetMap.get(beanName);
     if (tlabs == null) return bean;
     Map listprops = new HashMap(); // map of property name to list
     for (int i = 0; i < tlabs.size(); ++i) {
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) tlabs.get(i);
       Object value = tlab.getValue();
+      if (value == null) {
+        value = applicationContext.getBean(tlab.getValueRef());
+      }
       if (tlab.getUnwrapLists() && value instanceof List) {
         List values = (List) value;
         for (int j = 0; j < values.size(); ++j) {

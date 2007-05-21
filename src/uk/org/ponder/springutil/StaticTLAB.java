@@ -23,6 +23,7 @@ public class StaticTLAB implements TargetListAggregatingBean {
   private boolean unwraplists = true;
   private Object bindAfter;
   private Object bindBefore;
+  private String valueref;
 
   /**
    * The name of the target bean to receive the held bean as part of its list
@@ -63,7 +64,8 @@ public class StaticTLAB implements TargetListAggregatingBean {
 
   /**
    * The "held" object to be aggregated into the list-valued property of the
-   * target bean.
+   * target bean. Exactly one out of this property and {@link #setValueRef(String)} 
+   * must be set.
    */
   public void setValue(Object value) {
     this.value = value;
@@ -71,6 +73,18 @@ public class StaticTLAB implements TargetListAggregatingBean {
 
   public Object getValue() {
     return value;
+  }
+  
+  /** The EL or bean name at which the "held" object can be found. Exactly
+   * one out of this property and 
+   */
+  
+  public void setValueRef(String valueref) {
+    this.valueref = valueref;
+  }
+  
+  public String getValueRef() {
+    return valueref;
   }
 
   /**

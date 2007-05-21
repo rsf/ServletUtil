@@ -39,4 +39,6 @@ public interface TargetListAggregatingBean {
    * in the resulting aggregated list.
    */
   public Object getBindAfter();
+
+  public String getValueRef();
 }
