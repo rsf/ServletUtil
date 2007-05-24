@@ -21,14 +21,14 @@ import uk.org.ponder.stringutil.StringList;
 
 public class ByClassTLAB extends StaticTLAB implements ApplicationContextAware {
   private Class targetClass;
-  private boolean deliverBeans;
+  private boolean deliverBeans = true;
 
   public void setTargetClass(Class targetClass) {
     this.targetClass = targetClass;
   }
 
   /**
-   * If set to <code>true</code> (the default is <code>false</code> this
+   * If set to <code>false</code> (the default is <code>true</code> this
    * will deliver a list the actual beans as the TLAB value rather than just a
    * list of their names.
    */
