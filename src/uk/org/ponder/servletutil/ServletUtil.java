@@ -56,7 +56,7 @@ public class ServletUtil {
     requestURL = URLUtil.decodeURL(requestURL);
     String extrapath = hsr.getPathInfo();
     String togo;
-    if (extrapath == null || extrapath.equals("")) {
+    if (extrapath == null || extrapath.equals("") || extrapath.equals("/")) {
       togo = requestURL;
     }
     else {
