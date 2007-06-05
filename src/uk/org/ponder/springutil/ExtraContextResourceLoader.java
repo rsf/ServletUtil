@@ -7,16 +7,14 @@ import javax.servlet.ServletContext;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.ServletContextResource;
 
 import uk.org.ponder.servletutil.ServletContextLocator;
 
-public class ExtraContextResourceLoader implements ApplicationContextAware,
- ResourceLoader {
+public class ExtraContextResourceLoader extends DefaultResourceLoader {
 
   private ApplicationContext applicationContext;
   private WebApplicationContext wac;

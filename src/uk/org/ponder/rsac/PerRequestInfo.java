@@ -13,7 +13,6 @@ import org.springframework.beans.factory.BeanInitializationException;
 
 import uk.org.ponder.beanutil.ConcreteWBL;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
-import uk.org.ponder.springutil.BeanLocatorBeanFactory;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -59,7 +58,7 @@ class PerRequestInfo {
     };
 
     HashMap thislazies = new HashMap();
-    blfactory = new BeanLocatorBeanFactory(requestwbl);
+    blfactory = new RSACBeanFactory(rsacbl, requestwbl);
     for (int i = 0; i < lazysources.size(); ++i) {
       String lazysource = lazysources.stringAt(i);
       try {

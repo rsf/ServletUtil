@@ -347,6 +347,11 @@ public class RSACBeanLocator implements ApplicationContextAware,
   Map getSeedMap() {
     return getPerRequest().seedbeans;
   }
+  
+  // package access ensures visibility from RSACBeanFactory
+  Map getRBIMap() {
+    return rbimap;
+  }
 
   // package access ensures visibility from RSACLazyTargetSource
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {

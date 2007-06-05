@@ -1,5 +1,6 @@
 package uk.org.ponder.springutil;
 
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.InputStreamResource;
@@ -12,7 +13,7 @@ import java.io.InputStream;
  * It will return the supplied stream for any request for a resource. This would
  * typically be used with some form of request-scope proxy.
  */ 
-public class DynamicStreamResourceLoader implements ResourceLoader {
+public class DynamicStreamResourceLoader extends DefaultResourceLoader {
 
   private InputStream inputstr = null;
 
