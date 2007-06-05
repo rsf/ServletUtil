@@ -183,7 +183,9 @@ public class BeanDefUtil {
       AccessMethod bcnaccess = abdAnalyser.getAccessMethod("beanClassName");
       if (bcnaccess != null) {
         String bcn = (String) bcnaccess.getChildObject(abd);
-        rbi.beanclass = ClassGetter.forName(bcn);
+        if (bcn != null) {
+          rbi.beanclass = ClassGetter.forName(bcn);
+        }
       }
       else {
       // all right then BE like that! We'll work out the class later.
