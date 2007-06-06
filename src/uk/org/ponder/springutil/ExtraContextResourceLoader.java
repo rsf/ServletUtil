@@ -7,6 +7,7 @@ import javax.servlet.ServletContext;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.WebApplicationContext;
@@ -14,14 +15,16 @@ import org.springframework.web.context.support.ServletContextResource;
 
 import uk.org.ponder.servletutil.ServletContextLocator;
 
-public class ExtraContextResourceLoader extends DefaultResourceLoader {
+public class ExtraContextResourceLoader extends DefaultResourceLoader implements
+    ApplicationContextAware {
 
   private ApplicationContext applicationContext;
   private WebApplicationContext wac;
-  
+
   private ServletContextLocator servletContextLocator;
-  
-  public void setServletContextLocator(ServletContextLocator servletContextLocator) {
+
+  public void setServletContextLocator(
+      ServletContextLocator servletContextLocator) {
     this.servletContextLocator = servletContextLocator;
   }
 
@@ -44,10 +47,12 @@ public class ExtraContextResourceLoader extends DefaultResourceLoader {
         return new ServletContextResource(extracontext, relpath);
       }
     }
-    else return applicationContext.getResource(location);
+    else
+      return applicationContext.getResource(location);
   }
 
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
     if (applicationContext instanceof WebApplicationContext) {
       this.wac = (WebApplicationContext) applicationContext;
