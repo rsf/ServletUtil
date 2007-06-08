@@ -10,7 +10,6 @@ import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import uk.org.ponder.beanutil.BeanLocator;
-import uk.org.ponder.util.Logger;
 
 /**
  * Adapts the per-request RSAC container to a standard Spring BeanFactory,
