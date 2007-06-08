@@ -56,7 +56,7 @@ public class RSACBeanLocatorFactory {
       }
     }
     beanDefinitionReader.loadBeanDefinitions(resources);
-    // initialContext.setParent(parent);
+    initialContext.setParent(parent);
     return initialContext;
   }
 

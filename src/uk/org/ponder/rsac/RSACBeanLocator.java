@@ -352,6 +352,10 @@ public class RSACBeanLocator implements ApplicationContextAware,
   Map getRBIMap() {
     return rbimap;
   }
+  
+  ConfigurableApplicationContext getBlankContext() {
+    return blankcontext;
+  }
 
   // package access ensures visibility from RSACLazyTargetSource
   Object getBean(PerRequestInfo pri, String beanname, boolean nolazy) {
@@ -396,7 +400,6 @@ public class RSACBeanLocator implements ApplicationContextAware,
   private Object createBean(final PerRequestInfo pri, final String beanname,
       CreationMarker marker) {
     boolean success = false;
-
     try {
       RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
       if (rbi == null) {
@@ -460,6 +463,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
               "Error fetching factory bean " + rbi.factorybean
                   + " to initialise bean " + beanname);
         }
+        
         try {
           newbean = reflectivecache
               .invokeMethod(factorybean, rbi.factorymethod);

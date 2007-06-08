@@ -3,12 +3,14 @@
  */
 package uk.org.ponder.rsac;
 
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.util.Logger;
 
 /**
  * Adapts the per-request RSAC container to a standard Spring BeanFactory,
@@ -32,7 +34,7 @@ public class RSACBeanFactory implements BeanFactory {
   }
 
   public boolean containsBean(String name) {
-    return rsacbl.getRBIMap().get(name) != null;
+    return rsacbl.getBlankContext().containsBean(name);
   }
 
   public String[] getAliases(String name) throws NoSuchBeanDefinitionException {
