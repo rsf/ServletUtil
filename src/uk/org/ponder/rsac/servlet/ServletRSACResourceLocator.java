@@ -35,7 +35,7 @@ public class ServletRSACResourceLocator implements RSACResourceLocator,
         ConfigurableWebApplicationContext.CONFIG_LOCATION_DELIMITERS);
   }
 
-  public String[] getConfigLocation() {
+  public String[] getConfigLocations() {
     return configlocations;
   }
 

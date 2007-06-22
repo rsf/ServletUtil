@@ -371,7 +371,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
       bean = getLocalBean(pri, beanname, nolazy);
     }
     else {
-      if (bean == null &&  this.parentcontext.containsBean(beanname)) {
+      if (bean == null && this.parentcontext.containsBean(beanname)) {
         bean = this.parentcontext.getBean(beanname);
       }
     }

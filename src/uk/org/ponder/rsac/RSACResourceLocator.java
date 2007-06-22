@@ -11,6 +11,6 @@ import org.springframework.context.ApplicationContext;
  *
  */
 public interface RSACResourceLocator {
-  public String[] getConfigLocation();
+  public String[] getConfigLocations();
   public ApplicationContext getApplicationContext();
 }

@@ -62,7 +62,7 @@ public class RSACBeanLocatorFactory {
 
   public void setRSACResourceLocator(RSACResourceLocator resourcelocator) {
     this.resourcelocator = resourcelocator;
-    ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocation(),
+    ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocations(),
         resourcelocator.getApplicationContext());
     rsacbeanlocator = new RSACBeanLocator();
     rsacbeanlocator.setBlankContext(cac);
