@@ -92,7 +92,11 @@
       <artifactId>spring-mock</artifactId>
       <version>1.2.6</version>
       <type>jar</type>
-      <scope>test</scope>
+      <!-- SWG As far as I know, this can't be in test scope. 
+           This is because we actually want to bring it along as a
+           core source part for other applications to use, not just
+           as a test to run whilst building RSF -->
+      <!-- <scope>test</scope> -->
     </dependency>
     <!--  Keep this synchronized with the Spring dependent version -->
     <dependency>
@@ -112,7 +116,8 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <type>jar</type>
-      <scope>test</scope>
+      <!-- SWG Same comment as above on spring-mock for this test scope -->
+      <!-- <scope>test</scope> -->
     </dependency>
   </dependencies>
   <build>
@@ -126,7 +131,7 @@
         </includes>
         <filtering>false</filtering>
       </resource>
-    </resources>
+    </resources> 
   </build>
 </project>
 
