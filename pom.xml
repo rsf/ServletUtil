@@ -8,8 +8,8 @@
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
   <properties>
-    <ponderutilcore.version>1.2.2M4</ponderutilcore.version>
-    <jservletutil.version>1.2.2M4</jservletutil.version>
+    <ponderutilcore.version>1.2.2M5-SNAPSHOT</ponderutilcore.version>
+    <jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
   </properties>
   <version>${jservletutil.version}</version>
   <description>

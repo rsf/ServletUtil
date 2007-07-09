@@ -12,14 +12,25 @@ import uk.org.ponder.util.ExceptionUnwrapper;
  * 
  */
 public class ServletExceptionUnwrapper implements ExceptionUnwrapper {
- public Throwable unwrapException(Throwable tomunch) {
+  public Throwable unwrapException(Throwable tomunch) {
     if (tomunch instanceof ServletException) {
-      Throwable target = ((ServletException)tomunch).getRootCause();
+      Throwable target = ((ServletException) tomunch).getRootCause();
       if (target != null && target != tomunch) {
         return target;
       }
     }
     return null;
+  }
+
+  public boolean isValid() {
+    try {
+      Thread.currentThread().getContextClassLoader().loadClass(
+          "javax.servlet.ServletException");
+    }
+    catch (Exception e) {
+      return false;
+    }
+    return true;
   }
 
 }
