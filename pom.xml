@@ -18,14 +18,13 @@
   </description>
   <inceptionYear>2005</inceptionYear>
   <packaging>jar</packaging>
-  <mailingLists>
-    <mailingList>
-      <name>${pom.name} Dev List</name>
-    </mailingList>
-    <mailingList>
-      <name>${pom.name} User List</name>
-    </mailingList>
-  </mailingLists>
+  <distributionManagement>
+    <repository>
+      <id>CARET-Maven2-dev</id>
+      <name>CARET Maven 2 Dev repository</name>
+      <url>scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev</url>
+    </repository>
+  </distributionManagement>
   <!-- 
     <gumpRepositoryId>caret-saffron-svn</gumpRepositoryId>
     <siteAddress>saffron.caret.cam.ac.uk</siteAddress>
@@ -92,11 +91,7 @@
       <artifactId>spring-mock</artifactId>
       <version>1.2.6</version>
       <type>jar</type>
-      <!-- SWG As far as I know, this can't be in test scope. 
-           This is because we actually want to bring it along as a
-           core source part for other applications to use, not just
-           as a test to run whilst building RSF -->
-      <!-- <scope>test</scope> -->
+     <scope>test</scope>
     </dependency>
     <!--  Keep this synchronized with the Spring dependent version -->
     <dependency>
