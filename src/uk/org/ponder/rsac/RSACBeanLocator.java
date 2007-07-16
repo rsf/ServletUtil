@@ -16,6 +16,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.BeanCurrentlyInCreationException;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -166,11 +167,16 @@ public class RSACBeanLocator implements ApplicationContextAware,
       Object todestroy = null;
       try {
         todestroy = getBean(pri, todestroyname, false);
-        reflectivecache.invokeMethod(todestroy, destroybean.destroymethod);
+        if (todestroy instanceof DisposableBean) {
+          ((DisposableBean) todestroy).destroy();
+        }
+        else {
+          reflectivecache.invokeMethod(todestroy, destroybean.destroymethod);
+        }
       }
       // must try to destroy as many beans as possible, cannot propagate
       // exception in a finally block in any case.
-      catch (Exception e) {
+      catch (Throwable e) { // must NOT propagate any exceptions through a finally block
         Logger.log.error("Error destroying bean " + todestroy + " with name "
             + todestroyname, e);
       }
@@ -574,13 +580,14 @@ public class RSACBeanLocator implements ApplicationContextAware,
         try {
           ((InitializingBean) newbean).afterPropertiesSet();
         }
-        catch (Exception e) { // Evil Rod! Bad Juergen!
+        catch (Exception e) {
           throw UniversalRuntimeException.accumulate(e);
         }
       }
-      if (rbi.destroymethod != null) {
+      if (rbi.destroymethod != null || (newbean instanceof DisposableBean)) {
         pri.todestroy.add(beanname);
       }
+      
       if (newbean instanceof FactoryBean) {
         FactoryBean factorybean = (FactoryBean) newbean;
         try {
