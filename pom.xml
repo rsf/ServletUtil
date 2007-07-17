@@ -1,132 +1,281 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                       http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>j-servletutil</artifactId>
-  <name>J-ServletUtil</name>
-  <groupId>uk.org.ponder</groupId>
-  <properties>
-    <ponderutilcore.version>1.2.2M5-SNAPSHOT</ponderutilcore.version>
-    <jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
-  </properties>
-  <version>${jservletutil.version}</version>
-  <description>
-    Libraries for abstracting over servlet dispatch, Spring utilities including
-    fast request scope container (aka RSAC)
-  </description>
-  <inceptionYear>2005</inceptionYear>
-  <packaging>jar</packaging>
-  <distributionManagement>
-    <repository>
-      <id>CARET-Maven2-dev</id>
-      <name>CARET Maven 2 Dev repository</name>
-      <url>scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev</url>
-    </repository>
-  </distributionManagement>
-  <!-- 
-    <gumpRepositoryId>caret-saffron-svn</gumpRepositoryId>
-    <siteAddress>saffron.caret.cam.ac.uk</siteAddress>
-    <siteDirectory>
-    /home/gump/project-websites/ServletUtil/
-    </siteDirectory>
-    <distributionSite>saffron.caret.cam.ac.uk</distributionSite>
-    <distributionDirectory>
-    /home/gump/project-downloads/ServletUtil
-    </distributionDirectory>
-  -->
-  <developers>
-    <developer>
-      <id>amb26</id>
-      <name>Antranig Basman</name>
-      <email>antranig@caret.cam.ac.uk</email>
-      <url></url>
-      <organization>CARET</organization>
-      <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
-    </developer>
-  </developers>
-  <licenses>
-    <license>
-      <name>University of Cambridge, Open Source License</name>
-      <url></url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <scm>
-    <connection>
-      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
-    </connection>
-    <developerConnection>
-      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
-    </developerConnection>
-    <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>
-  </scm>
-  <organization>
-    <name>CARET, University of Cambridge</name>
-    <url>http://www.caret.cam.ac.uk/</url>
-  </organization>
-  <dependencies>
-    <dependency>
-      <groupId>uk.org.ponder</groupId>
-      <artifactId>ponderutilcore</artifactId>
-      <version>${ponderutilcore.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.3</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>1.2.8</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-mock</artifactId>
-      <version>1.2.6</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <!--  Keep this synchronized with the Spring dependent version -->
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-      <version>2.1_3</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <type>jar</type>
-      <!-- SWG Same comment as above on spring-mock for this test scope -->
-      <!-- <scope>test</scope> -->
-    </dependency>
-  </dependencies>
-  <build>
-    <sourceDirectory>src</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>.</directory>
-        <includes>
-          <include>*.TXT</include>
-          <include>src/**/*.java</include>
-        </includes>
-        <filtering>false</filtering>
-      </resource>
-    </resources> 
-  </build>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>j-servletutil</artifactId>
+	<name>J-ServletUtil</name>
+	<groupId>uk.org.ponder</groupId>
+	<properties>
+		<ponderutilcore.version>
+			1.2.2M5-SNAPSHOT
+		</ponderutilcore.version>
+		<jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
+	</properties>
+	<organization>
+		<name>CARET, University of Cambridge</name>
+		<url>http://www.caret.cam.ac.uk/</url>
+	</organization>
+	<version>${jservletutil.version}</version>
+	<description>
+		Libraries for abstracting over servlet dispatch, Spring
+		utilities including fast request scope container (aka RSAC)
+	</description>
+	<inceptionYear>2005</inceptionYear>
+	<packaging>jar</packaging>
+
+	<distributionManagement>
+		<repository>
+			<id>CARET-Maven2-dev</id>
+			<name>CARET Maven 2 Dev repository</name>
+			<url>
+				scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev
+			</url>
+		</repository>
+	</distributionManagement>
+
+	<developers>
+		<developer>
+			<id>amb26</id>
+			<name>Antranig Basman</name>
+			<email>antranig@caret.cam.ac.uk</email>
+			<url>http://ponder.org.uk</url>
+			<organization>CARET</organization>
+			<organizationUrl>
+				http://www.caret.cam.ac.uk/
+			</organizationUrl>
+			<roles>
+				<role>Project Manager</role>
+				<role>Architect</role>
+				<role>Developer</role>
+			</roles>
+			<timezone>0</timezone>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://www.caret.cam.ac.uk/jira/browse/RSF</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Continuum</system>
+		<url>http://saffron.caret.cam.ac.uk/continuum</url>
+		<notifiers>
+			<notifier>
+				<type>mail</type>
+				<address>antranig@caret.cam.ac.uk</address>
+			</notifier>
+		</notifiers>
+	</ciManagement>
+
+
+	<!-- define the license -->
+	<licenses>
+		<license>
+			<name>BSD License</name>
+			<url>
+				http://www.opensource.org/licenses/bsd-license.php
+			</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<!-- define source code repository -->
+	<scm>
+		<connection>
+			scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+		</connection>
+		<developerConnection>
+			scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+		</developerConnection>
+		<url>
+			https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+		</url>
+	</scm>
+
+	<!-- define javadocs and jxr docs -->
+	<reporting>
+		<plugins>
+			<plugin>
+				<!-- javadocs -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<debug>true</debug>
+					<links>
+						<link>
+							http://java.sun.com/j2se/1.4.2/docs/api/
+						</link>
+						<link>
+							http://saffron.caret.cam.ac.uk/projects/PonderUtilCore/apidocs/
+						</link>
+					</links>
+					<!-- 
+						<offlineLinks>file:///e:/workspace/PonderUtilCore/target/docs/apidocs</offlineLinks>
+						<mode.online>true</mode.online> --><!-- Not supported -->
+					<breakiterator>true</breakiterator>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- junit test reports -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<!-- unit test coverage reporting -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<!-- Code analysis report -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<configuration>
+					<targetjdk>1.5</targetjdk>
+					<rulesets>
+						<ruleset>/rulesets/basic.xml</ruleset>
+						<ruleset>/rulesets/codesize.xml</ruleset>
+						<ruleset>/rulesets/design.xml</ruleset>
+						<ruleset>/rulesets/finalizers.xml</ruleset>
+						<ruleset>/rulesets/imports.xml</ruleset>
+						<ruleset>/rulesets/logging-java.xml</ruleset>
+						<ruleset>/rulesets/migrating.xml</ruleset>
+						<ruleset>/rulesets/strings.xml</ruleset>
+						<ruleset>/rulesets/typeresolution.xml</ruleset>
+						<ruleset>/rulesets/unusedcode.xml</ruleset>
+					</rulesets>
+					<format>xml</format>
+					<linkXref>true</linkXref>
+					<sourceEncoding>utf-8</sourceEncoding>
+					<minimumTokens>100</minimumTokens>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- Changelog report -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>changelog-maven-plugin</artifactId>
+				<configuration>
+					<type>range</type>
+					<range>90</range><!-- days -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- TODO tags report -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<configuration>
+					<tags>
+						<tag>TODO</tag>
+						<tag>FIXME</tag>
+						<tag>@deprecated</tag>
+					</tags>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- jdepend code analysis -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jdepend-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<!-- jxr source code cross linking -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jxr-maven-plugin</artifactId>
+				<configuration>
+					<linkJavadoc>true</linkJavadoc>
+					<javadocDir>apidocs</javadocDir>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>uk.org.ponder</groupId>
+			<artifactId>ponderutilcore</artifactId>
+			<version>${ponderutilcore.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.3</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>1.2.8</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-mock</artifactId>
+			<version>1.2.6</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<!--  Keep this synchronized with the Spring dependent version -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>2.1_3</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.9</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<type>jar</type>
+			<!-- SWG Same comment as above on spring-mock for this test scope -->
+			<!-- <scope>test</scope> -->
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<includes>
+					<include>*.TXT</include>
+					<include>src/**/*.java</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build>
+
 </project>
 
