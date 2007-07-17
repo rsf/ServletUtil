@@ -91,7 +91,7 @@
       <artifactId>spring-mock</artifactId>
       <version>1.2.6</version>
       <type>jar</type>
-     <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
     <!--  Keep this synchronized with the Spring dependent version -->
     <dependency>

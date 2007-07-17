@@ -159,7 +159,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     assertIsStarted();
     PerRequestInfo pri = getPerRequest();
     Runnable lazarusList = (Runnable) pri.beans.locateBean("RSACLazarusList");
-    GlobalBeanAccessor.endRequest();
+    GlobalBeanAccessor.endRequest(); // cannot throw
 
     for (int i = 0; i < pri.todestroy.size(); ++i) {
       String todestroyname = pri.todestroy.stringAt(i);
