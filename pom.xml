@@ -5,25 +5,24 @@
                       http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>j-servletutil</artifactId>
+	<packaging>jar</packaging>
 	<name>J-ServletUtil</name>
 	<groupId>uk.org.ponder</groupId>
 	<properties>
-		<ponderutilcore.version>
-			1.2.2M5-SNAPSHOT
-		</ponderutilcore.version>
+		<ponderutilcore.version>1.2.2M5-SNAPSHOT</ponderutilcore.version>
 		<jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
 	</properties>
 	<organization>
 		<name>CARET, University of Cambridge</name>
 		<url>http://www.caret.cam.ac.uk/</url>
 	</organization>
-	<version>${jservletutil.version}</version>
+	<inceptionYear>2005</inceptionYear>
+	<url>http://ponder.org.uk/</url>
 	<description>
 		Libraries for abstracting over servlet dispatch, Spring
 		utilities including fast request scope container (aka RSAC)
 	</description>
-	<inceptionYear>2005</inceptionYear>
-	<packaging>jar</packaging>
+	<version>${jservletutil.version}</version>
 
 	<distributionManagement>
 		<repository>
