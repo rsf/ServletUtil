@@ -65,7 +65,9 @@
 		<notifiers>
 			<notifier>
 				<type>mail</type>
-				<address>antranig@caret.cam.ac.uk</address>
+				<configuration>
+					<address>antranig@caret.cam.ac.uk</address>
+				</configuration>
 			</notifier>
 		</notifiers>
 	</ciManagement>
