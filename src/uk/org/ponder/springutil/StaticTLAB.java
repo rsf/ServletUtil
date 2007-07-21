@@ -76,7 +76,7 @@ public class StaticTLAB implements TargetListAggregatingBean {
   }
   
   /** The EL or bean name at which the "held" object can be found. Exactly
-   * one out of this property and 
+   * one out of this property and {@link #setValue(Object)} must be set.
    */
   
   public void setValueRef(String valueref) {

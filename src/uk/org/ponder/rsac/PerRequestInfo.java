@@ -13,6 +13,7 @@ import org.springframework.beans.factory.BeanInitializationException;
 
 import uk.org.ponder.beanutil.ConcreteWBL;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
+import uk.org.ponder.springutil.TLABPostProcessor;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -26,6 +27,7 @@ class PerRequestInfo {
   // a cached BeanFactory corresponding to the lazy container, for any
   // BeanFactoryAware beans
   BeanFactory blfactory;
+  TLABPostProcessor tlabpp;
   // the container of RSACLazyTargetSources, permanent in this ThreadLocal.
   Map lazysources;
   Map seedbeans = new HashMap();
@@ -40,7 +42,7 @@ class PerRequestInfo {
     postprocessors.clear();
   }
 
-  public PerRequestInfo(final RSACBeanLocator rsacbl, StringList lazysources) {
+  public PerRequestInfo(final RSACBeanLocator rsacbl, StringList lazysources, TLABPostProcessor tlabpp) {
 
     requestwbl = new WriteableBeanLocator() {
       public Object locateBean(String beanname) {
@@ -92,6 +94,7 @@ class PerRequestInfo {
       }
     }
     this.lazysources = thislazies;
-
+    this.tlabpp = tlabpp.copy();
+    this.tlabpp.setBeanLocator(requestwbl);
   }
 }

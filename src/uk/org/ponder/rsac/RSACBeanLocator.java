@@ -115,7 +115,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   private PerRequestInfo getPerRequest() {
     PerRequestInfo pri = (PerRequestInfo) threadlocal.get();
     if (pri == null) {
-      pri = new PerRequestInfo(RSACBeanLocator.this, lazysources);
+      pri = new PerRequestInfo(RSACBeanLocator.this, lazysources, tlabpp);
       threadlocal.set(pri);
     }
     return pri;
@@ -639,7 +639,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   private Object processNewBean(PerRequestInfo pri, String beanname,
       Object newbean) {
-    tlabpp.postProcessBeforeInitialization(newbean, beanname);
+    pri.tlabpp.postProcessBeforeInitialization(newbean, beanname);
     for (int i = 0; i < pri.postprocessors.size(); ++i) {
       BeanPostProcessor beanpp = (BeanPostProcessor) pri.postprocessors.get(i);
       try {

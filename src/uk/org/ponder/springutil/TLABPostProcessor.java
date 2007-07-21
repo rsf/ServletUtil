@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import uk.org.ponder.arrayutil.MapUtil;
+import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
-import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
  * Does the work of collecting and focusing all the distributed property
@@ -35,6 +34,8 @@ public class TLABPostProcessor implements BeanPostProcessor,
 
   private SAXalizerMappingContext mappingContext;
   private ApplicationContext applicationContext;
+ // If this is set, will be used in preference to applicationContext to resolve beans
+  private BeanLocator beanLocator;
 
   public void setMappingContext(SAXalizerMappingContext mappingContext) {
     this.mappingContext = mappingContext;
@@ -44,6 +45,14 @@ public class TLABPostProcessor implements BeanPostProcessor,
     if (mappingContext == null) {
       mappingContext = SAXalizerMappingContext.instance();
     }
+  }
+  
+  // Intended for fast request-scope deployment
+  public TLABPostProcessor copy() {
+    TLABPostProcessor togo = new TLABPostProcessor();
+    togo.targetMap = targetMap;
+    togo.mappingContext = mappingContext;
+    return togo;
   }
   
 // VERY temporary method just to get support for bindafter="*"
@@ -82,6 +91,10 @@ public class TLABPostProcessor implements BeanPostProcessor,
     }
   }
 
+  public void setBeanLocator(BeanLocator beanLocator) {
+    this.beanLocator = beanLocator;
+  }
+  
   public Object postProcessAfterInitialization(Object bean, String beanName) {
     return bean;
   }
@@ -97,7 +110,12 @@ public class TLABPostProcessor implements BeanPostProcessor,
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) tlabs.get(i);
       Object value = tlab.getValue();
       if (value == null) {
-        value = applicationContext.getBean(tlab.getValueRef());
+        if (beanLocator != null) {
+          value = beanLocator.locateBean(tlab.getValueRef());
+        }
+        else {
+          value = applicationContext.getBean(tlab.getValueRef());
+        }
       }
       if (tlab.getUnwrapLists() && value instanceof List) {
         List values = (List) value;
