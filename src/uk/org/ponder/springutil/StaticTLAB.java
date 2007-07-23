@@ -101,10 +101,16 @@ public class StaticTLAB implements TargetListAggregatingBean {
     return unwraplists;
   }
 
+  /** If set to "*" will cause the contributed bean to be placed in the first
+   * list position. Other values will be supported in future versions.
+   */
   public void setBindBefore(Object bindBefore) {
     this.bindBefore = bindBefore;
   }
 
+  /** If set to "*" will cause the contributed bean to be placed in the last
+   * list position. Other values will be supported in future versions.
+   */
   public void setBindAfter(Object bindAfter) {
     this.bindAfter = bindAfter;
   }

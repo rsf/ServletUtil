@@ -55,16 +55,21 @@ public class TLABPostProcessor implements BeanPostProcessor,
     return togo;
   }
   
-// VERY temporary method just to get support for bindafter="*"
+// VERY temporary method just to get support for bindbefore/bindafter="*"
   private void sortTLABs(List tlabs) {
     int limit = tlabs.size();
     for (int i = 0; i < limit; ++ i) {
       TargetListAggregatingBean tlab = (TargetListAggregatingBean) tlabs.get(i);
       Object bindafter = tlab.getBindAfter();
-      if (bindafter != null && bindafter.equals("*")) {
+      if ("*".equals(bindafter)) {
         tlabs.remove(i);
         tlabs.add(tlab);
         --i; --limit;
+      }
+      Object bindbefore = tlab.getBindBefore();
+      if ("*".equals(bindbefore)) {
+        tlabs.remove(i);
+        tlabs.add(0, tlab);
       }
     }
   }
