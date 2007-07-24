@@ -71,15 +71,23 @@
       </notifiers>
    </ciManagement>
 
-
-   <!-- define the license -->
-   <licenses>
-      <license>
-         <name>BSD License</name>
-         <url>http://www.opensource.org/licenses/bsd-license.php</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
+   <!-- RSF mailing lists -->
+   <mailingLists>
+      <mailingList>
+         <name>RSF Users List</name>
+         <subscribe>list-rsfusers-subscribe@caret.cam.ac.uk</subscribe>
+         <unsubscribe>list-rsfusers-unsubscribe@caret.cam.ac.uk</unsubscribe>
+         <post>list-rsfusers@caret.cam.ac.uk</post>
+         <archive>https://mail.caret.cam.ac.uk/pipermail/list-rsfusers/</archive>
+      </mailingList>
+      <mailingList>
+         <name>RSF Developers List</name>
+         <subscribe>list-rsfdev-subscribe@caret.cam.ac.uk</subscribe>
+         <unsubscribe>list-rsfdev-unsubscribe@caret.cam.ac.uk</unsubscribe>
+         <post>list-rsfdev@caret.cam.ac.uk</post>
+         <archive>https://mail.caret.cam.ac.uk/pipermail/list-rsfdev/</archive>
+      </mailingList>
+   </mailingLists>
 
    <!-- define source code repository -->
    <scm>
@@ -91,6 +99,15 @@
       </developerConnection>
       <url>https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk</url>
    </scm>
+
+   <!-- define the license -->
+   <licenses>
+      <license>
+         <name>BSD License</name>
+         <url>http://www.opensource.org/licenses/bsd-license.php</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
 
    <!-- define javadocs and jxr docs -->
    <reporting>
