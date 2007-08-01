@@ -1,290 +1,306 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                       http://maven.apache.org/maven-v4_0_0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <artifactId>j-servletutil</artifactId>
-   <packaging>jar</packaging>
-   <name>J-ServletUtil</name>
-   <groupId>uk.org.ponder</groupId>
-   <properties>
-      <ponderutilcore.version>1.2.2M5-SNAPSHOT</ponderutilcore.version>
-      <jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
-   </properties>
-   <organization>
-      <name>CARET, University of Cambridge</name>
-      <url>http://www.caret.cam.ac.uk/</url>
-   </organization>
-   <inceptionYear>2005</inceptionYear>
-   <url>http://ponder.org.uk/</url>
-   <description>
-      Libraries for abstracting over servlet dispatch, Spring utilities including fast
-      request scope container (aka RSAC)
-   </description>
-   <version>${jservletutil.version}</version>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>j-servletutil</artifactId>
+  <packaging>jar</packaging>
+  <name>J-ServletUtil</name>
+  <groupId>uk.org.ponder</groupId>
+  <properties>
+    <ponderutilcore.version>1.2.2M5-SNAPSHOT</ponderutilcore.version>
+    <jservletutil.version>1.2.2M5-SNAPSHOT</jservletutil.version>
+  </properties>
+  <organization>
+    <name>CARET, University of Cambridge</name>
+    <url>http://www.caret.cam.ac.uk/</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
+  <url>http://ponder.org.uk/</url>
+  <description>
+    Libraries for abstracting over servlet dispatch, Spring utilities
+    including fast request scope container (aka RSAC)
+  </description>
+  <version>${jservletutil.version}</version>
 
-   <distributionManagement>
-      <repository>
-         <id>CARET-Maven2-dev</id>
-         <name>CARET Maven 2 Dev repository</name>
-         <url>scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev</url>
-      </repository>
-   </distributionManagement>
+  <distributionManagement>
+    <repository>
+      <id>CARET-Maven2-dev</id>
+      <name>CARET Maven 2 Dev repository</name>
+      <url>scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev</url>
+    </repository>
+  </distributionManagement>
 
-   <developers>
-      <developer>
-         <id>amb26</id>
-         <name>Antranig Basman</name>
-         <email>antranig@caret.cam.ac.uk</email>
-         <url>http://ponder.org.uk</url>
-         <organization>CARET</organization>
-         <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
-         <roles>
-            <role>Project Manager</role>
-            <role>Architect</role>
-            <role>Developer</role>
-         </roles>
-         <timezone>0</timezone>
-      </developer>
-   </developers>
+  <developers>
+    <developer>
+      <id>amb26</id>
+      <name>Antranig Basman</name>
+      <email>antranig@caret.cam.ac.uk</email>
+      <url>http://ponder.org.uk</url>
+      <organization>CARET</organization>
+      <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+      <roles>
+        <role>Project Manager</role>
+        <role>Architect</role>
+        <role>Developer</role>
+      </roles>
+      <timezone>0</timezone>
+    </developer>
+  </developers>
 
-   <issueManagement>
-      <system>JIRA</system>
-      <url>http://www.caret.cam.ac.uk/jira/browse/RSF</url>
-   </issueManagement>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://www.caret.cam.ac.uk/jira/browse/RSF</url>
+  </issueManagement>
 
-   <ciManagement>
-      <system>Continuum</system>
-      <url>http://saffron.caret.cam.ac.uk/continuum</url>
-      <notifiers>
-         <notifier>
-            <type>mail</type>
-            <sendOnError>true</sendOnError>
-            <sendOnFailure>true</sendOnFailure>
-            <sendOnSuccess>false</sendOnSuccess>
-            <sendOnWarning>false</sendOnWarning>
-            <configuration>
-               <address>antranig@caret.cam.ac.uk</address>
-            </configuration>
-         </notifier>
-      </notifiers>
-   </ciManagement>
+  <ciManagement>
+    <system>Continuum</system>
+    <url>http://saffron.caret.cam.ac.uk/continuum</url>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <sendOnError>true</sendOnError>
+        <sendOnFailure>true</sendOnFailure>
+        <sendOnSuccess>false</sendOnSuccess>
+        <sendOnWarning>false</sendOnWarning>
+        <configuration>
+          <address>antranig@caret.cam.ac.uk</address>
+        </configuration>
+      </notifier>
+    </notifiers>
+  </ciManagement>
 
-   <!-- RSF mailing lists -->
-   <mailingLists>
-      <mailingList>
-         <name>RSF Users List</name>
-         <subscribe>list-rsfusers-subscribe@caret.cam.ac.uk</subscribe>
-         <unsubscribe>list-rsfusers-unsubscribe@caret.cam.ac.uk</unsubscribe>
-         <post>list-rsfusers@caret.cam.ac.uk</post>
-         <archive>https://mail.caret.cam.ac.uk/pipermail/list-rsfusers/</archive>
-      </mailingList>
-      <mailingList>
-         <name>RSF Developers List</name>
-         <subscribe>list-rsfdev-subscribe@caret.cam.ac.uk</subscribe>
-         <unsubscribe>list-rsfdev-unsubscribe@caret.cam.ac.uk</unsubscribe>
-         <post>list-rsfdev@caret.cam.ac.uk</post>
-         <archive>https://mail.caret.cam.ac.uk/pipermail/list-rsfdev/</archive>
-      </mailingList>
-   </mailingLists>
+  <!-- RSF mailing lists -->
+  <mailingLists>
+    <mailingList>
+      <name>RSF Users List</name>
+      <subscribe>list-rsfusers-subscribe@caret.cam.ac.uk</subscribe>
+      <unsubscribe>
+        list-rsfusers-unsubscribe@caret.cam.ac.uk
+      </unsubscribe>
+      <post>list-rsfusers@caret.cam.ac.uk</post>
+      <archive>
+        https://mail.caret.cam.ac.uk/pipermail/list-rsfusers/
+      </archive>
+    </mailingList>
+    <mailingList>
+      <name>RSF Developers List</name>
+      <subscribe>list-rsfdev-subscribe@caret.cam.ac.uk</subscribe>
+      <unsubscribe>list-rsfdev-unsubscribe@caret.cam.ac.uk</unsubscribe>
+      <post>list-rsfdev@caret.cam.ac.uk</post>
+      <archive>
+        https://mail.caret.cam.ac.uk/pipermail/list-rsfdev/
+      </archive>
+    </mailingList>
+  </mailingLists>
 
-   <!-- define source code repository -->
-   <scm>
-      <connection>
-         scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
-      </connection>
-      <developerConnection>
-         scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
-      </developerConnection>
-      <url>https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk</url>
-   </scm>
+  <!-- define source code repository -->
+  <scm>
+    <connection>
+      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+    </connection>
+    <developerConnection>
+      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+    </developerConnection>
+    <url>
+      https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+    </url>
+  </scm>
 
-   <!-- define the license -->
-   <licenses>
-      <license>
-         <name>BSD License</name>
-         <url>http://www.opensource.org/licenses/bsd-license.php</url>
-         <distribution>repo</distribution>
-      </license>
-   </licenses>
+  <!-- define the license -->
+  <licenses>
+    <license>
+      <name>BSD License</name>
+      <url>http://www.opensource.org/licenses/bsd-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
-   <!-- define javadocs and jxr docs -->
-   <reporting>
-      <plugins>
-         <plugin>
-            <!-- javadocs -->
+  <!-- define javadocs and jxr docs -->
+  <reporting>
+    <plugins>
+      <plugin>
+        <!-- javadocs -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <debug>true</debug>
+          <links>
+            <link>http://java.sun.com/j2se/1.4.2/docs/api/</link>
+            <link>
+              http://saffron.caret.cam.ac.uk/projects/PonderUtilCore/apidocs/
+            </link>
+          </links>
+          <breakiterator>true</breakiterator>
+          <verbose>true</verbose>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- junit test reports -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- unit test coverage reporting -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- Code analysis report -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <targetjdk>1.5</targetjdk>
+          <rulesets>
+            <ruleset>/rulesets/basic.xml</ruleset>
+            <ruleset>/rulesets/codesize.xml</ruleset>
+            <ruleset>/rulesets/design.xml</ruleset>
+            <ruleset>/rulesets/finalizers.xml</ruleset>
+            <ruleset>/rulesets/imports.xml</ruleset>
+            <ruleset>/rulesets/logging-java.xml</ruleset>
+            <ruleset>/rulesets/migrating.xml</ruleset>
+            <ruleset>/rulesets/strings.xml</ruleset>
+            <!-- <ruleset>/rulesets/typeresolution.xml</ruleset> Causes a screen buffer and thus a failure when building on servers -AZ -->
+            <ruleset>/rulesets/unusedcode.xml</ruleset>
+          </rulesets>
+          <format>xml</format>
+          <linkXref>true</linkXref>
+          <sourceEncoding>utf-8</sourceEncoding>
+          <minimumTokens>100</minimumTokens>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- Changelog report -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>changelog-maven-plugin</artifactId>
+        <configuration>
+          <type>range</type>
+          <range>90</range><!-- days -->
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- TODO tags report -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <tags>
+            <tag>TODO</tag>
+            <tag>FIXME</tag>
+            <tag>@deprecated</tag>
+          </tags>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- jdepend code analysis -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <!-- jxr source code cross linking -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jxr-maven-plugin</artifactId>
+        <configuration>
+          <linkJavadoc>true</linkJavadoc>
+          <javadocDir>apidocs</javadocDir>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-               <debug>true</debug>
-               <links>
-                  <link>http://java.sun.com/j2se/1.4.2/docs/api/</link>
-                  <link>
-                     http://saffron.caret.cam.ac.uk/projects/PonderUtilCore/apidocs/
-                  </link>
-               </links>
-               <breakiterator>true</breakiterator>
-               <verbose>true</verbose>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- junit test reports -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- unit test coverage reporting -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cobertura-maven-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- Code analysis report -->
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-            <configuration>
-               <targetjdk>1.5</targetjdk>
-               <rulesets>
-                  <ruleset>/rulesets/basic.xml</ruleset>
-                  <ruleset>/rulesets/codesize.xml</ruleset>
-                  <ruleset>/rulesets/design.xml</ruleset>
-                  <ruleset>/rulesets/finalizers.xml</ruleset>
-                  <ruleset>/rulesets/imports.xml</ruleset>
-                  <ruleset>/rulesets/logging-java.xml</ruleset>
-                  <ruleset>/rulesets/migrating.xml</ruleset>
-                  <ruleset>/rulesets/strings.xml</ruleset>
-                  <!-- <ruleset>/rulesets/typeresolution.xml</ruleset> Causes a screen buffer and thus a failure when building on servers -AZ -->
-                  <ruleset>/rulesets/unusedcode.xml</ruleset>
-               </rulesets>
-               <format>xml</format>
-               <linkXref>true</linkXref>
-               <sourceEncoding>utf-8</sourceEncoding>
-               <minimumTokens>100</minimumTokens>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- Changelog report -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>changelog-maven-plugin</artifactId>
-            <configuration>
-               <type>range</type>
-               <range>90</range><!-- days -->
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- TODO tags report -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>taglist-maven-plugin</artifactId>
-            <configuration>
-               <tags>
-                  <tag>TODO</tag>
-                  <tag>FIXME</tag>
-                  <tag>@deprecated</tag>
-               </tags>
-            </configuration>
-         </plugin>
-         <plugin>
-            <!-- jdepend code analysis -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jdepend-maven-plugin</artifactId>
-         </plugin>
-         <plugin>
-            <!-- jxr source code cross linking -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>jxr-maven-plugin</artifactId>
-            <configuration>
-               <linkJavadoc>true</linkJavadoc>
-               <javadocDir>apidocs</javadocDir>
-            </configuration>
-         </plugin>
-      </plugins>
-   </reporting>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
-   <profiles>
-      <profile>
-         <id>release</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                           <goal>jar</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
+  <dependencies>
+    <dependency>
+      <groupId>uk.org.ponder</groupId>
+      <artifactId>ponderutilcore</artifactId>
+      <version>${ponderutilcore.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.3</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>2.0.6</version>
+      <type>jar</type>
+      <exclusions>
+        <exclusion>
+          <!-- Exclude commons-logging, which ALSO attempts to bring in javax.servlet -->
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-mock</artifactId>
+      <version>2.0.6</version>
+      <type>jar</type>
+      <scope>provided</scope>
 
-   <dependencies>
-      <dependency>
-         <groupId>uk.org.ponder</groupId>
-         <artifactId>ponderutilcore</artifactId>
-         <version>${ponderutilcore.version}</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>servlet-api</artifactId>
-         <version>2.3</version>
-         <type>jar</type>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring</artifactId>
-         <version>2.0.6</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
-         <groupId>org.springframework</groupId>
-         <artifactId>spring-mock</artifactId>
-         <version>2.0.6</version>
-         <type>jar</type>
-         <scope>provided</scope>
-      </dependency>
-      <!--  Keep this synchronized with the Spring dependent version -->
-      <dependency>
-         <groupId>cglib</groupId>
-         <artifactId>cglib-nodep</artifactId>
-         <version>2.1_3</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
-         <groupId>log4j</groupId>
-         <artifactId>log4j</artifactId>
-         <version>1.2.9</version>
-         <type>jar</type>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>3.8.1</version>
-         <type>jar</type>
-         <!-- SWG Same comment as above on spring-mock for this test scope -->
-         <!-- <scope>test</scope> -->
-      </dependency>
-   </dependencies>
+    </dependency>
+    <!--  Keep this synchronized with the Spring dependent version -->
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <version>2.1_3</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <type>jar</type>
+      <!-- SWG Same comment as above on spring-mock for this test scope -->
+      <!-- <scope>test</scope> -->
+    </dependency>
+  </dependencies>
 
-   <build>
-      <sourceDirectory>src</sourceDirectory>
-      <resources>
-         <resource>
-            <directory>.</directory>
-            <includes>
-               <include>*.TXT</include>
-               <include>src/**/*.java</include>
-            </includes>
-            <filtering>false</filtering>
-         </resource>
-      </resources>
-   </build>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>*.TXT</include>
+          <include>src/**/*.java</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
 
 </project>
 
