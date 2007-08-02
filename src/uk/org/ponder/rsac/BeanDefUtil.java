@@ -26,6 +26,7 @@
 package uk.org.ponder.rsac;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -174,7 +176,27 @@ public class BeanDefUtil {
         .getAliases(beanname)
         : StringArrayParser.EMPTY_STRINGL;
     if (abd.hasConstructorArgumentValues()) {
-      rbi.constructorargvals = abd.getConstructorArgumentValues();
+      ConstructorArgumentValues cav = abd.getConstructorArgumentValues();
+      boolean hasgeneric = !cav.getGenericArgumentValues().isEmpty();
+      boolean hasindexed = !cav.getIndexedArgumentValues().isEmpty(); 
+      if (hasgeneric && hasindexed) {
+        throw new UnsupportedOperationException("RSAC Bean " + beanname 
+            + " has both indexed and generic constructor arguments, which is not supported");
+      }
+      if (hasgeneric) {
+        List cvalues = cav.getGenericArgumentValues();
+        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues.size()];
+        for (int i = 0; i < cvalues.size(); ++ i) {
+          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues.get(i);
+        }
+      }
+      else if (hasindexed) {
+        Map cvalues = cav.getIndexedArgumentValues();
+        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues.size()];
+        for (int i = 0; i < cvalues.size(); ++ i) {
+          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues.get(new Integer(i));
+        }
+      }
     }
     if (rbi.factorymethod == null) {
  // Core Spring change at 2.0M5 - ALL bean classes are now irrevocably lazy!!

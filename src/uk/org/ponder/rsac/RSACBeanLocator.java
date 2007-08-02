@@ -497,7 +497,12 @@ public class RSACBeanLocator implements ApplicationContextAware,
         // "&" +beanname : beanname);
         // All the same, the following line will cost us close to 1us - unless
         // it invokes manual code!
-        newbean = reflectivecache.construct(rbi.beanclass);
+        if (rbi.constructorargvals == null) {
+          newbean = reflectivecache.construct(rbi.beanclass);
+        }
+        else {
+          newbean = null;
+        }
       }
       if (rbi.hasDependencies()) {
         // guard this block since if it is a factory-method bean it may be
@@ -510,41 +515,16 @@ public class RSACBeanLocator implements ApplicationContextAware,
         // iterate over each LOCAL dependency of the bean with given name.
         for (Iterator depit = rbi.dependencies(); depit.hasNext();) {
           String propertyname = (String) depit.next();
+      
           try {
             AccessMethod setter = ma.getAccessMethod(propertyname);
             if (setter == null) {
               throw new IllegalArgumentException(newbean.getClass()
                   + " has no writeable property named " + propertyname);
             }
-            Object depbean = null;
             Object beanref = rbi.beanref(propertyname);
-            if (beanref instanceof String) {
-              String depbeanname = (String) beanref;
-              depbean = fetchDependent(pri, depbeanname, setter);
-              BeanUtil.censorNullBean(depbeanname, depbean);
-            }
-            else if (beanref instanceof ValueHolder) {
-              Class accezzz = setter.getAccessedType();
-              String value = ((ValueHolder) beanref).value;
-              if (smc.saxleafparser.isLeafType(accezzz)) {
-                depbean = smc.saxleafparser.parse(accezzz, value);
-              }
-              else {
-                // exception def copied from the beast BeanWrapperImpl!
-                throw new TypeMismatchException(new PropertyChangeEvent(
-                    newbean, propertyname, null, value), accezzz, null);
-              }
-            }
-            else {
-              // Really need generalised conversion of vector values here.
-              // The code to do this is actually WITHIN the grotty
-              // BeanWrapperImpl
-              // itself in a protected method with 5 arguments!!
-              // This is a sort of 50% solution. It will deal with all 1-d array
-              // types and collections, and values of parseable types.
-              depbean = assembleVectorProperty(pri, (StringList) beanref,
-                  setter.getDeclaredType());
-            }
+            Class targetclazz = setter.getAccessedType();
+            Object depbean = resolveDependent(beanref, pri, targetclazz, setter.getDeclaredType());
         
             // Lose another 500ns here, until we bring on FastClass.
             setter.setChildObject(newbean, depbean);
@@ -615,9 +595,43 @@ public class RSACBeanLocator implements ApplicationContextAware,
 
   }
 
+  private Object resolveDependent(Object beanref, PerRequestInfo pri, 
+       Class accessedType, Class declaredType) {
+    Object depbean = null;
+    if (beanref instanceof String) {
+      String depbeanname = (String) beanref;
+      depbean = fetchDependent(pri, depbeanname, accessedType);
+      BeanUtil.censorNullBean(depbeanname, depbean);
+    }
+    else if (beanref instanceof ValueHolder) {
+      String value = ((ValueHolder) beanref).value;
+      if (smc.saxleafparser.isLeafType(accessedType)) {
+        depbean = smc.saxleafparser.parse(accessedType, value);
+      }
+      else {
+        // exception def copied from the beast BeanWrapperImpl!
+        throw new TypeMismatchException(new PropertyChangeEvent(
+            //newbean, propertyname,
+            null, null, 
+            null, value), accessedType, null);
+      }
+    }
+    else {
+      // Really need generalised conversion of vector values here.
+      // The code to do this is actually WITHIN the grotty
+      // BeanWrapperImpl
+      // itself in a protected method with 5 arguments!!
+      // This is a sort of 50% solution. It will deal with all 1-d array
+      // types and collections, and values of parseable types.
+      depbean = assembleVectorProperty(pri, (StringList) beanref,
+          declaredType);
+    }
+    return depbean;
+  }
+
   private Object fetchDependent(final PerRequestInfo pri,
-      final String beanname, final AccessMethod setter) {
-    Class targetclazz = setter.getAccessedType();
+      final String beanname, Class targetclazz) {
+  
     if (ObjectFactory.class.isAssignableFrom(targetclazz)) {
       return new ObjectFactory() {
         public Object getObject() {

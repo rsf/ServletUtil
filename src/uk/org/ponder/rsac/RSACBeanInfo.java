@@ -26,7 +26,7 @@ class RSACBeanInfo {
   // key is dependent bean name, value is property name.
   // ultimately we will cache introspection info here.
   private HashMap localdepends = new HashMap();
-  public ConstructorArgumentValues constructorargvals;
+  public ConstructorArgumentValues.ValueHolder[] constructorargvals;
   // each member is either an app-static RunnableWrapper or a reference to
   // one which can be fetched
   public Object[] fetchwrappers;
