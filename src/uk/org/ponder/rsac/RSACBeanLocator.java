@@ -273,7 +273,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
     for (int i = 0; i < beanNames.length; i++) {
       String beanname = beanNames[i];
       RSACBeanInfo rbi = (RSACBeanInfo) rbimap.get(beanname);
-      if (rbi.beanclass != null && clazz.isAssignableFrom(rbi.beanclass)) {
+      if (rbi.beanclass != null && !rbi.isabstract && clazz.isAssignableFrom(rbi.beanclass)) {
         togo.add(beanname);
       }
     }
@@ -305,8 +305,9 @@ public class RSACBeanLocator implements ApplicationContextAware,
         }
       }
       catch (Exception e) {
-        Logger.log.warn("Error reflecting for factory method "
-            + rbi.factorymethod + " in bean " + rbi.factorybean, e);
+        Logger.log.info("Error reflecting for factory method "
+            + rbi.factorymethod + " in bean " + rbi.factorybean 
+            + " however, it may be present in the concrete bean type");
       }
     }
     // Noone could possibly say we didn't do our best to work out the type of

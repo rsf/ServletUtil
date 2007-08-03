@@ -77,7 +77,9 @@ public class BeanDefUtil {
     catch (NoSuchBeanDefinitionException ex) {
       if (includingAncestors
           && factory.getParentBeanFactory() instanceof ConfigurableListableBeanFactory) {
-        return getMergedBeanDefinition(factory, beanName, true);
+        return getMergedBeanDefinition(
+            (ConfigurableListableBeanFactory) 
+            factory.getParentBeanFactory(), beanName, true);
       }
       else {
         throw ex;
