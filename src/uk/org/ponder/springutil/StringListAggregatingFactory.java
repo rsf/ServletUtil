@@ -9,6 +9,12 @@ import org.springframework.beans.factory.FactoryBean;
 
 import uk.org.ponder.stringutil.StringList;
 
+/** Accepts a collection of comma-separated String elements, unpacks and 
+ * collects them into a StringList.
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ *
+ */
+
 public class StringListAggregatingFactory implements FactoryBean {
   private StringList stringlist = new StringList();
   private String delim = ",";

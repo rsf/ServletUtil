@@ -19,8 +19,6 @@ public class GlobalBeanAccessor {
   /** Returns the (application-scope) bean with the given name, bound to
    * the context for the current thread. Only use this method in a genuine
    * emergency!
-   * @param name
-   * @return
    */
   public static Object getBean(String name) {
     return ((ApplicationContext)contexts.get()).getBean(name);
