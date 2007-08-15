@@ -52,9 +52,9 @@ public class SpringErrorConverter {
     }
   }
 
-  public static void appendErrors(String frontpath, TargettedMessageList tml,
+  public static void appendErrors(TargettedMessageList tml,
       Errors errors) {
-    tml.pushNestedPath(frontpath);
+    tml.pushNestedPath(errors.getObjectName());
     try {
       for (int i = 0; i < errors.getErrorCount(); ++i) {
         tml.addMessage(SpringErrorConverter
