@@ -23,6 +23,16 @@ public class GlobalBeanAccessor {
   public static Object getBean(String name) {
     return ((ApplicationContext)contexts.get()).getBean(name);
   }
+  
+  /** Returns the request-scope bean with the given name, bound to the
+   * standard RSAC locator within the application context bound to the 
+   * current thread. Only use this method in a genuine emergency!
+   */
+  public static Object getRequestBean(String name) {
+    RSACBeanLocator rsacbl = (RSACBeanLocator) getBean("RSACBeanLocator");
+    return rsacbl.getBeanLocator().locateBean(name);
+  }
+  
   public static void startRequest(ApplicationContext context) {
     contexts.set(context);
   }
