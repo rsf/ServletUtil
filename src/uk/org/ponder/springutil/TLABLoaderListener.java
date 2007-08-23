@@ -3,7 +3,12 @@
  */
 package uk.org.ponder.springutil;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -50,12 +55,27 @@ public class TLABLoaderListener implements ApplicationListener,
   }
 
   public void afterPropertiesSet() throws Exception {
+    ConfigurableApplicationContext cac = (ConfigurableApplicationContext) applicationContext;
+    ConfigurableBeanFactory cbf = (ConfigurableBeanFactory) cac.getBeanFactory();
+    final Set guardSet = new HashSet();
+    cbf.addBeanPostProcessor(new BeanPostProcessor() {
+      public Object postProcessBeforeInitialization(Object bean, String beanName)
+          throws BeansException {
+        guardSet.add(beanName);
+        return bean;
+      }
+    
+      public Object postProcessAfterInitialization(Object bean, String beanName)
+          throws BeansException {
+        return bean;
+      }
+    });
     TLABPostProcessor processor = new TLABPostProcessor();
     processor.setApplicationContext(applicationContext);
+    processor.checkGuard(guardSet);
     processor.setMappingContext(mappingContext == null? SAXalizerMappingContext.instance() : mappingContext);
-    ConfigurableApplicationContext cac = (ConfigurableApplicationContext) applicationContext;
-    ((ConfigurableBeanFactory) cac.getBeanFactory())
-        .addBeanPostProcessor(processor);
+   
+    cbf.addBeanPostProcessor(processor);
   }
 
 }

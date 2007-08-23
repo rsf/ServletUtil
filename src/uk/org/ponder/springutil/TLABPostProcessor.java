@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -18,6 +19,7 @@ import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.util.Logger;
 
 /**
  * Does the work of collecting and focusing all the distributed property
@@ -93,6 +95,26 @@ public class TLABPostProcessor implements BeanPostProcessor,
     for (Iterator values = targetMap.values().iterator(); values.hasNext();) {
       List tlabs = (List) values.next();
       sortTLABs(tlabs);
+    }
+  }
+
+  public void checkGuard(Set loaded) {
+    int cloaded = 0;
+    for (Iterator keyit = targetMap.keySet().iterator(); keyit.hasNext();) {
+      String key = (String) keyit.next();
+      if (loaded.contains(key)) {
+        Logger.log.error("Bean " + key + 
+            " which was the target of TLAB definition has already been " +
+            "loaded by search for TLAB definitions during startup");
+       ++cloaded;
+      }
+    }
+    if (cloaded > 0) {
+      throw new IllegalArgumentException(
+          cloaded + (cloaded > 1? " beans which were" : " bean which was") + 
+          " the target of TLAB definition became loaded" +
+          " by search for TLAB definitions during startup - consider breaking" +
+          " this cycle by use of valueRef rather than value in the TLAB definition");
     }
   }
 
