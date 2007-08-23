@@ -132,5 +132,27 @@
     </dependency>
   </dependencies>
 
+
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>*.TXT</include>
+          <include>src/**/*.java</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>*.xml</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
+
 </project>
 
