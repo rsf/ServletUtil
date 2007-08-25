@@ -29,14 +29,6 @@
   </description>
   <version>${jservletutil.version}</version>
 
-  <distributionManagement>
-    <repository>
-      <id>CARET-Maven2-dev</id>
-      <name>CARET Maven 2 Dev repository</name>
-      <url>scp://catnep.caret.cam.ac.uk/home/www2/htdocs/maven2dev</url>
-    </repository>
-  </distributionManagement>
-
   <repositories>
     <repository>
       <id>CARET-Maven2</id>
