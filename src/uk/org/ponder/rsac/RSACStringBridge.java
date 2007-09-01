@@ -9,10 +9,10 @@ import uk.org.ponder.stringutil.StringGetter;
 
 public class RSACStringBridge implements StringGetter {
 
-  private RSACBeanLocatorImpl rsacbl;
+  private RSACBeanLocator rsacbl;
   private String targetbean;
 
-  public void setRSACBeanLocator(RSACBeanLocatorImpl rsacbl) {
+  public void setRSACBeanLocator(RSACBeanLocator rsacbl) {
     this.rsacbl = rsacbl;
   }
 

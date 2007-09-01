@@ -68,7 +68,7 @@ public class RSACBeanLocatorFactory {
     rsacbeanlocator.setBlankContext(cac);
   }
 
-  public RSACBeanLocatorImpl getRSACBeanLocator() {
+  public RSACBeanLocator getRSACBeanLocator() {
     return rsacbeanlocator;
   }
 

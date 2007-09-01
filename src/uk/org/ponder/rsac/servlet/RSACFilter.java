@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import uk.org.ponder.rsac.RSACBeanLocatorImpl;
+import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.util.Logger;
 
 /**
@@ -26,14 +26,14 @@ import uk.org.ponder.util.Logger;
  */
 public class RSACFilter implements Filter {
 
-  private RSACBeanLocatorImpl rsacbg;
+  private RSACBeanLocator rsacbg;
 
   public void init(FilterConfig filterConfig)  {
     WebApplicationContext wac = WebApplicationContextUtils
         .getWebApplicationContext(filterConfig.getServletContext());
     Exception exception = null;
     try {
-      rsacbg = (RSACBeanLocatorImpl) wac.getBean("RSACBeanLocator");
+      rsacbg = (RSACBeanLocator) wac.getBean("RSACBeanLocator");
     }
     catch (Exception e) {
       exception = e;

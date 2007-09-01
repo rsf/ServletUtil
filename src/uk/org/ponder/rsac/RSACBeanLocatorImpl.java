@@ -70,9 +70,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  */
 
 public class RSACBeanLocatorImpl implements ApplicationContextAware,
-    BeanDefinitionSource {
-  /** The standard bean name for the RSACBeanLocator * */
-  public static String RSAC_BEAN_LOCATOR_NAME = "RSACBeanLocator";
+    BeanDefinitionSource, RSACBeanLocator {
 
   private static CreationMarker BEAN_IN_CREATION_OBJECT = new CreationMarker(0);
   private static String REQUEST_STARTED_KEY = ".request  started";

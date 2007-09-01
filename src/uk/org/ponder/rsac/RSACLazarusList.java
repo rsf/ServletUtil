@@ -60,7 +60,7 @@ public class RSACLazarusList implements Runnable {
           WriteableBeanLocator wbl = rsacbl.getBeanLocator();
           BeanUtil.copyBeans(seedbeans, wbl);
           BeanUtil.copyBeans(newbeans, wbl);
-          Object fetch = wbl.locateBean(rootbeanname);
+          wbl.locateBean(rootbeanname);
         }
         catch (Exception e) {
           throw UniversalRuntimeException.accumulate(e,
