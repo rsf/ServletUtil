@@ -4,13 +4,8 @@
 package uk.org.ponder.springutil;
 
 /**
- * Collects together a number of beans (probably implementing some common
- * interface), and delivers them as a list dependency to a nominated "target
- * bean". This will occur as part of the PostProcessing of the target bean,
- * which doesn't need to be made aware of the process explicitly.
- * <p>
- * Note that you could cut down on verbosity a bit by making the "value" bean an
- * inner bean definition of the TLAB definition itself.
+ * A static, that is to say, concrete, implementation of the 
+ * {@link TargetListAggregatingBean} marker definition. 
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 

@@ -12,8 +12,9 @@ import org.springframework.context.ApplicationContextAware;
 import uk.org.ponder.stringutil.StringList;
 
 /**
- * A TargetListAggregatingBean that will acquire all beans of a particular type
- * (excluding Factory products) and register their *names* as the TLAB target.
+ * A {@link TargetListAggregatingBean} that will acquire all beans of a particular type
+ * (excluding Factory products) and register either their names, or the beans
+ * themselves, onto the TLAB target.
  * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
@@ -28,7 +29,7 @@ public class ByClassTLAB extends StaticTLAB implements ApplicationContextAware {
   }
 
   /**
-   * If set to <code>false</code> (the default is <code>true</code> this
+   * If set to <code>false</code> (the default is <code>true</code>) this
    * will deliver a list the actual beans as the TLAB value rather than just a
    * list of their names.
    */
