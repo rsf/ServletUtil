@@ -69,7 +69,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * 
  */
 
-public class RSACBeanLocator implements ApplicationContextAware,
+public class RSACBeanLocatorImpl implements ApplicationContextAware,
     BeanDefinitionSource {
   /** The standard bean name for the RSACBeanLocator * */
   public static String RSAC_BEAN_LOCATOR_NAME = "RSACBeanLocator";
@@ -115,7 +115,7 @@ public class RSACBeanLocator implements ApplicationContextAware,
   private PerRequestInfo getPerRequest() {
     PerRequestInfo pri = (PerRequestInfo) threadlocal.get();
     if (pri == null) {
-      pri = new PerRequestInfo(RSACBeanLocator.this, lazysources, tlabpp);
+      pri = new PerRequestInfo(RSACBeanLocatorImpl.this, lazysources, tlabpp);
       threadlocal.set(pri);
     }
     return pri;

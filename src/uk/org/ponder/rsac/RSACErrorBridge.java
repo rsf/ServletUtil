@@ -18,9 +18,9 @@ import uk.org.ponder.util.RunnableInvoker;
 public class RSACErrorBridge implements RunnableInvoker {
 
   private String tmlbeanname;
-  private RSACBeanLocator rsacbeanlocator;
+  private RSACBeanLocatorImpl rsacbeanlocator;
 
-  public void setRSACBeanLocator(RSACBeanLocator rsacbeanlocator) {
+  public void setRSACBeanLocator(RSACBeanLocatorImpl rsacbeanlocator) {
     this.rsacbeanlocator = rsacbeanlocator;
   }
 

@@ -11,8 +11,8 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 
-import uk.org.ponder.beanutil.ConcreteWBL;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
+import uk.org.ponder.beanutil.support.ConcreteWBL;
 import uk.org.ponder.springutil.TLABPostProcessor;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.UniversalRuntimeException;
@@ -42,7 +42,7 @@ class PerRequestInfo {
     postprocessors.clear();
   }
 
-  public PerRequestInfo(final RSACBeanLocator rsacbl, StringList lazysources, TLABPostProcessor tlabpp) {
+  public PerRequestInfo(final RSACBeanLocatorImpl rsacbl, StringList lazysources, TLABPostProcessor tlabpp) {
 
     requestwbl = new WriteableBeanLocator() {
       public Object locateBean(String beanname) {
@@ -54,7 +54,9 @@ class PerRequestInfo {
       }
 
       public void set(String beanname, Object toset) {
-        seedbeans.put(beanname, toset);
+        if (!(toset instanceof UnLazarable)) {
+          seedbeans.put(beanname, toset);
+        }
         beans.set(beanname, toset);
       }
     };

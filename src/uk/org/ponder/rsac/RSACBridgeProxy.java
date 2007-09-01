@@ -31,12 +31,12 @@ import org.springframework.beans.factory.FactoryBean;
 public class RSACBridgeProxy implements TargetSource, FactoryBean,
     BeanFactoryAware {
 
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
   private String targetbean;
   private boolean pea = false;
   private Class targetclass;
 
-  public void setRSACBeanLocator(RSACBeanLocator rsacbl) {
+  public void setRSACBeanLocator(RSACBeanLocatorImpl rsacbl) {
     this.rsacbl = rsacbl;
   }
 

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
-import uk.org.ponder.rsac.RSACBeanLocator;
+import uk.org.ponder.rsac.RSACBeanLocatorImpl;
 
 /**
  * @author andrew, Antranig
@@ -33,12 +33,12 @@ public class RSACUtils {
    * @param rsacbl
    */
   public static void protoStartServletRequest(HttpServletRequest request,
-      RSACBeanLocator rsacbl) {
+      RSACBeanLocatorImpl rsacbl) {
     rsacbl.startRequest();
   }
 
   public static void startServletRequest(HttpServletRequest request,
-      HttpServletResponse response, RSACBeanLocator rsacbl,
+      HttpServletResponse response, RSACBeanLocatorImpl rsacbl,
       String factorybeanname) {
     // Logger.log.info("Got rsacbg " + rsacbl);
     if (!rsacbl.isStarted()) {

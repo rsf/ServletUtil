@@ -8,11 +8,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-import uk.org.ponder.rsac.RSACBeanLocator;
+import uk.org.ponder.rsac.RSACBeanLocatorImpl;
 
 public abstract class AbstractRSACTests extends
     AbstractDependencyInjectionSpringContextTests {
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
   public abstract String[] getRequestConfigLocations();
 
   protected ConfigurableApplicationContext loadContextLocations(
@@ -33,12 +33,12 @@ public abstract class AbstractRSACTests extends
     return cac;
   }
 
-  public RSACBeanLocator getRSACBeanLocator() {
+  public RSACBeanLocatorImpl getRSACBeanLocator() {
     return rsacbl;
   }
   
   protected void onSetUp() throws Exception {
-    rsacbl = (RSACBeanLocator) applicationContext.getBean("RSACBeanLocator");
+    rsacbl = (RSACBeanLocatorImpl) applicationContext.getBean("RSACBeanLocator");
     rsacbl.startRequest();
   }
 

@@ -25,9 +25,9 @@ import uk.org.ponder.beanutil.BeanLocator;
 
 public class RSACBeanFactory implements BeanFactory {
   private BeanLocator locator;
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
 
-  public RSACBeanFactory(RSACBeanLocator rsacbl, BeanLocator bl) {
+  public RSACBeanFactory(RSACBeanLocatorImpl rsacbl, BeanLocator bl) {
     this.locator = bl;
     this.rsacbl = rsacbl;
   }

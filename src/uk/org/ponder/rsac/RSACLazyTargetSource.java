@@ -26,11 +26,11 @@ import org.springframework.aop.TargetSource;
  */
 public class RSACLazyTargetSource implements TargetSource {
   private Class targetclass;
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
   private String targetbeanname;
   private PerRequestInfo pri;
 
-  public RSACLazyTargetSource(RSACBeanLocator rsacbl,
+  public RSACLazyTargetSource(RSACBeanLocatorImpl rsacbl,
       PerRequestInfo pri, 
       Class targetclass, String targetbeanname) {
     this.rsacbl = rsacbl;

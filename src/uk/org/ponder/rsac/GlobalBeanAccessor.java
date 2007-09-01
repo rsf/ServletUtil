@@ -29,7 +29,7 @@ public class GlobalBeanAccessor {
    * current thread. Only use this method in a genuine emergency!
    */
   public static Object getRequestBean(String name) {
-    RSACBeanLocator rsacbl = (RSACBeanLocator) getBean("RSACBeanLocator");
+    RSACBeanLocatorImpl rsacbl = (RSACBeanLocatorImpl) getBean("RSACBeanLocator");
     return rsacbl.getBeanLocator().locateBean(name);
   }
   

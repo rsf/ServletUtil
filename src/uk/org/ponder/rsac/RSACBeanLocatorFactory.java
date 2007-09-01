@@ -22,7 +22,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  */
 
 public class RSACBeanLocatorFactory {
-  private RSACBeanLocator rsacbeanlocator = null;
+  private RSACBeanLocatorImpl rsacbeanlocator = null;
   private RSACResourceLocator resourcelocator;
 
   /**
@@ -64,11 +64,11 @@ public class RSACBeanLocatorFactory {
     this.resourcelocator = resourcelocator;
     ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocations(),
         resourcelocator.getApplicationContext());
-    rsacbeanlocator = new RSACBeanLocator();
+    rsacbeanlocator = new RSACBeanLocatorImpl();
     rsacbeanlocator.setBlankContext(cac);
   }
 
-  public RSACBeanLocator getRSACBeanLocator() {
+  public RSACBeanLocatorImpl getRSACBeanLocator() {
     return rsacbeanlocator;
   }
 

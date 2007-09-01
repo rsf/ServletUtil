@@ -13,10 +13,10 @@ import uk.org.ponder.localeutil.LocaleGetter;
 
 public class RSACLocaleBridge implements LocaleGetter {
 
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
   private String targetbean;
 
-  public void setRSACBeanLocator(RSACBeanLocator rsacbl) {
+  public void setRSACBeanLocator(RSACBeanLocatorImpl rsacbl) {
     this.rsacbl = rsacbl;
   }
 

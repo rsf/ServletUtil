@@ -30,13 +30,13 @@ public class RSACLazarusList implements Runnable {
 
   private List lazarusList = new ArrayList();
 
-  private RSACBeanLocator rsacbl;
+  private RSACBeanLocatorImpl rsacbl;
 
   public void queueRunnable(Runnable torun) {
     lazarusList.add(torun);
   }
 
-  public void setRSACBeanLocator(RSACBeanLocator rsacbl) {
+  public void setRSACBeanLocator(RSACBeanLocatorImpl rsacbl) {
     this.rsacbl = rsacbl;
   }
 
