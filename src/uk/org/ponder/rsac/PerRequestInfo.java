@@ -54,9 +54,7 @@ class PerRequestInfo {
       }
 
       public void set(String beanname, Object toset) {
-        if (!(toset instanceof UnLazarable)) {
-          seedbeans.put(beanname, toset);
-        }
+        seedbeans.put(beanname, toset);
         beans.set(beanname, toset);
       }
     };
