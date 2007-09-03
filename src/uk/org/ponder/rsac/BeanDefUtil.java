@@ -67,7 +67,7 @@ public class BeanDefUtil {
   // problem, and anyone who wants to inherit bean definitions FROM application
   // scope INTO request scope is i) deranged and ii) gets everything they
   // deserve.
-  static RootBeanDefinition getMergedBeanDefinition(
+  static AbstractBeanDefinition getMergedBeanDefinition(
       ConfigurableListableBeanFactory factory, String beanName,
       boolean includingAncestors) throws BeansException {
     try {
@@ -87,7 +87,7 @@ public class BeanDefUtil {
     }
   }
 
-  static RootBeanDefinition getMergedBeanDefinition(
+  static AbstractBeanDefinition getMergedBeanDefinition(
       ConfigurableListableBeanFactory factory, String beanName,
       BeanDefinition bd) throws BeansException {
 
@@ -97,7 +97,7 @@ public class BeanDefUtil {
 
     else if (bd instanceof ChildBeanDefinition) {
       ChildBeanDefinition cbd = (ChildBeanDefinition) bd;
-      RootBeanDefinition pbd = null;
+      AbstractBeanDefinition pbd = null;
       if (!beanName.equals(cbd.getParentName())) {
         pbd = getMergedBeanDefinition(factory, cbd.getParentName(), true);
       }
@@ -120,14 +120,18 @@ public class BeanDefUtil {
       }
 
       // deep copy with overridden values
-      RootBeanDefinition rbd = new RootBeanDefinition(pbd);
+      RootBeanDefinition rbd = new RootBeanDefinition((RootBeanDefinition)pbd);
       rbd.overrideFrom(cbd);
       return rbd;
+    }
+    else if (bd instanceof AbstractBeanDefinition){
+      // In Spring 2.1 there is now also "GenericBeanDefinition"
+      return (AbstractBeanDefinition) bd;
     }
     else {
       throw new BeanDefinitionStoreException(bd.getResourceDescription(),
           beanName,
-          "Definition is neither a RootBeanDefinition nor a ChildBeanDefinition");
+          "Definition is neither a RootBeanDefinition, ChildBeanDefinition, nor AbstractBeanDefinition");
     }
   }
 
