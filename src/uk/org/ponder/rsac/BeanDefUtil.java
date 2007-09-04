@@ -25,13 +25,13 @@
 // * @since 15 April 2001
 package uk.org.ponder.rsac;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -40,23 +40,19 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.ChildBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import uk.org.ponder.conversion.StringArrayParser;
 import uk.org.ponder.reflect.ClassGetter;
+import uk.org.ponder.reflect.ReflectUtils;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
+import uk.org.ponder.saxalizer.SAXAccessMethod;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Logger;
 
 public class BeanDefUtil {
-
-  // We would *love* to use more of the AbstractBeanFactory code from which
-  // this is taken but i) this is coupled to the inefficient (not to say broken)
-  // PropertyEditor infastructure, and ii) has reliance on synchronized maps
-  // which we MUST dispense with in request scope.
 
   // NB an IMPORTANT CHANGE from the ABF version is change of references to
   // AbstractBeanFactory into ConfigurableListableBeanFactory. This considerably
@@ -71,48 +67,68 @@ public class BeanDefUtil {
       ConfigurableListableBeanFactory factory, String beanName,
       boolean includingAncestors) throws BeansException {
     try {
-      return getMergedBeanDefinition(factory, beanName, factory
-          .getBeanDefinition(beanName));
+      return getMergedBeanDefinition(factory, beanName, 
+          factory.getBeanDefinition(beanName));
     }
     catch (NoSuchBeanDefinitionException ex) {
       if (includingAncestors
           && factory.getParentBeanFactory() instanceof ConfigurableListableBeanFactory) {
         return getMergedBeanDefinition(
-            (ConfigurableListableBeanFactory) 
-            factory.getParentBeanFactory(), beanName, true);
+            (ConfigurableListableBeanFactory) factory.getParentBeanFactory(),
+            beanName, true);
       }
       else {
         throw ex;
       }
     }
   }
+// Need resistance for incompatibility in signature of BeanDefinition which 
+// has appeared in Spring 2.1 - this now features the getParentName method which
+// used only to appear in ChildBeanDefinition. There is now also "GenericBeanDefinition"
+// which is inherited off the common parent AbstractBeanDefinition.
+  static String getParentDefinitionName(BeanDefinition bd) {
+    try {
+      if (ReflectUtils.hasMethod(bd, "getParentName")) {
+        Method method = bd.getClass().getMethod("getParentName",
+            SAXAccessMethod.emptyclazz);
+        return (String) method.invoke(bd, SAXAccessMethod.emptyobj);
+      }
+    }
+    catch (Exception e) {
+    }
+    return null;
+  }
 
   static AbstractBeanDefinition getMergedBeanDefinition(
       ConfigurableListableBeanFactory factory, String beanName,
       BeanDefinition bd) throws BeansException {
 
-    if (bd instanceof RootBeanDefinition) {
-      return (RootBeanDefinition) bd;
+    if (!(bd instanceof AbstractBeanDefinition)) {
+      throw new IllegalArgumentException("Bean definition " + beanName + " of " + bd.getClass() + 
+          " which is not descended from AbstractBeanDefinition can not be recognised");
     }
-
-    else if (bd instanceof ChildBeanDefinition) {
-      ChildBeanDefinition cbd = (ChildBeanDefinition) bd;
+    AbstractBeanDefinition abd = (AbstractBeanDefinition) bd;
+    String parentName = getParentDefinitionName(abd);
+    if (parentName == null) {
+      return abd;
+    }
+    else  {
       AbstractBeanDefinition pbd = null;
-      if (!beanName.equals(cbd.getParentName())) {
-        pbd = getMergedBeanDefinition(factory, cbd.getParentName(), true);
+      if (!beanName.equals(parentName)) {
+        pbd = getMergedBeanDefinition(factory, parentName, true);
       }
       else {
         if (factory.getParentBeanFactory() instanceof ConfigurableListableBeanFactory) {
           ConfigurableListableBeanFactory parentFactory = (ConfigurableListableBeanFactory) factory
               .getParentBeanFactory();
-          pbd = getMergedBeanDefinition(parentFactory, cbd.getParentName(),
+          pbd = getMergedBeanDefinition(parentFactory, parentName,
               true);
         }
         else {
           throw new NoSuchBeanDefinitionException(
-              cbd.getParentName(),
+              parentName,
               "Parent name '"
-                  + cbd.getParentName()
+                  + parentName
                   + "' is equal to bean name '"
                   + beanName
                   + "' - cannot be resolved without an AbstractBeanFactory parent");
@@ -120,23 +136,14 @@ public class BeanDefUtil {
       }
 
       // deep copy with overridden values
-      RootBeanDefinition rbd = new RootBeanDefinition((RootBeanDefinition)pbd);
-      rbd.overrideFrom(cbd);
-      return rbd;
+      pbd.overrideFrom(abd);
+      return pbd;
     }
-    else if (bd instanceof AbstractBeanDefinition){
-      // In Spring 2.1 there is now also "GenericBeanDefinition"
-      return (AbstractBeanDefinition) bd;
-    }
-    else {
-      throw new BeanDefinitionStoreException(bd.getResourceDescription(),
-          beanName,
-          "Definition is neither a RootBeanDefinition, ChildBeanDefinition, nor AbstractBeanDefinition");
-    }
+   
   }
 
   static RSACBeanInfo convertBeanDef(BeanDefinition origdef, String beanname,
-      ConfigurableListableBeanFactory factory, MethodAnalyser abdAnalyser, 
+      ConfigurableListableBeanFactory factory, MethodAnalyser abdAnalyser,
       BeanDefConverter converter) {
     RSACBeanInfo rbi = new RSACBeanInfo();
     AbstractBeanDefinition def = getMergedBeanDefinition(factory, beanname,
@@ -184,30 +191,38 @@ public class BeanDefUtil {
     if (abd.hasConstructorArgumentValues()) {
       ConstructorArgumentValues cav = abd.getConstructorArgumentValues();
       boolean hasgeneric = !cav.getGenericArgumentValues().isEmpty();
-      boolean hasindexed = !cav.getIndexedArgumentValues().isEmpty(); 
+      boolean hasindexed = !cav.getIndexedArgumentValues().isEmpty();
       if (hasgeneric && hasindexed) {
-        throw new UnsupportedOperationException("RSAC Bean " + beanname 
-            + " has both indexed and generic constructor arguments, which is not supported");
+        throw new UnsupportedOperationException(
+            "RSAC Bean "
+                + beanname
+                + " has both indexed and generic constructor arguments, which is not supported");
       }
       if (hasgeneric) {
         List cvalues = cav.getGenericArgumentValues();
-        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues.size()];
-        for (int i = 0; i < cvalues.size(); ++ i) {
-          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues.get(i);
+        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues
+            .size()];
+        for (int i = 0; i < cvalues.size(); ++i) {
+          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues
+              .get(i);
         }
       }
       else if (hasindexed) {
         Map cvalues = cav.getIndexedArgumentValues();
-        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues.size()];
-        for (int i = 0; i < cvalues.size(); ++ i) {
-          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues.get(new Integer(i));
+        rbi.constructorargvals = new ConstructorArgumentValues.ValueHolder[cvalues
+            .size()];
+        for (int i = 0; i < cvalues.size(); ++i) {
+          rbi.constructorargvals[i] = (ConstructorArgumentValues.ValueHolder) cvalues
+              .get(new Integer(i));
         }
       }
     }
     if (rbi.factorymethod == null) {
- // Core Spring change at 2.0M5 - ALL bean classes are now irrevocably lazy!!
- // Package org.springframework.beans
- // introduced lazy loading (and lazy validation) of bean classes in standard bean factories and bean definition readers
+      // Core Spring change at 2.0M5 - ALL bean classes are now irrevocably
+      // lazy!!
+      // Package org.springframework.beans
+      // introduced lazy loading (and lazy validation) of bean classes in
+      // standard bean factories and bean definition readers
       AccessMethod bcnaccess = abdAnalyser.getAccessMethod("beanClassName");
       if (bcnaccess != null) {
         String bcn = (String) bcnaccess.getChildObject(abd);
@@ -216,10 +231,10 @@ public class BeanDefUtil {
         }
       }
       else {
-      // all right then BE like that! We'll work out the class later.
-      // NB - beandef.getBeanClass() was eliminated around 1.2, we must
-      // use the downcast even earlier now.
-      rbi.beanclass = abd.getBeanClass();
+        // all right then BE like that! We'll work out the class later.
+        // NB - beandef.getBeanClass() was eliminated around 1.2, we must
+        // use the downcast even earlier now.
+        rbi.beanclass = abd.getBeanClass();
       }
     }
     return rbi;
@@ -281,7 +296,7 @@ public class BeanDefUtil {
       beanspec = new ValueHolder((String) value);
     }
     else if (value instanceof TypedStringValue) {
-      beanspec = new ValueHolder(((TypedStringValue)value).getValue());
+      beanspec = new ValueHolder(((TypedStringValue) value).getValue());
     }
     else {
       Logger.log.warn("RSACBeanLocator Got value " + value
