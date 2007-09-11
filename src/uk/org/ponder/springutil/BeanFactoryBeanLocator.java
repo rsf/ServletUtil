@@ -11,12 +11,19 @@ import uk.org.ponder.beanutil.BeanLocator;
 /** Adapts the Spring BeanFactory interface to the PUC BeanLocator interface **/
 
 public class BeanFactoryBeanLocator implements BeanLocator, BeanFactoryAware {
-  private BeanFactory beanFactory;
-  public void setBeanFactory(BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
+  private BeanFactory beanfactory;
+  public BeanFactoryBeanLocator() {}
+  
+  public BeanFactoryBeanLocator(BeanFactory beanfactory) {
+    this.beanfactory = beanfactory;
   }
+  
+  public void setBeanFactory(BeanFactory beanfactory) {
+    this.beanfactory = beanfactory;
+  }
+  
   public Object locateBean(String name) {
-    return beanFactory.containsBean(name) ? beanFactory.getBean(name) : null;
+    return beanfactory.containsBean(name) ? beanfactory.getBean(name) : null;
   }
 
 }

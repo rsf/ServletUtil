@@ -3,12 +3,11 @@
  */
 package uk.org.ponder.springutil;
 
-import java.util.ArrayList;
-
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.stringutil.StringList;
 
 /**
@@ -23,6 +22,7 @@ import uk.org.ponder.stringutil.StringList;
 public class ByClassTLAB extends StaticTLAB implements ApplicationContextAware {
   private Class targetClass;
   private boolean deliverBeans = true;
+  private RSACBeanLocator rsacbeanlocator;
 
   public void setTargetClass(Class targetClass) {
     this.targetClass = targetClass;
@@ -37,20 +37,31 @@ public class ByClassTLAB extends StaticTLAB implements ApplicationContextAware {
     this.deliverBeans = deliverBeans;
   }
 
-  public void setApplicationContext(ApplicationContext applicationContext)
-      throws BeansException {
-    String[] beannames = applicationContext.getBeanNamesForType(targetClass,
-        false, false);
+  public void setRSACBeanLocator(RSACBeanLocator rsacbeanlocator) {
+    this.rsacbeanlocator = rsacbeanlocator;
+  }
+  
+  public void init() {
+    if (rsacbeanlocator != null) {
+      String[] beannames = rsacbeanlocator.beanNamesForClass(targetClass);
+      applyNames(beannames);
+    }
+  }
+  
+  private void applyNames(String[] beannames) {
     if (deliverBeans) {
-      ArrayList beans = new ArrayList();
-      for (int i = 0; i < beannames.length; ++i) {
-        beans.add(applicationContext.getBean(beannames[i]));
-      }
-      setValue(beans);
+      setValueRefs(beannames);
     }
     else {
       setValue(new StringList(beannames));
     }
+  }
+
+  public void setApplicationContext(ApplicationContext applicationContext)
+      throws BeansException {
+    String[] beannames = applicationContext.getBeanNamesForType(targetClass,
+        false, false);
+    applyNames(beannames);
   }
 
 }

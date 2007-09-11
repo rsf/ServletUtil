@@ -19,6 +19,7 @@ public class StaticTLAB implements TargetListAggregatingBean {
   private Object bindAfter;
   private Object bindBefore;
   private String valueref;
+  private String[] valuerefs;
 
   /**
    * The name of the target bean to receive the held bean as part of its list
@@ -116,5 +117,13 @@ public class StaticTLAB implements TargetListAggregatingBean {
 
   public Object getBindBefore() {
     return bindBefore;
+  }
+
+  public void setValueRefs(String[] valuerefs) {
+    this.valuerefs = valuerefs;
+  }
+  
+  public String[] getValueRefs() {
+    return valuerefs;
   }
 }

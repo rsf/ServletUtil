@@ -41,4 +41,6 @@ public interface TargetListAggregatingBean {
   public Object getBindAfter();
 
   public String getValueRef();
+  
+  public String[] getValueRefs();
 }

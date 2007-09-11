@@ -95,6 +95,6 @@ class PerRequestInfo {
     }
     this.lazysources = thislazies;
     this.tlabpp = tlabpp.copy();
-    this.tlabpp.setBeanLocator(requestwbl);
+    this.tlabpp.setRSACBeanLocator(rsacbl);
   }
 }
