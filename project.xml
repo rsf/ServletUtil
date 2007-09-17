@@ -5,8 +5,13 @@
   <name>J-ServletUtil</name>
   <groupId>j-servletutil</groupId>
   <currentVersion>${jservletutil.version}</currentVersion>
-  <shortDescription>ServletUtil Servlet and Spring libraries</shortDescription>
-  <description>Contains libraries for abstracting over servlet dispatch and request scope container (aka RSAC)</description>
+  <shortDescription>
+    ServletUtil Servlet and Spring libraries
+  </shortDescription>
+  <description>
+    Contains libraries for abstracting over servlet dispatch and request
+    scope container (aka RSAC)
+  </description>
   <inceptionYear>2005</inceptionYear>
   <properties>
     <deploy.type>jar</deploy.type>
@@ -20,11 +25,15 @@
       <name>${pom.name} User List</name>
     </mailingList>
   </mailingLists>
-    <gumpRepositoryId>caret-saffron-svn</gumpRepositoryId>
-    <siteAddress>saffron.caret.cam.ac.uk</siteAddress>
-    <siteDirectory>/home/gump/project-websites/ServletUtil/</siteDirectory>
-    <distributionSite>saffron.caret.cam.ac.uk</distributionSite>
-    <distributionDirectory>/home/gump/project-downloads/ServletUtil</distributionDirectory>
+  <gumpRepositoryId>caret-saffron-svn</gumpRepositoryId>
+  <siteAddress>saffron.caret.cam.ac.uk</siteAddress>
+  <siteDirectory>
+    /home/gump/project-websites/ServletUtil/
+  </siteDirectory>
+  <distributionSite>saffron.caret.cam.ac.uk</distributionSite>
+  <distributionDirectory>
+    /home/gump/project-downloads/ServletUtil
+  </distributionDirectory>
   <developers>
     <developer>
       <id>amb26</id>
@@ -41,16 +50,20 @@
       <url></url>
       <distribution>repo</distribution>
     </license>
-    </licenses>
-    <repository>
-        <connection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk</connection>
-        <developerConnection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk</developerConnection>
-        <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>
-    </repository>
-    <organization>
-        <name>CARET, University of Cambridge</name>
-        <url>http://www.caret.cam.ac.uk/</url>
-    </organization>
+  </licenses>
+  <repository>
+    <connection>
+      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+    </connection>
+    <developerConnection>
+      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+    </developerConnection>
+    <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>
+  </repository>
+  <organization>
+    <name>CARET, University of Cambridge</name>
+    <url>http://www.caret.cam.ac.uk/</url>
+  </organization>
   <dependencies>
     <dependency>
       <groupId>ponderutilcore</groupId>
@@ -87,8 +100,8 @@
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
       <version>nodep-2.1_3</version>
-      <type>jar</type> 
-    </dependency>  
+      <type>jar</type>
+    </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
@@ -99,19 +112,27 @@
 
   <build>
     <sourceDirectory>src</sourceDirectory>
-	<resources>
-		<!-- include the readme.txt file and the java source files -->
-		<resource>
-			<directory>${basedir}</directory>
-			<includes>
-				<include>*.txt</include>
-				<include>src/**/*.java</include>
-				<include>src/**/*.html</include>
-				<include>src/**/*.xml</include>
-				<include>src/**/*.properties</include>
-			</includes>
-		</resource>
-	</resources>
+    <resources>
+      <!-- include the readme.txt file and the java source files -->
+      <resource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>*.txt</include>
+          <include>src/**/*.java</include>
+          <include>src/**/*.html</include>
+          <include>src/**/*.xml</include>
+          <include>src/**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/</directory>
+        <targetPath>/</targetPath>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
   </build>
 </project>
 
