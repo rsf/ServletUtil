@@ -14,8 +14,8 @@
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
   <properties>
-    <ponderutilcore.version>1.2.2</ponderutilcore.version>
-    <jservletutil.version>1.2.2</jservletutil.version>
+    <ponderutilcore.version>1.2.3M1-SNAPSHOT</ponderutilcore.version>
+    <jservletutil.version>1.2.3M1-SNAPSHOT</jservletutil.version>
   </properties>
   <organization>
     <name>CARET, University of Cambridge</name>
