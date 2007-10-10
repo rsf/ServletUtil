@@ -22,8 +22,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  */
 
 public class RSACBeanLocatorFactory {
-  private RSACBeanLocatorImpl rsacbeanlocator = null;
-  private RSACResourceLocator resourcelocator;
+  private RSACBeanLocator rsacbeanlocator = null;
 
   /**
    * Creates a RequestScopeAppContextPool from the given config locations and
@@ -58,14 +57,6 @@ public class RSACBeanLocatorFactory {
     beanDefinitionReader.loadBeanDefinitions(resources);
     initialContext.setParent(parent);
     return initialContext;
-  }
-
-  public void setRSACResourceLocator(RSACResourceLocator resourcelocator) {
-    this.resourcelocator = resourcelocator;
-    ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocations(),
-        resourcelocator.getApplicationContext());
-    rsacbeanlocator = new RSACBeanLocatorImpl();
-    rsacbeanlocator.setBlankContext(cac);
   }
 
   public RSACBeanLocator getRSACBeanLocator() {

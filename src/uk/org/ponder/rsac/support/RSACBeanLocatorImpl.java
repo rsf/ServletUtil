@@ -1,7 +1,7 @@
 /*
  * Created on Sep 18, 2005
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Method;
@@ -32,6 +32,8 @@ import uk.org.ponder.beanutil.FallbackBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.reflect.ReflectUtils;
 import uk.org.ponder.reflect.ReflectiveCache;
+import uk.org.ponder.rsac.GlobalBeanAccessor;
+import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;

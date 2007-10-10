@@ -1,7 +1,7 @@
 /*
  * Created on 13 Nov 2006
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
+import uk.org.ponder.rsac.BeanDefConverter;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
 

@@ -1,7 +1,7 @@
 /*
  * Created on 5 Jun 2007
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 
 import org.springframework.beans.BeansException;

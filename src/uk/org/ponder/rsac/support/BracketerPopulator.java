@@ -1,7 +1,7 @@
 /*
  * Created on 10-Mar-2006
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
+import uk.org.ponder.rsac.BeanFetchBracketer;
 import uk.org.ponder.util.RunnableInvoker;
 
 /**

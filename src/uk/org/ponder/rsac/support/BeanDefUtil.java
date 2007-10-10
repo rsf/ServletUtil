@@ -23,7 +23,7 @@
 // * @author Rod Johnson
 // * @author Juergen Hoeller
 // * @since 15 April 2001
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -41,11 +41,11 @@ import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 
 import uk.org.ponder.conversion.StringArrayParser;
 import uk.org.ponder.reflect.ClassGetter;
 import uk.org.ponder.reflect.ReflectUtils;
+import uk.org.ponder.rsac.BeanDefConverter;
 import uk.org.ponder.saxalizer.AccessMethod;
 import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXAccessMethod;

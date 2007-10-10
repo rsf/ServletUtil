@@ -1,7 +1,7 @@
 /*
  * Created on 10-Mar-2006
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 /** Used as a marker through createBean to track progress through fetch
  * wrappers.

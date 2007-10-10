@@ -14,8 +14,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import uk.org.ponder.errorutil.ThreadErrorState;
 import uk.org.ponder.hashutil.EighteenIDGenerator;
-import uk.org.ponder.rsac.RSACBeanLocatorImpl;
 import uk.org.ponder.rsac.servlet.RSACUtils;
+import uk.org.ponder.rsac.support.RSACBeanLocatorImpl;
 import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.transaction.TransactionThreadMap;
 import uk.org.ponder.util.Logger;

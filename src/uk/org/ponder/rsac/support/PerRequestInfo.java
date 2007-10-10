@@ -1,7 +1,7 @@
 /*
  * Created on 17-Dec-2005
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import java.util.ArrayList;
 import java.util.HashMap;
