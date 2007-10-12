@@ -35,7 +35,7 @@
       <name>CARET Maven 2 Repository</name>
       <url>http://www2.caret.cam.ac.uk/maven2</url>
     </repository>
-  </repositories>  
+  </repositories>
 
   <developers>
     <developer>
@@ -124,8 +124,16 @@
     </dependency>
   </dependencies>
 
-
   <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
     <sourceDirectory>src</sourceDirectory>
     <resources>
       <resource>
