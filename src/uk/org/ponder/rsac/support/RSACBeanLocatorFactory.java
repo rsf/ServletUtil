@@ -1,7 +1,7 @@
 /*
  * Created on Sep 18, 2005
  */
-package uk.org.ponder.rsac;
+package uk.org.ponder.rsac.support;
 
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
@@ -10,6 +10,8 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
 import uk.org.ponder.arrayutil.ArrayUtil;
+import uk.org.ponder.rsac.RSACBeanLocator;
+import uk.org.ponder.rsac.RSACResourceLocator;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -22,7 +24,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  */
 
 public class RSACBeanLocatorFactory {
-  private RSACBeanLocator rsacbeanlocator = null;
+  private RSACBeanLocatorImpl rsacbeanlocator = null;
 
   /**
    * Creates a RequestScopeAppContextPool from the given config locations and
@@ -57,6 +59,13 @@ public class RSACBeanLocatorFactory {
     beanDefinitionReader.loadBeanDefinitions(resources);
     initialContext.setParent(parent);
     return initialContext;
+  }
+  
+  public void setRSACResourceLocator(RSACResourceLocator resourcelocator) {
+    ConfigurableApplicationContext cac = readContext(resourcelocator.getConfigLocations(),
+        resourcelocator.getApplicationContext());
+    rsacbeanlocator = new RSACBeanLocatorImpl();
+    rsacbeanlocator.setBlankContext(cac);
   }
 
   public RSACBeanLocator getRSACBeanLocator() {
