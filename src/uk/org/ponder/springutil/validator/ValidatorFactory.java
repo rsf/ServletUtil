@@ -5,7 +5,7 @@ package uk.org.ponder.springutil.validator;
 
 /** Root class of a Validator which is capable of being parsed from a 
  * compact String representation. If it does not implement any further
- * mixins, it is assumed to be a Spring validator requires no argument.
+ * mixins, it is assumed to be a Spring validator requiring no argument.
  * That is, a validator which is either present or absent on a field.
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  *

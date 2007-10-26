@@ -8,6 +8,12 @@ import org.springframework.validation.Validator;
 
 import uk.org.ponder.springutil.validator.ValidatorCodeReceiver;
 
+/** A base class abstracting commonly used functionality from primitive 
+ * validator instances, allowing their individual function to be parameterised
+ * solely from the validate() method required 
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ */
+
 public abstract class ValidatorBase implements Validator, ValidatorCodeReceiver {
   protected String messageCode;
   private String offsetPath;

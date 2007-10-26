@@ -483,7 +483,7 @@ public class RSACBeanLocatorImpl implements ApplicationContextAware,
         if (newbean == null) {
           throw new IllegalArgumentException(
               "Error: null returned from factory method " + rbi.factorymethod
-                  + " of bean " + rbi.factorybean);
+                  + " of bean " + rbi.factorybean + " of " + factorybean.getClass());
         }
         // rbi.beanclass = newbean.getClass();
       }
