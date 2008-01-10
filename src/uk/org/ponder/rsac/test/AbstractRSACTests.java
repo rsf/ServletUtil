@@ -11,13 +11,40 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
+import uk.org.ponder.arrayutil.ArrayUtil;
 import uk.org.ponder.rsac.RSACBeanLocator;
 
 public abstract class AbstractRSACTests extends
     AbstractDependencyInjectionSpringContextTests {
+  
   private RSACBeanLocator rsacbl;
-  public abstract String[] getRequestConfigLocations();
+  protected String[] configLocations = new String[] {};
+  protected String[] requestConfigLocations = new String[] {};
+  
+  protected String[] getRequestConfigLocations() {
+    return requestConfigLocations;
+  }
+  
+  protected String[] getConfigLocations() {
+    return configLocations;
+  }
 
+  public void contributeConfigLocations(String[] configLocations) {
+    this.configLocations = (String[]) ArrayUtil.concat(this.configLocations, configLocations);
+  }
+  
+  public void contributeRequestConfigLocations(String[] requestConfigLocations) {
+    this.requestConfigLocations = (String[]) ArrayUtil.concat(this.requestConfigLocations, requestConfigLocations);    
+  }
+  
+  public void contributeConfigLocation(String configLocation) {
+    this.configLocations = (String[]) ArrayUtil.append(this.configLocations, configLocation);
+  }
+
+  public void contributeRequestConfigLocation(String requestConfigLocation) {
+    this.requestConfigLocations = (String[]) ArrayUtil.append(this.requestConfigLocations, requestConfigLocation);
+  }
+  
   public AbstractRSACTests() {
     String log4jprops = "/uk/org/ponder/rsac/test/log4j.test.properties";
     URL url = AbstractRSACTests.class.getResource(log4jprops);
