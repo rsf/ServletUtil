@@ -3,6 +3,9 @@
  */
 package uk.org.ponder.rsac.test;
 
+import java.net.URL;
+
+import org.apache.log4j.PropertyConfigurator;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,6 +18,21 @@ public abstract class AbstractRSACTests extends
   private RSACBeanLocator rsacbl;
   public abstract String[] getRequestConfigLocations();
 
+  public AbstractRSACTests() {
+    String log4jprops = "/uk/org/ponder/rsac/test/log4j.test.properties";
+    URL url = AbstractRSACTests.class.getResource(log4jprops);
+    PropertyConfigurator.configure(url);
+  }
+  
+  /** Override this method to determine whether this test should consist of a 
+   * single RSAC cycle - if it returns <code>true</code>, the RSAC will be 
+   * started and stopped during setUp() and tearDown().
+   */
+  
+  protected boolean isSingleShot() {
+    return true;
+  }
+  
   protected ConfigurableApplicationContext loadContextLocations(
       String[] locations) {
     final LocalRSACResourceLocator resourceLocator = new LocalRSACResourceLocator();
@@ -39,10 +57,14 @@ public abstract class AbstractRSACTests extends
   
   protected void onSetUp() throws Exception {
     rsacbl = (RSACBeanLocator) applicationContext.getBean("RSACBeanLocator");
-    rsacbl.startRequest();
+    if (isSingleShot()) {
+      rsacbl.startRequest();
+    }
   }
 
   protected void onTearDown() throws Exception {
-    rsacbl.endRequest();
+    if (isSingleShot()) {
+      rsacbl.endRequest();
+    }
   }
 }
