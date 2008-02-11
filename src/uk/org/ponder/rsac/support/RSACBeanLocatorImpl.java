@@ -29,6 +29,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import uk.org.ponder.beanutil.BeanUtil;
 import uk.org.ponder.beanutil.FallbackBeanLocator;
+import uk.org.ponder.beanutil.IterableWriteableBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 import uk.org.ponder.iterationutil.Denumeration;
 import uk.org.ponder.iterationutil.EnumerationConverter;
@@ -695,7 +696,7 @@ public class RSACBeanLocatorImpl implements ApplicationContextAware,
    * Scope of this BeanLocator is the same as previous, but it will NOT
    * auto-create beans that are not present.
    */
-  public WriteableBeanLocator getDeadBeanLocator() {
+  public IterableWriteableBeanLocator getDeadBeanLocator() {
     assertIsStarted();
     PerRequestInfo pri = getPerRequest();
     return pri.beans;

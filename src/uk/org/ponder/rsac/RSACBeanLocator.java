@@ -3,6 +3,7 @@
  */
 package uk.org.ponder.rsac;
 
+import uk.org.ponder.beanutil.IterableWriteableBeanLocator;
 import uk.org.ponder.beanutil.WriteableBeanLocator;
 
 /**
@@ -70,6 +71,6 @@ public interface RSACBeanLocator {
    * Scope of this BeanLocator is the same as previous, but it will NOT
    * auto-create beans that are not present.
    */
-  public WriteableBeanLocator getDeadBeanLocator();
+  public IterableWriteableBeanLocator getDeadBeanLocator();
 
 }
