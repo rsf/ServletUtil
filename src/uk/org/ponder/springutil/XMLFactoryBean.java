@@ -12,8 +12,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 
+import uk.org.ponder.conversion.SerializationProvider;
 import uk.org.ponder.reflect.ReflectiveCache;
-import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
 
@@ -28,7 +28,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
 public class XMLFactoryBean implements FactoryBean, ApplicationContextAware {
   String location;
   private ApplicationContext applicationcontext;
-  private XMLProvider xmlprovider;
+  private SerializationProvider xmlprovider;
   private Class objecttype;
   protected ReflectiveCache reflectivecache;
 
@@ -36,7 +36,7 @@ public class XMLFactoryBean implements FactoryBean, ApplicationContextAware {
     this.location = location;
   }
 
-  public void setXMLProvider(XMLProvider xmlprovider) {
+  public void setXMLProvider(SerializationProvider xmlprovider) {
     this.xmlprovider = xmlprovider;
   }
 
@@ -58,7 +58,7 @@ public class XMLFactoryBean implements FactoryBean, ApplicationContextAware {
       Resource res = applicationcontext.getResource(location);
       try {
         InputStream is = res.getInputStream();
-        togo = xmlprovider.readXML(objecttype, is);
+        togo = xmlprovider.readObject(objecttype, is);
       }
       catch (Exception e) {
         UniversalRuntimeException tothrow = UniversalRuntimeException

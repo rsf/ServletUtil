@@ -12,11 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import uk.org.ponder.conversion.SerializationProvider;
 import uk.org.ponder.errorutil.ThreadErrorState;
 import uk.org.ponder.hashutil.EighteenIDGenerator;
 import uk.org.ponder.rsac.servlet.RSACUtils;
 import uk.org.ponder.rsac.support.RSACBeanLocatorImpl;
-import uk.org.ponder.saxalizer.XMLProvider;
 import uk.org.ponder.transaction.TransactionThreadMap;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
@@ -76,16 +76,16 @@ public class InformationServlet extends HttpServlet {
         res.sendError(HttpServletResponse.SC_NOT_FOUND, errmess);
       }
       else {
-        XMLProvider xmlprovider = handlerroot.getXMLProvider();
+        SerializationProvider xmlprovider = handlerroot.getXMLProvider();
         Throwable t = null;
         String errorid = null;
         //String extraerrors = "";
         try {
           //String input = StreamCopier.streamToString(req.getInputStream());
-          Object arg = xmlprovider.readXML(null, req.getInputStream());
+          Object arg = xmlprovider.readObject(null, req.getInputStream());
           Object togo = handler.handleRequest(arg);
           if (togo != null) {
-            xmlprovider.writeXML(togo, res.getOutputStream());
+            xmlprovider.writeObject(togo, res.getOutputStream());
             String debugstring = xmlprovider.toString(togo);
            Logger.log.info(
                 "InformationServlet returning response:\n" + debugstring);
@@ -120,7 +120,7 @@ public class InformationServlet extends HttpServlet {
               + " processing request " + req.getRequestURI(), handlerID, t);
           // TODO: This is probably not quite right - what if an error occurs
           // partway through writing the output?
-          xmlprovider.writeXML(err, res.getOutputStream());
+          xmlprovider.writeObject(err, res.getOutputStream());
           Logger.log.warn("Error ID " + errorid
               + " processing request " + req.getRequestURL(), t);
         }

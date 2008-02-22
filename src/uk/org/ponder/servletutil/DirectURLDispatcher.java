@@ -3,7 +3,7 @@
  */
 package uk.org.ponder.servletutil;
 
-import uk.org.ponder.saxalizer.XMLProvider;
+import uk.org.ponder.conversion.SerializationProvider;
 
 /**
  * An endpoint handler of requests passing through WebAppTool and 
@@ -38,7 +38,7 @@ public class DirectURLDispatcher implements WebServiceDispatcher {
     return togo;
   }
   
-  private XMLProvider xmlprovider;
+  private SerializationProvider xmlprovider;
   
   public String getName() {
     return name;
@@ -56,7 +56,7 @@ public class DirectURLDispatcher implements WebServiceDispatcher {
     this.remoteurlbase = urlbase;
   }
   
-  public void setXMLProvider(XMLProvider xmlprovider) {
+  public void setXMLProvider(SerializationProvider xmlprovider) {
     this.xmlprovider = xmlprovider;
   }
   

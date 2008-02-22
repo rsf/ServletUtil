@@ -19,8 +19,8 @@ import uk.org.ponder.arrayutil.MapUtil;
 import uk.org.ponder.beanutil.BeanLocator;
 import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.saxalizer.AccessMethod;
-import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.saxalizer.support.MethodAnalyser;
 import uk.org.ponder.util.Logger;
 
 /**

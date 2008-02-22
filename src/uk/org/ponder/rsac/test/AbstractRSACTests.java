@@ -84,9 +84,6 @@ public abstract class AbstractRSACTests extends
   
   protected void onSetUp() throws Exception {
     rsacbl = (RSACBeanLocator) applicationContext.getBean("RSACBeanLocator");
-    if (isSingleShot()) {
-      rsacbl.startRequest();
-    }
   }
 
   protected void onTearDown() throws Exception {

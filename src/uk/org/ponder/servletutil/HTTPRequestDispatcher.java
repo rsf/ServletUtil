@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import uk.org.ponder.saxalizer.XMLProvider;
+import uk.org.ponder.conversion.SerializationProvider;
 import uk.org.ponder.streamutil.StreamCloseUtil;
 import uk.org.ponder.util.Logger;
 import uk.org.ponder.util.UniversalRuntimeException;
@@ -23,13 +23,13 @@ import uk.org.ponder.webapputil.ErrorObject;
  */
 public class HTTPRequestDispatcher {
   private String requestURL;
-  private XMLProvider xmlprovider;
+  private SerializationProvider xmlprovider;
 
   public void setRequestURL(String URL) {
     this.requestURL = URL;
   }
 
-  public void setXMLProvider(XMLProvider xmlprovider) {
+  public void setXMLProvider(SerializationProvider xmlprovider) {
     this.xmlprovider = xmlprovider;
   }
 
@@ -43,7 +43,7 @@ public class HTTPRequestDispatcher {
       OutputStream os = null;
       try {
         os = huc.getOutputStream();
-        xmlprovider.writeXML(arg, os);
+        xmlprovider.writeObject(arg, os);
         String debugstring = xmlprovider.toString(arg);
         Logger.log.info("HTTPRequestDispatcher sending data:\n" + debugstring);
       }
@@ -54,7 +54,7 @@ public class HTTPRequestDispatcher {
       InputStream is = null;
       try {
         is = huc.getInputStream();
-        Object togo = xmlprovider.readXML(null, is);
+        Object togo = xmlprovider.readObject(null, is);
         if (togo instanceof ErrorObject) {
           ErrorObject error = (ErrorObject) togo;
           Logger.log.warn("Remote exception intercepted in HTTPRequestDispatcher:\n" + error.message + 

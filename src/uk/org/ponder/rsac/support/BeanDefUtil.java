@@ -47,8 +47,8 @@ import uk.org.ponder.reflect.ClassGetter;
 import uk.org.ponder.reflect.ReflectUtils;
 import uk.org.ponder.rsac.BeanDefConverter;
 import uk.org.ponder.saxalizer.AccessMethod;
-import uk.org.ponder.saxalizer.MethodAnalyser;
-import uk.org.ponder.saxalizer.SAXAccessMethod;
+import uk.org.ponder.saxalizer.support.MethodAnalyser;
+import uk.org.ponder.saxalizer.support.SAXAccessMethod;
 import uk.org.ponder.stringutil.StringList;
 import uk.org.ponder.util.Logger;
 

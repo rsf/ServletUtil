@@ -11,8 +11,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 import uk.org.ponder.rsac.BeanDefConverter;
-import uk.org.ponder.saxalizer.MethodAnalyser;
 import uk.org.ponder.saxalizer.SAXalizerMappingContext;
+import uk.org.ponder.saxalizer.support.MethodAnalyser;
 
 public class RBIBeanDefConverter implements BeanDefConverter {
   public List rbilist = new ArrayList();
