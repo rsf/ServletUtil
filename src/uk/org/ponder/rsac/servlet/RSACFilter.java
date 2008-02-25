@@ -3,12 +3,9 @@
  */
 package uk.org.ponder.rsac.servlet;
 
-import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +18,11 @@ import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.util.Logger;
 
 /**
+ * The RSAC initiator, packaged as a standard Servlet filter. Expects the standard
+ * Spring WebApplicationContext to have been already initialised (presumably by a 
+ * listener), and will wrap the servlet request invocation in the standard start/stop
+ * of the RSAC thread-bound context.
+ * 
  * @author andrew
  * 
  */
