@@ -56,7 +56,7 @@ public class TLABLoaderListener implements ApplicationListener,
 
   public void afterPropertiesSet() throws Exception {
     ConfigurableApplicationContext cac = (ConfigurableApplicationContext) applicationContext;
-    ConfigurableBeanFactory cbf = (ConfigurableBeanFactory) cac.getBeanFactory();
+    ConfigurableBeanFactory cbf = cac.getBeanFactory();
     final Set guardSet = new HashSet();
     cbf.addBeanPostProcessor(new BeanPostProcessor() {
       public Object postProcessBeforeInitialization(Object bean, String beanName)

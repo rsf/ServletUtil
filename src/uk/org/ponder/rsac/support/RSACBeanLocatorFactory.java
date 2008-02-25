@@ -10,7 +10,6 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
 import uk.org.ponder.arrayutil.ArrayUtil;
-import uk.org.ponder.rsac.RSACBeanLocator;
 import uk.org.ponder.rsac.RSACResourceLocator;
 import uk.org.ponder.util.UniversalRuntimeException;
 

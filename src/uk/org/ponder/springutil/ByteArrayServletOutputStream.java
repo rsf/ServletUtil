@@ -4,7 +4,6 @@
 package uk.org.ponder.springutil;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import javax.servlet.ServletOutputStream;
 

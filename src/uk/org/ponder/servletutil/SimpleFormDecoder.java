@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
-import uk.org.ponder.conversion.StaticLeafParser;
+import uk.org.ponder.conversion.GeneralLeafParser;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.util.Logger;
 
@@ -22,7 +22,7 @@ public class SimpleFormDecoder {
       HttpServletRequest hsr) {
     Class targclass = target.getClass();
     Field[] fields = targclass.getFields();
-    StaticLeafParser parser = StaticLeafParser.instance();
+    GeneralLeafParser parser = GeneralLeafParser.instance();
     ArrayList messages = new ArrayList();
 //    for (Iterator pit = hsr.getParameterMap().keySet().iterator(); pit.hasNext();) {
 //      String param = (String) pit.next();
@@ -33,7 +33,7 @@ public class SimpleFormDecoder {
       Class fieldtype = fields[i].getType();
       String fieldname = fields[i].getName();
       String param = hsr.getParameter(fieldname);
-      Class parsedtype = StaticLeafParser.wrapClass(fieldtype);
+      Class parsedtype = GeneralLeafParser.wrapClass(fieldtype);
 //      Logger.log.info("Field name " + fieldname + " param " + param + " type " + parsedtype);
       if (param != null) {
         try {

@@ -44,7 +44,7 @@ public class RSACFilter implements Filter {
   }
   
   public void doFilter(ServletRequest request, ServletResponse response,
-      FilterChain chain) throws IOException, ServletException {
+      FilterChain chain) {
     try {
       RSACUtils.startServletRequest((HttpServletRequest)request, (HttpServletResponse) response, 
           rsacbg, RSACUtils.HTTP_SERVLET_FACTORY);
