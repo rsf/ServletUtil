@@ -607,8 +607,8 @@ public class RSACBeanLocatorImpl implements ApplicationContextAware,
     }
     else if (beanref instanceof ValueHolder) {
       String value = ((ValueHolder) beanref).value;
-      if (smc.saxleafparser.isLeafType(accessedType)) {
-        depbean = smc.saxleafparser.parse(accessedType, value);
+      if (smc.generalLeafParser.isLeafType(accessedType)) {
+        depbean = smc.generalLeafParser.parse(accessedType, value);
       }
       else {
         // exception def copied from the beast BeanWrapperImpl!
