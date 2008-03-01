@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="RSACResourceLocator"
+    class="uk.org.ponder.rsac.servlet.ServletRSACResourceLocator">
+  </bean>
+
+  <bean id="RSACBeanLocatorFactory"
+    class="uk.org.ponder.rsac.support.RSACBeanLocatorFactory">
+    <property name="RSACResourceLocator">
+      <ref local="RSACResourceLocator" />
+    </property>
+  </bean>
+
+  <bean id="reflectiveCache"
+    class="uk.org.ponder.reflect.JDKReflectiveCache" />
+
+  <bean id="generalLeafParser"
+    class="uk.org.ponder.conversion.GeneralLeafParser" />
+
+  <bean id="containerTypeRegistry"
+    class="uk.org.ponder.saxalizer.mapping.ContainerTypeRegistry" />
+
+  <bean id="indexedPropertyAccessor"
+    class="uk.org.ponder.beanutil.support.IndexedPropertyAccessor">
+    <property name="containerTypeRegistry" ref="containerTypeRegistry" />
+  </bean>
+
+  <bean id="ELDefaultInferrer"
+    class="uk.org.ponder.saxalizer.mapping.DefaultMapperInferrer"
+    init-method="init">
+    <property name="containerTypeRegistry" ref="containerTypeRegistry" />
+    <property name="depluralize" value="false" />
+  </bean>
+
+  <bean id="ELMappingContext"
+    class="uk.org.ponder.saxalizer.SAXalizerMappingContext">
+    <property name="reflectiveCache" ref="reflectiveCache" />
+    <property name="defaultInferrer" ref="ELDefaultInferrer" />
+    <property name="generalLeafParser" ref="generalLeafParser" />
+    <property name="indexedPropertyAccessor" ref="indexedPropertyAccessor" />
+  </bean>
+
+  <bean id="RSACBeanLocator" factory-bean="RSACBeanLocatorFactory"
+    factory-method="getRSACBeanLocator" init-method="init">
+    <property name="mappingContext" ref="ELMappingContext" />
+    <property name="reflectiveCache" ref="reflectiveCache" />
+  </bean>
+</beans>

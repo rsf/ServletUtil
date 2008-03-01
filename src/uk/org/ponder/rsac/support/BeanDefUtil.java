@@ -228,6 +228,10 @@ public class BeanDefUtil {
         String bcn = (String) bcnaccess.getChildObject(abd);
         if (bcn != null) {
           rbi.beanclass = ClassGetter.forName(bcn);
+          if (rbi.beanclass == null) {
+            throw new IllegalArgumentException("Class name " + 
+                bcn + " for bean definition with name " + beanname + " cannot be resolved");
+          }
         }
       }
       else {

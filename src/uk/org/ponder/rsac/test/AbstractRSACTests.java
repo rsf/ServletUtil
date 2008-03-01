@@ -14,6 +14,8 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import uk.org.ponder.arrayutil.ArrayUtil;
 import uk.org.ponder.rsac.RSACBeanLocator;
 
+/** A base class for deriving test fixtures which interact with an RSAC request cycle **/
+
 public abstract class AbstractRSACTests extends
     AbstractDependencyInjectionSpringContextTests {
   
@@ -82,8 +84,19 @@ public abstract class AbstractRSACTests extends
     return rsacbl;
   }
   
+  /** Locates a particular request bean, assuming that a request is currently active.
+   * That is, this is either a singleshot test, or that getRequestLauncher() has been
+   * invoked without disposing the current RSAC.
+   */
+  public Object locateRequestBean(String name) {
+    return getRSACBeanLocator().getBeanLocator().locateBean(name);
+  }
+  
   protected void onSetUp() throws Exception {
     rsacbl = (RSACBeanLocator) applicationContext.getBean("RSACBeanLocator");
+    if (isSingleShot()) {
+      getRSACBeanLocator().startRequest();
+    }
   }
 
   protected void onTearDown() throws Exception {
