@@ -8,6 +8,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.3.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/cglib/jars/cglib-nodep-2.1_3.jar" sourcepath="/E_DRIVE/Source/cglib-2.3.1/src"/>
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Spring 2.0.5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Spring 1.2.8"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
