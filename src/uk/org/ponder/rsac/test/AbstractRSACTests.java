@@ -4,6 +4,7 @@
 package uk.org.ponder.rsac.test;
 
 import java.net.URL;
+import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -18,7 +19,7 @@ import uk.org.ponder.rsac.RSACBeanLocator;
 
 public abstract class AbstractRSACTests extends
     AbstractDependencyInjectionSpringContextTests {
-  
+    
   private RSACBeanLocator rsacbl;
   protected String[] configLocations = new String[] {};
   protected String[] requestConfigLocations = new String[] {};
@@ -48,9 +49,21 @@ public abstract class AbstractRSACTests extends
   }
   
   public AbstractRSACTests() {
-    String log4jprops = "/uk/org/ponder/rsac/test/log4j.test.properties";
-    URL url = AbstractRSACTests.class.getResource(log4jprops);
-    PropertyConfigurator.configure(url);
+    // These are being hardcoded due to various classpath issues with Maven 2 Testing
+    // String log4jprops = "uk/org/ponder/rsac/test/log4j.test.properties";
+    // URL url = this.getClass().getClassLoader().getResource(log4jprops);
+    // PropertyConfigurator.configure(url);
+    
+    Properties props = new Properties();
+    props.put("log4j.rootCategory", "warn");
+    props.put("log4j.rootLogger", "warn, stdout");
+    props.put("log4j.logger.org.springframework", "warn");
+    props.put("log4j.logger.PonderUtilCore", "info");
+    props.put("log4j.appender.stdout", "org.apache.log4j.ConsoleAppender");
+    props.put("log4j.appender.stdout.layout", "org.apache.log4j.PatternLayout");
+    props.put("log4j.appender.stdout.layout.ConversionPattern", "%d %p (%F:%L) - <%m>%n");
+    
+    PropertyConfigurator.configure(props);
   }
   
   /** Override this method to determine whether this test should consist of a 

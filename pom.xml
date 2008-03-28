@@ -159,6 +159,13 @@
         </includes>
         <filtering>false</filtering>
       </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
     </resources>
   </build>
 
