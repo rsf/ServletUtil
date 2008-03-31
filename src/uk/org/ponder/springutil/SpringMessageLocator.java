@@ -40,14 +40,12 @@ public class SpringMessageLocator extends MessageLocator {
   public String getMessage(String[] codes, Object[] args) {
     DefaultMessageSourceResolvable dmsr = new DefaultMessageSourceResolvable(
         codes, args);
-    Locale locale = localegetter == null ? Locale.getDefault()
-        : localegetter.get();
+    Locale locale = localegetter == null ? Locale.getDefault() : localegetter.get();
     try {
       return messagesource.getMessage(dmsr, locale);
     }
     catch (Exception nsme) {
-      Logger.log.info("Failed to look up message " + codes[0]
-          + ", falling back to default", nsme);
+      Logger.log.warn("Failed to look up message " + codes[0] + " in message bundle", nsme);
       try {
         if (defaultmessagekey != null) {
           return messagesource.getMessage(defaultmessagekey, null, locale);
