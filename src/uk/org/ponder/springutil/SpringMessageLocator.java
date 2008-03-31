@@ -16,8 +16,8 @@ import uk.org.ponder.util.Logger;
 /**
  * An adaptation of the Spring "MessageSource" to the RSF/PUC "MessageLocator"
  * interface. MessageLocator, as well as supplying a greater variety of
- * "utility" methods, guarantees to always to resolve to at least some form of
- * default message rather than propagating exceptions.
+ * "utility" methods, returns a default message rather than throwing an exception.
+ * 
  * @author Antranig Basman (antranig@caret.cam.ac.uk)
  * 
  */
@@ -25,7 +25,9 @@ public class SpringMessageLocator extends MessageLocator {
   private MessageSource messagesource;
   private LocaleGetter localegetter;
   private String defaultmessagekey;
-  private String defaultmessage = "[Message for key {0} not found]";
+  private String defaultmessage = null;
+  // Prior to RSF 0.7.3, default was 
+  // "[Message for key {0} not found]";
 
   public void setMessageSource(MessageSource messagesource) {
     this.messagesource = messagesource;
@@ -44,7 +46,7 @@ public class SpringMessageLocator extends MessageLocator {
       return messagesource.getMessage(dmsr, locale);
     }
     catch (Exception nsme) {
-      Logger.log.warn("Failed to look up message " + codes[0]
+      Logger.log.info("Failed to look up message " + codes[0]
           + ", falling back to default", nsme);
       try {
         if (defaultmessagekey != null) {
@@ -54,8 +56,11 @@ public class SpringMessageLocator extends MessageLocator {
       catch (Exception nsme2) {
       }
     }
-    MessageFormat mf = new MessageFormat(defaultmessage);
-    return mf.format(new Object[] {codes[0]});
+    if (defaultmessage != null) {
+      MessageFormat mf = new MessageFormat(defaultmessage);
+      return mf.format(new Object[] {codes[0]});
+    }
+    return null;
   }
 
   /** The ultimate fallback message to be rendered in the case of complete 
