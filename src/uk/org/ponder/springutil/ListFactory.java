@@ -3,16 +3,22 @@
  */
 package uk.org.ponder.springutil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.FactoryBean;
-// hopefully temporary class, getting round the fact that RSAC does not 
-// support inner beans.
+
+/** A utility factory, useful for being the target of a TLAB list, where this might
+ * need to cross scopes, for example.
+ * 
+ * @author Antranig Basman (antranig@caret.cam.ac.uk)
+ */
+
 public class ListFactory implements FactoryBean {
   private List list;
 
   public Object getObject() throws Exception {
-    return list;
+    return list == null? new ArrayList() : list;
   }
 
   public Class getObjectType() {
