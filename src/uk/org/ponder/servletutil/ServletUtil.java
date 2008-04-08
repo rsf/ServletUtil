@@ -9,7 +9,6 @@ import java.net.URL;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import uk.org.ponder.stringutil.URLUtil;
 import uk.org.ponder.util.UniversalRuntimeException;
 
 /**
@@ -51,9 +50,6 @@ public class ServletUtil {
    */
   public static String getBaseURL2(HttpServletRequest hsr) {
     String requestURL = hsr.getRequestURL().toString();
-   // In some totally unspecced way, javax implementation provides the URL
-   // ENCODED, whereas the PathInfo UNENCODED.
-    requestURL = URLUtil.decodeURL(requestURL);
     String extrapath = hsr.getPathInfo();
     String togo;
     if (extrapath == null || extrapath.equals("") || extrapath.equals("/")) {
