@@ -5,6 +5,7 @@ package uk.org.ponder.rsac.support;
 
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -84,6 +85,22 @@ public class RSACBeanFactory implements BeanFactory {
 
   public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
     return !isSingleton(name);
+  }
+
+  // This method was introduced in Spring 2.5
+  public Object getBean(String name, Object[] args) throws BeansException {
+    if (args == null) {
+      return getBean(name);
+    }
+    RSACBeanInfo rbi = (RSACBeanInfo) rsacbl.getRBIMap().get(name);
+    if (rbi.issingleton) {
+      throw new BeanDefinitionStoreException("Bean with name " + name + 
+          " is a singleton and may not accept arguments");
+    }
+    else {
+      throw new UnsupportedOperationException(
+          "RSAC does not support argument prototyping in this release");
+    }
   }
 
 }

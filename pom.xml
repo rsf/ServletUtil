@@ -14,8 +14,8 @@
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
   <properties>
-    <ponderutilcore.version>1.2.3RC1</ponderutilcore.version>
-    <jservletutil.version>1.2.3RC1</jservletutil.version>
+    <ponderutilcore.version>1.2.3</ponderutilcore.version>
+    <jservletutil.version>1.2.3</jservletutil.version>
   </properties>
   <organization>
     <name>CARET, University of Cambridge</name>
@@ -83,8 +83,21 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>2.0.6</version>
+      <artifactId>spring-aop</artifactId>
+      <version>2.5.4</version>
+      <type>jar</type>
+      <exclusions>
+        <exclusion>
+          <!-- Exclude commons-logging, which ALSO attempts to bring in javax.servlet -->
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>2.5.4</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
