@@ -57,13 +57,13 @@
   <!-- define source code repository -->
   <scm>
     <connection>
-      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+      scm:svn:https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
     </connection>
     <developerConnection>
-      scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+      scm:svn:https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
     </developerConnection>
     <url>
-      https://saffron.caret.cam.ac.uk/svn/projects/ServletUtil/trunk
+      https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
     </url>
   </scm>
 
