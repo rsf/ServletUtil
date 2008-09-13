@@ -46,7 +46,7 @@ public class SpringMessageLocator extends MessageLocator {
     }
     catch (Exception nsme) {
       Logger.log.warn("Failed to look up message " + codes[0] 
-        + " in message bundle " + messagesource);
+        + " in message bundle " + messagesource + " for locale " + locale);
       try {
         if (defaultmessagekey != null) {
           return messagesource.getMessage(defaultmessagekey, null, locale);
