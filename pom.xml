@@ -56,15 +56,9 @@
 
   <!-- define source code repository -->
   <scm>
-    <connection>
-      scm:svn:https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
-    </connection>
-    <developerConnection>
-      scm:svn:https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
-    </developerConnection>
-    <url>
-      https://source.caret.cam.ac.uk/rsf/projects/ServletUtil/trunk
-    </url>
+    <connection>scm:git:git://github.com/rsf/ServletUtil.git</connection>
+    <developerConnection>scm:git:git://github.com/rsf/ServletUtil.git</developerConnection>
+    <url>https://github.com/rsf/ServletUtil.git</url>
   </scm>
 
   <dependencies>
