@@ -26,13 +26,22 @@
   </description>
   <version>1.2.6-SNAPSHOT</version>
 
+
   <repositories>
     <repository>
-      <id>CARET-Maven2</id>
-      <name>CARET Maven 2 Repository</name>
-      <url>http://www2.caret.cam.ac.uk/maven2</url>
+      <id>sakai-maven2</id>
+      <name>Sakai Maven 2 Repository</name>
+      <url>https://source.sakaiproject.org/maven2</url>
     </repository>
-  </repositories>  
+    <repository>
+      <id>sakai-maven2-snaphsots</id>
+      <name>Sakai Maven 2 Repository</name>
+      <url>https://source.sakaiproject.org/maven2-snapshots</url>
+      <snapshots>
+	<enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <developers>
     <developer>
