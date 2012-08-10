@@ -11,7 +11,7 @@
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
   <properties>
-    <ponderutilcore.version>1.2.6-SNAPSHOT</ponderutilcore.version>
+    <ponderutilcore.version>1.3.0-SNAPSHOT</ponderutilcore.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <organization>
@@ -24,7 +24,7 @@
     Libraries for abstracting over servlet dispatch, Spring utilities
     including fast request scope container (aka RSAC)
   </description>
-  <version>1.2.6-SNAPSHOT</version>
+  <version>1.3.0-SNAPSHOT</version>
 
 
   <repositories>
@@ -84,7 +84,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>2.5.6.SEC03</version>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
@@ -97,7 +97,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>2.5.6.SEC03</version>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
