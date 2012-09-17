@@ -45,6 +45,11 @@ public class RSACBeanFactory implements BeanFactory {
   public Object getBean(String name) throws BeansException {
     return locator.locateBean(name);
   }
+  
+  // This method appeared in Spring 3.0
+  public Object getBean(Class requiredType) throws BeansException {
+    throw new NoSuchBeanDefinitionException("Unsupported method getBean(Class) for RSACBeanFactory");
+  }
 
   public Object getBean(String name, Class requiredType) throws BeansException {
     Object bean = locator.locateBean(name);

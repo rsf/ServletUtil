@@ -13,6 +13,7 @@
   <properties>
     <ponderutilcore.version>1.2.6-SNAPSHOT</ponderutilcore.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jservletutil.version>1.2.6-SNAPSHOT</jservletutil.version>
   </properties>
   <organization>
     <name>CARET, University of Cambridge</name>
@@ -24,8 +25,8 @@
     Libraries for abstracting over servlet dispatch, Spring utilities
     including fast request scope container (aka RSAC)
   </description>
+  
   <version>1.2.6-SNAPSHOT</version>
-
 
   <repositories>
     <repository>
@@ -84,7 +85,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
-      <version>2.5.6.SEC03</version>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
@@ -97,7 +98,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>2.5.6.SEC03</version>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
@@ -111,7 +112,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
-      <version>2.0.6</version>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
@@ -131,8 +132,8 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>spring-mock</artifactId>
-      <version>2.0.6</version>
+      <artifactId>spring-test</artifactId>
+      <version>3.1.2.RELEASE</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
@@ -169,7 +170,7 @@
       </plugin>
     </plugins>
     <sourceDirectory>src</sourceDirectory>
-    <testSourceDirectory>src</testSourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
     <resources>
       <resource>
         <directory>.</directory>
@@ -190,6 +191,13 @@
         <directory>src</directory>
         <includes>
           <include>**/*.properties</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>test</directory>
+        <includes>
+          <include>**/*.xml</include>
         </includes>
         <filtering>false</filtering>
       </resource>
