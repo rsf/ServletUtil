@@ -72,7 +72,7 @@
     <dependency>
       <groupId>uk.org.ponder</groupId>
       <artifactId>ponderutilcore</artifactId>
-      <version>${project.version}</version>
+      <version>${ponderutilcore.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
