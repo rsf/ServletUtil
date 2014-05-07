@@ -25,7 +25,7 @@
     Libraries for abstracting over servlet dispatch, Spring utilities
     including fast request scope container (aka RSAC)
   </description>
-  <version>1.3.0</version>
+  <version>1.3.1-SNAPSHOT</version>
 
 
   <repositories>
@@ -66,7 +66,7 @@
     <connection>scm:git:git://github.com/rsf/ServletUtil.git</connection>
 	<developerConnection>scm:git:https://github.com/rsf/ServletUtil.git</developerConnection>
     <url>https://github.com/rsf/ServletUtil.git</url>
-    <tag>j-servletutil-1.3.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
