@@ -4,15 +4,16 @@
   <parent>
     <groupId>uk.org.ponder.pure-poms</groupId>
     <artifactId>standard-jar</artifactId>
-    <version>POM-4-SNAPSHOT</version>
+    <version>POM-6</version>
   </parent>
   <artifactId>j-servletutil</artifactId>
   <packaging>jar</packaging>
   <name>J-ServletUtil</name>
   <groupId>uk.org.ponder</groupId>
   <properties>
-    <ponderutilcore.version>1.3.0-SNAPSHOT</ponderutilcore.version>
+    <ponderutilcore.version>1.3.0</ponderutilcore.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.scm.id>rsf-github</project.scm.id>
   </properties>
   <organization>
     <name>CARET, University of Cambridge</name>
@@ -63,7 +64,7 @@
   <!-- define source code repository -->
   <scm>
     <connection>scm:git:git://github.com/rsf/ServletUtil.git</connection>
-    <developerConnection>scm:git:git://github.com/rsf/ServletUtil.git</developerConnection>
+	<developerConnection>scm:git:https:///github.com/rsf/ServletUtil.git</developerConnection>
     <url>https://github.com/rsf/ServletUtil.git</url>
   </scm>
 
@@ -71,7 +72,7 @@
     <dependency>
       <groupId>uk.org.ponder</groupId>
       <artifactId>ponderutilcore</artifactId>
-      <version>${ponderutilcore.version}</version>
+      <version>${project.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
