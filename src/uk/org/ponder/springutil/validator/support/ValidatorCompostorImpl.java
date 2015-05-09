@@ -3,6 +3,7 @@
  */
 package uk.org.ponder.springutil.validator.support;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import uk.org.ponder.stringutil.StringUtil;
  */
 
 public class ValidatorCompostorImpl implements ValidatorCompostor {
-  private List validators;
+  private List validators = new ArrayList();
   private Map nametoval = new HashMap();
 
   public void setBeanModelAlterer(BeanModelAlterer beanModelAlterer) {
@@ -41,10 +42,12 @@ public class ValidatorCompostorImpl implements ValidatorCompostor {
   private BeanModelAlterer beanModelAlterer;
 
   public void init() {
-    for (int i = 0; i < validators.size(); ++i) {
-      ValidatorFactory vf = (ValidatorFactory) validators.get(i);
-      String name = vf.getName();
-      nametoval.put(name, vf);
+    if (validators != null) {
+      for (int i = 0; i < validators.size(); ++i) {
+        ValidatorFactory vf = (ValidatorFactory) validators.get(i);
+        String name = vf.getName();
+        nametoval.put(name, vf);
+      }
     }
   }
 

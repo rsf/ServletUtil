@@ -4,7 +4,7 @@
   <parent>
     <groupId>uk.org.ponder.pure-poms</groupId>
     <artifactId>standard-jar</artifactId>
-    <version>POM-3</version>
+    <version>POM-7-SNAPSHOT</version>
   </parent>
   <artifactId>j-servletutil</artifactId>
   <packaging>jar</packaging>
@@ -14,6 +14,7 @@
     <ponderutilcore.version>1.2.6-SNAPSHOT</ponderutilcore.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jservletutil.version>1.2.6-SNAPSHOT</jservletutil.version>
+    <project.scm.id>rsf-github</project.scm.id>
   </properties>
   <organization>
     <name>CARET, University of Cambridge</name>
@@ -25,9 +26,7 @@
     Libraries for abstracting over servlet dispatch, Spring utilities
     including fast request scope container (aka RSAC)
   </description>
-  
   <version>1.2.6-SNAPSHOT</version>
-
   <repositories>
     <repository>
       <id>sakai-maven2</id>
@@ -64,8 +63,9 @@
   <!-- define source code repository -->
   <scm>
     <connection>scm:git:git://github.com/rsf/ServletUtil.git</connection>
-    <developerConnection>scm:git:git://github.com/rsf/ServletUtil.git</developerConnection>
+	<developerConnection>scm:git:https://github.com/rsf/ServletUtil.git</developerConnection>
     <url>https://github.com/rsf/ServletUtil.git</url>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
@@ -211,22 +211,5 @@
            </extension>
     </extensions>
   </build>
-    <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
-    </distributionManagement>
 </project>
 

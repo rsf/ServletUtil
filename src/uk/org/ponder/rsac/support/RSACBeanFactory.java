@@ -51,17 +51,22 @@ public class RSACBeanFactory implements BeanFactory {
     throw new NoSuchBeanDefinitionException("Unsupported method getBean(Class) for RSACBeanFactory");
   }
 
-  public Object getBean(String name, Class requiredType) throws BeansException {
+  public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
     Object bean = locator.locateBean(name);
     if (requiredType != null && !requiredType.isAssignableFrom(bean.getClass())) {
       throw new BeanNotOfRequiredTypeException(name, requiredType, bean
           .getClass());
     }
-    return bean;
+    return (T) bean;
+  }
+
+  public <T> T getBean(Class<T> requiredType) throws BeansException {
+    throw new UnsupportedOperationException(
+        "RSAC does not support class-only bean lookup in this release");
   }
 
   // This peculiar method appeared in Spring 2.0
-  public boolean isTypeMatch(String name, Class targetType)
+  public boolean isTypeMatch(String name, Class<?> targetType)
       throws NoSuchBeanDefinitionException {
     Object bean = getBean(name);
     Class typeToMatch = (targetType != null ? targetType
@@ -69,7 +74,7 @@ public class RSACBeanFactory implements BeanFactory {
     return typeToMatch.isAssignableFrom(bean.getClass());
   }
 
-  public Class getType(String name) throws NoSuchBeanDefinitionException {
+  public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
     Class staticclazz = rsacbl.getBeanClass(name);
     if (staticclazz == null) {
       Object bean = getBean(name);
@@ -93,7 +98,7 @@ public class RSACBeanFactory implements BeanFactory {
   }
 
   // This method was introduced in Spring 2.5
-  public Object getBean(String name, Object[] args) throws BeansException {
+  public Object getBean(String name, Object... args) throws BeansException {
     if (args == null) {
       return getBean(name);
     }
