@@ -60,11 +60,6 @@ public class RSACBeanFactory implements BeanFactory {
     return (T) bean;
   }
 
-  public <T> T getBean(Class<T> requiredType) throws BeansException {
-    throw new UnsupportedOperationException(
-        "RSAC does not support class-only bean lookup in this release");
-  }
-
   // This peculiar method appeared in Spring 2.0
   public boolean isTypeMatch(String name, Class<?> targetType)
       throws NoSuchBeanDefinitionException {
